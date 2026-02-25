@@ -2,13 +2,15 @@
 {
     public static class PositionEndpoints
     {
-        public static void MapPositionEndpoints(this IEndpointRouteBuilder app)
+        public static RouteGroupBuilder MapPositionEndpoints(this RouteGroupBuilder group)
         {
-            GetPositionsEndpoint.MapEndpoint(app);
-            GetPositionByIdEndpoint.MapEndpoint(app);
-            CreatePositionEndpoint.MapEndpoint(app);
-            UpdatePositionEndpoint.MapEndpoint(app);
-            DeletePositionEndpoint.MapEndpoint(app);
+            GetPositionsEndpoint.MapEndpoint(group);
+            GetPositionByIdEndpoint.MapEndpoint(group);
+            CreatePositionEndpoint.MapEndpoint(group);
+            UpdatePositionEndpoint.MapEndpoint(group);
+            DeletePositionEndpoint.MapEndpoint(group);
+
+            return group;
         }
     }
 }

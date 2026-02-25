@@ -2,13 +2,15 @@
 {
     public static class DepartmentEndpoints
     {
-        public static void MapDepartmentEndpoints(this IEndpointRouteBuilder app)
+        public static RouteGroupBuilder MapDepartmentEndpoints(this RouteGroupBuilder group)
         {
-            GetDepartmentsEndpoint.MapEndpoint(app);
-            GetDepartmentByIdEndpoint.MapEndpoint(app);
-            CreateDepartmentEndpoint.MapEndpoint(app);
-            UpdateDepartmentEndpoint.MapEndpoint(app);
-            DeleteDepartmentEndpoint.MapEndpoint(app);
+            GetDepartmentsEndpoint.MapEndpoint(group);
+            GetDepartmentByIdEndpoint.MapEndpoint(group);
+            CreateDepartmentEndpoint.MapEndpoint(group);
+            UpdateDepartmentEndpoint.MapEndpoint(group); 
+            DeleteDepartmentEndpoint.MapEndpoint(group);
+
+            return group;
         }
     }
 }
