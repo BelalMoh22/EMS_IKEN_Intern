@@ -2,7 +2,7 @@
 {
     public static class DeleteEmployeeEndPoint
     {
-        public static void MapEndpoint(this IEndpointRouteBuilder app)
+        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
         {
             app.MapDelete("/{id:int}", async ([FromRoute] int id, [FromServices] IMediator mediator) =>
             {
@@ -11,6 +11,8 @@
                 var response = ApiResponse<int>.SuccessResponse("Employee deleted successfully");
                 return Results.Ok(response);
             }).WithName("DeleteEmployee").WithTags("Employees");
+
+            return app;
         }
     }
 }

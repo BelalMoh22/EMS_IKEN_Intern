@@ -2,13 +2,15 @@
 {
     public static class LoginEndpoint
     {
-        public static void MapEndpoint(this IEndpointRouteBuilder app)
+        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
         {
             app.MapPost("/login",async (LoginCommand command, IMediator mediator) =>
             {
                     var token = await mediator.Send(command);
                     return Results.Ok(new { token });
             }).WithTags("Auth");
+
+            return app;
         }
     }
 }

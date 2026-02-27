@@ -2,7 +2,7 @@
 {
     public static class CreatePositionEndpoint
     {
-        public static void MapEndpoint(this IEndpointRouteBuilder app)
+        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
         {
             app.MapPost("/", async ([FromBody] CreatePositionDto dto, [FromServices] IMediator mediator) =>
             {
@@ -13,6 +13,8 @@
 
                 return Results.Created($"/position/{id}", response);
             }).WithName("CreatePosition").WithTags("Positions");
+
+            return app;
         }
     }
 }

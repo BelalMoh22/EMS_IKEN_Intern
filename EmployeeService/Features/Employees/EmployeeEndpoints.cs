@@ -2,15 +2,15 @@
 {
     public static class EmployeesEndpoints
     {
-        public static RouteGroupBuilder MapEmployeesEndpoints(this RouteGroupBuilder app)
+        public static RouteGroupBuilder MapEmployeesEndpoints(this RouteGroupBuilder group)
         {
-            GetEmployeesEndpoint.MapEndpoint(app);
-            GetEmployeeByIdEndpoint.MapEndpoint(app);
-            CreateEmployeeEndPoint.MapEndpoint(app);
-            UpdateEmployeeEndPoint.MapEndpoint(app);
-            DeleteEmployeeEndPoint.MapEndpoint(app);
+            GetEmployeesEndpoint.MapEndpoint(group);
+            GetEmployeeByIdEndpoint.MapEndpoint(group);
+            CreateEmployeeEndPoint.MapEndpoint(group);
+            UpdateEmployeeEndPoint.MapEndpoint(group);
+            DeleteEmployeeEndPoint.MapEndpoint(group);
 
-            return app;
+            return group;
         }
     }
 }

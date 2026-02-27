@@ -2,7 +2,7 @@
 {
     public static class GetPositionsEndpoint
     {
-        public static void MapEndpoint(this IEndpointRouteBuilder app)
+        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
         {
             app.MapGet("/", async ([FromServices] IMediator mediator) =>
             {
@@ -10,6 +10,8 @@
                 var result = await mediator.Send(command);
                 return Results.Ok(result);
             }).WithName("GetPositions").WithTags("Positions");
+
+            return app;
         }
     }
 }

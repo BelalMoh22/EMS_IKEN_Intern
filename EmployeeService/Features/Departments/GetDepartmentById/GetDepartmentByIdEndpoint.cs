@@ -2,7 +2,7 @@
 {
     public static class GetDepartmentByIdEndpoint
     {
-        public static void MapEndpoint(this IEndpointRouteBuilder app)
+        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
         {
             app.MapGet("/{id:int}", async ([FromServices] IMediator mediator, [FromRoute] int id) =>
             {
@@ -10,6 +10,8 @@
                 var result = await mediator.Send(command);
                 return Results.Ok(result);
             }).WithName("GetDepartmentById").WithTags("Departments");
+
+            return app;
         }
     }
 }

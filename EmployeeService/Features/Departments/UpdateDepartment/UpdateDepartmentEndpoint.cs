@@ -2,7 +2,7 @@
 {
     public static class UpdateDepartmentEndpoint
     {
-        public static void MapEndpoint(this IEndpointRouteBuilder app)
+        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
         {
             app.MapPut("/{id:int}", async ([FromRoute] int id, [FromBody] UpdateDepartmentDto dto, [FromServices] IMediator mediator) =>
             {
@@ -11,6 +11,8 @@
                 var response = ApiResponse<int>.SuccessResponse("Department updated successfully");
                 return Results.Ok(response);
             }).WithDescription("Updating an existing Department").WithTags("Departments");
+
+            return app;
         }
     }
 }

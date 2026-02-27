@@ -5,7 +5,7 @@ namespace EmployeeService.Features.Employees.CreateEmployee
 {
     public static class CreateEmployeeEndPoint
     {
-        public static void MapEndpoint(this IEndpointRouteBuilder app)
+        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
         {
             app.MapPost("/", async ([FromBody]CreateEmployeeDTO dto, [FromServices] IMediator mediator) =>
             {
@@ -15,6 +15,8 @@ namespace EmployeeService.Features.Employees.CreateEmployee
                 var response = ApiResponse<int>.SuccessResponse("Employee created successfully");
                 return Results.Created($"/employees/{id}", response);
             }).WithName("CreateEmployee").WithTags("Employees");
+
+            return app;
         }
     }
 }
