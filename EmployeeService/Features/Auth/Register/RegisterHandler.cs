@@ -18,7 +18,6 @@
 
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-
             var user = new User
             {
                 Username = request.UserName,

@@ -44,9 +44,7 @@
         {
             var sql = $"SELECT * FROM {TableName} WHERE Username = @Username AND IsDeleted = 0";
 
-            return await _connection.QueryFirstOrDefaultAsync<User>(
-                sql,
-                new { Username = username });
+            return await _connection.QueryFirstOrDefaultAsync<User>(sql , new { Username = username });
         }
     }
 }
