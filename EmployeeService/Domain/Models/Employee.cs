@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Domain.Models
+namespace EmployeeService.Domain.Models
 {
     public class Employee : BaseEntity
     {
@@ -14,8 +14,10 @@
         public DateTime HireDate { get; private set; }
         public EmployeeStatus? Status { get; private set; }
         public int PositionId { get; private set; }
+        public int UserId { get; private set; }
 
         public Position Position { get; private set; }
+        public User User { get; private set; }
 
         public Employee(
             string firstName,
@@ -27,6 +29,7 @@
             string address,
             decimal salary,
             int positionId,
+            int userId,
             EmployeeStatus? status)
         {
             FirstName = firstName;
@@ -38,6 +41,7 @@
             Address = address;
             Salary = salary;
             PositionId = positionId;
+            UserId = userId;
 
             HireDate = DateTime.UtcNow;
             Status = status == 0 ? EmployeeStatus.Active :status;

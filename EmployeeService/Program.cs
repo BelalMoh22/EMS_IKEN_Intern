@@ -1,4 +1,4 @@
-﻿namespace EmployeeService
+namespace EmployeeService
 {
     public class Program
     {
@@ -9,7 +9,6 @@
             builder.Logging.AddConsole();
 
             // Add services to the container(DI).
-            builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
@@ -39,11 +38,6 @@
                 });
             });
 
-            builder.Services.AddScoped<IDbConnection>(sp =>
-            {
-                var factory = sp.GetRequiredService<IDbConnectionFactory>();
-                return factory.CreateConnection();
-            });
             builder.Services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
             builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             builder.Services.AddScoped<IRepository<Employee>, EmployeeRepository>();
@@ -100,6 +94,18 @@
             var appName = builder.Configuration["ApplicationSettings:ApplicationName"];
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+            // Cross-Origin Resource Sharing (CORS) for React integration
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("FrontendPolicy", policy =>
+                {
+                    policy.WithOrigins("http://localhost:8080")
+                          .AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .AllowCredentials();
+                });
+            });
+
             var app = builder.Build();
             app.Logger.LogInformation("Application started successfully (Information)");
 
@@ -112,6 +118,7 @@
             // Best Order for Middleware: Exception Handling, Logging, Authentication, Authorization
             app.UseMiddleware<GlobalExceptionMiddleware>();
             app.UseMiddleware<RequestLoggingMiddleware>();
+            app.UseCors("FrontendPolicy");
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();

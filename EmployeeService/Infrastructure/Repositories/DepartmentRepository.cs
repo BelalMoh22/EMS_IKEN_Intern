@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Infrastructure.Repositories
+namespace EmployeeService.Infrastructure.Repositories
 {
     public class DepartmentRepository : Repository<Department>
     {
@@ -18,7 +18,8 @@
             SELECT CAST(SCOPE_IDENTITY() as int)
         ;";
 
-            return await _connection.ExecuteScalarAsync<int>(sql, department);
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.ExecuteScalarAsync<int>(sql, department);
         }
 
         public override async Task<int> UpdateAsync(int id, Department department)
@@ -34,7 +35,8 @@
                 WHERE Id = @Id
             ";
 
-            return await _connection.ExecuteAsync(sql, new
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.ExecuteAsync(sql, new
             {
                 Id = id,
                 department.DepartmentName,

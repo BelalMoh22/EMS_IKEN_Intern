@@ -1,12 +1,5 @@
 import { useFormContext, Controller } from "react-hook-form";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { TextField, MenuItem } from "@mui/material";
 
 interface Option {
   label: string;
@@ -25,27 +18,30 @@ export function FormSelect({ name, label, placeholder = "Select...", options }: 
   const error = errors[name];
 
   return (
-    <div className="space-y-1.5">
-      <Label htmlFor={name}>{label}</Label>
-      <Controller
-        control={control}
-        name={name}
-        render={({ field }) => (
-          <Select onValueChange={field.onChange} value={field.value || ""}>
-            <SelectTrigger>
-              <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
-            <SelectContent>
-              {options.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      />
-      {error && <p className="text-sm text-destructive">{error.message as string}</p>}
-    </div>
+    <Controller
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <TextField
+          {...field}
+          select
+          label={label}
+          fullWidth
+          size="small"
+          error={!!error}
+          helperText={error?.message as string}
+          value={field.value || ""}
+        >
+          <MenuItem value="" disabled>
+            {placeholder}
+          </MenuItem>
+          {options.map((opt) => (
+            <MenuItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </MenuItem>
+          ))}
+        </TextField>
+      )}
+    />
   );
 }

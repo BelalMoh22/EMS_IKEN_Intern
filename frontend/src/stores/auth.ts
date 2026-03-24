@@ -3,39 +3,59 @@ import { persist } from "zustand/middleware";
 import type { User, Role } from "@/types";
 
 interface AuthState {
-  token: string | null;
+  accessToken: string | null;
   refreshToken: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  setAuth: (token: string, refreshToken: string, user: User) => void;
-  setToken: (token: string) => void;
+  setAuth: (accessToken: string, refreshToken: string, user: User) => void;
+  setTokens: (accessToken: string, refreshToken: string) => void;
+  setMustChangePassword: (value: boolean) => void;
   logout: () => void;
   hasRole: (...roles: Role[]) => boolean;
+  _hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      token: "mock-token",
-      refreshToken: "mock-refresh-token",
-      user: {
-        id: "1",
-        email: "admin@example.com",
-        firstName: "Admin",
-        lastName: "User",
-        role: "Admin",
-      },
-      isAuthenticated: true,
-      setAuth: (token, refreshToken, user) =>
-        set({ token, refreshToken, user, isAuthenticated: true }),
-      setToken: (token) => set({ token }),
+      accessToken: null,
+      refreshToken: null,
+      user: null,
+      isAuthenticated: false,
+      _hasHydrated: false,
+
+      setAuth: (accessToken, refreshToken, user) =>
+        set({ accessToken, refreshToken, user, isAuthenticated: true }),
+
+      setTokens: (accessToken, refreshToken) =>
+        set({ accessToken, refreshToken }),
+
+      setMustChangePassword: (value) =>
+        set((state) => ({
+          user: state.user ? { ...state.user, mustChangePassword: value } : null,
+        })),
+
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
+
       logout: () =>
-        set({ token: null, refreshToken: null, user: null, isAuthenticated: false }),
+        set({
+          accessToken: null,
+          refreshToken: null,
+          user: null,
+          isAuthenticated: false,
+        }),
+
       hasRole: (...roles) => {
         const user = get().user;
         return user ? roles.includes(user.role) : false;
       },
     }),
-    { name: "hr-auth-mock" }
+    {
+      name: "hr-auth-ems",
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
+    }
   )
 );

@@ -1,19 +1,19 @@
-﻿namespace EmployeeService.Features.Auth.Login
+namespace EmployeeService.Features.Auth.Login
 {
-    public class RefreshTokenHandler: IRequestHandler<RefreshCommand, AuthResponse>
+    public class LoginHandler: IRequestHandler<LoginCommand, AuthResponse>
     {
         private readonly UserRepository _userRepository;
         private readonly IRefreshTokenRepository _refreshRepo;
         private readonly IJwtTokenGenerator _jwt;
 
-        public RefreshTokenHandler(UserRepository userRepository,IRefreshTokenRepository refreshRepo,IJwtTokenGenerator jwt)
+        public LoginHandler(UserRepository userRepository,IRefreshTokenRepository refreshRepo,IJwtTokenGenerator jwt)
         {
             _userRepository = userRepository;
             _refreshRepo = refreshRepo;
             _jwt = jwt;
         }
 
-        public async Task<AuthResponse> Handle(RefreshCommand request,CancellationToken cancellationToken)
+        public async Task<AuthResponse> Handle(LoginCommand request,CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByUsernameAsync(request.dto.Username);
 
@@ -33,7 +33,7 @@
                 IsRevoked = false
             });
 
-            return new AuthResponse(accessToken, refreshToken);
+            return new AuthResponse(accessToken, refreshToken, user.Id, user.Username, user.Role.ToString(), user.MustChangePassword);
         }
     }
 }

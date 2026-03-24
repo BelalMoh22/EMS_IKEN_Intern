@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Middlewares
+namespace EmployeeService.Middlewares
 {
     public class GlobalExceptionMiddleware
     {
@@ -25,7 +25,7 @@
             }
             catch (UnauthorizedAccessException ex)
             {
-                await HandleExceptionAsync(context, 403, new List<string> { ex.Message });
+                await HandleExceptionAsync(context, 401, new List<string> { ex.Message });
             }
             catch (Exception ex)
             {

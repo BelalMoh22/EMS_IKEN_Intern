@@ -1,8 +1,35 @@
 import api from "./axios";
-import type { LoginRequest, AuthResponse } from "@/types";
+import type {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+  ChangePasswordRequest,
+  ApiResponse,
+} from "@/types";
 
 export const authApi = {
-  login: (data: LoginRequest) => api.post<AuthResponse>("/auth/login", data).then((r) => r.data),
-  refreshToken: (refreshToken: string) =>
-    api.post<AuthResponse>("/auth/refresh", { refreshToken }).then((r) => r.data),
+  /**
+   * POST /api/auth/login
+   * Body: { username, password }
+   * Returns: { accessToken, refreshToken, id, username, role, mustChangePassword }
+   */
+  login: (data: LoginRequest) =>
+    api.post<ApiResponse<LoginResponse>>("/auth/login", data).then((r) => r.data.data!),
+
+  /**
+   * POST /api/auth/register (Admin-only: creates a user/employee account)
+   * Body: { username, password, role }
+   * Returns: { userId }
+   */
+  register: (data: RegisterRequest) =>
+    api.post<ApiResponse<RegisterResponse>>("/auth/register", data).then((r) => r.data.data!),
+
+  /**
+   * PUT /api/auth/change-password (requires JWT)
+   * Body: { currentPassword, newPassword, confirmPassword }
+   * userId is extracted from JWT on the server side
+   */
+  changePassword: (data: ChangePasswordRequest) =>
+    api.put<ApiResponse<null>>("/auth/change-password", data).then((r) => r.data),
 };

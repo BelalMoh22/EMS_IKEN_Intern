@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeService.Features.Employees.CreateEmployee
@@ -12,7 +12,7 @@ namespace EmployeeService.Features.Employees.CreateEmployee
                 var command = new CreateEmployeeCommand(dto);
                 var id = await mediator.Send(command);
                
-                var response = ApiResponse<int>.SuccessResponse("Employee created successfully");
+                var response = ApiResponse<int>.SuccessResponse(id, "Employee created successfully");
                 return Results.Created($"/employees/{id}", response);
             }).WithName("CreateEmployee").WithTags("Employees").RequireAuthorization("FullCRUDEmployee");
 

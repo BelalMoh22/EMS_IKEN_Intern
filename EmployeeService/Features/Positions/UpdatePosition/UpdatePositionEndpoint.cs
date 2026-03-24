@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Positions.UpdatePosition
+namespace EmployeeService.Features.Positions.UpdatePosition
 {
     public static class UpdatePositionEndpoint
     {
@@ -8,7 +8,7 @@
             {
                 var command = new UpdatePositionCommand(id, dto);
                 var rows = await mediator.Send(command);
-                var response = ApiResponse<int>.SuccessResponse("Position updated successfully");
+                var response = ApiResponse<int>.SuccessResponse(rows, "Position updated successfully");
                 return Results.Ok(response);
             }).WithDescription("Updating an existing Position").WithTags("Positions");
 

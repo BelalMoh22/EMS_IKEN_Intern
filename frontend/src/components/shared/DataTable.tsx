@@ -2,12 +2,18 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
-  TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Inbox } from "lucide-react";
+  Paper,
+  Box,
+  Typography,
+  Button,
+  Skeleton,
+} from "@mui/material";
+import InboxIcon from "@mui/icons-material/Inbox";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 export interface Column<T> {
   header: string;
@@ -27,54 +33,56 @@ interface Props<T> {
 export function DataTable<T>({ columns, data, page = 1, totalPages = 1, onPageChange, loading }: Props<T>) {
   if (loading) {
     return (
-      <div className="rounded-lg border border-border bg-card">
+      <TableContainer component={Paper} variant="outlined">
         <Table>
-          <TableHeader>
+          <TableHead>
             <TableRow>
               {columns.map((col, i) => (
-                <TableHead key={i}>{col.header}</TableHead>
+                <TableCell key={i}>{col.header}</TableCell>
               ))}
             </TableRow>
-          </TableHeader>
+          </TableHead>
           <TableBody>
             {Array.from({ length: 5 }).map((_, i) => (
               <TableRow key={i}>
                 {columns.map((_, j) => (
                   <TableCell key={j}>
-                    <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
+                    <Skeleton variant="text" width="75%" />
                   </TableCell>
                 ))}
               </TableRow>
             ))}
           </TableBody>
         </Table>
-      </div>
+      </TableContainer>
     );
   }
 
   if (!data.length) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-card py-16">
-        <Inbox className="h-12 w-12 text-muted-foreground/50" />
-        <p className="mt-4 text-sm text-muted-foreground">No data found</p>
-      </div>
+      <Paper variant="outlined" sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", py: 8 }}>
+        <InboxIcon sx={{ fontSize: 48, color: "text.disabled" }} />
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          No data found
+        </Typography>
+      </Paper>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <TableContainer component={Paper} variant="outlined">
         <Table>
-          <TableHeader>
+          <TableHead>
             <TableRow>
               {columns.map((col, i) => (
-                <TableHead key={i}>{col.header}</TableHead>
+                <TableCell key={i}>{col.header}</TableCell>
               ))}
             </TableRow>
-          </TableHeader>
+          </TableHead>
           <TableBody>
             {data.map((row, i) => (
-              <TableRow key={i}>
+              <TableRow key={i} hover>
                 {columns.map((col, j) => (
                   <TableCell key={j}>
                     {col.cell ? col.cell(row) : String((row as Record<string, unknown>)[col.accessorKey as string] ?? "")}
@@ -84,22 +92,22 @@ export function DataTable<T>({ columns, data, page = 1, totalPages = 1, onPageCh
             ))}
           </TableBody>
         </Table>
-      </div>
+      </TableContainer>
       {totalPages > 1 && onPageChange && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Typography variant="body2" color="text.secondary">
             Page {page} of {totalPages}
-          </p>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
-              <ChevronLeft className="h-4 w-4" />
+          </Typography>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button variant="outlined" size="small" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
+              <ChevronLeftIcon fontSize="small" />
             </Button>
-            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>
-              <ChevronRight className="h-4 w-4" />
+            <Button variant="outlined" size="small" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>
+              <ChevronRightIcon fontSize="small" />
             </Button>
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }

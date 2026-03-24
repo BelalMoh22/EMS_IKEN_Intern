@@ -1,5 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { Box, Typography, Link } from "@mui/material";
 
 const NotFound = () => {
   const location = useLocation();
@@ -9,15 +10,19 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Page not found</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
+    <Box sx={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", bgcolor: "grey.100" }}>
+      <Box sx={{ textAlign: "center" }}>
+        <Typography variant="h3" fontWeight={700} gutterBottom>
+          404
+        </Typography>
+        <Typography variant="h6" color="text.secondary" gutterBottom>
+          Oops! Page not found
+        </Typography>
+        <Link href="/" underline="hover" color="primary">
           Return to Home
-        </a>
-      </div>
-    </div>
+        </Link>
+      </Box>
+    </Box>
   );
 };
 

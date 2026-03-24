@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Auth.Refresh
+namespace EmployeeService.Features.Auth.Refresh
 {
     public class RefreshTokenHandler
         : IRequestHandler<RefreshTokenCommand, AuthResponse>
@@ -40,7 +40,7 @@
                 IsRevoked = false
             });
 
-            return new AuthResponse(newAccessToken, newRefreshToken);
+            return new AuthResponse(newAccessToken, newRefreshToken, user.Id, user.Username, user.Role.ToString(), user.MustChangePassword);
         }
     }
 }

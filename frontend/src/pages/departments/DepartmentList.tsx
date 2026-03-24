@@ -4,77 +4,140 @@ import { useDepartments, useDeleteDepartment } from "@/hooks/useDepartments";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Box, Typography, Button, IconButton, Chip } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import type { Department } from "@/types";
 
 export default function DepartmentList() {
   const navigate = useNavigate();
   const { data, isLoading } = useDepartments();
   const deleteMutation = useDeleteDepartment();
-  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
   const [search, setSearch] = useState("");
 
   const filteredData = useMemo(() => {
     if (!data) return [];
     if (!search) return data;
     const s = search.toLowerCase();
-    return data.filter(d => 
-      d.name.toLowerCase().includes(s) || 
-      d.description.toLowerCase().includes(s)
+    return data.filter(
+      (d) =>
+        d.departmentName?.toLowerCase().includes(s) ||
+        d.description?.toLowerCase().includes(s) ||
+        d.email?.toLowerCase().includes(s)
     );
   }, [data, search]);
 
   const handleDelete = () => {
-    if (deleteTarget) {
-      deleteMutation.mutate(deleteTarget, { onSuccess: () => setDeleteTarget(null) });
+    if (deleteTarget !== null) {
+      deleteMutation.mutate(deleteTarget, {
+        onSuccess: () => setDeleteTarget(null),
+      });
     }
   };
 
   const columns: Column<Department>[] = [
-    { header: "Name", accessorKey: "name" },
-    { header: "Description", accessorKey: "description" },
+    {
+      header: "Department Name",
+      cell: (row) => (
+        <Typography variant="body2" fontWeight={500}>
+          {row.departmentName}
+        </Typography>
+      ),
+    },
+    { header: "Email", accessorKey: "email" },
+    {
+      header: "Description",
+      cell: (row) => (
+        <Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 200 }}>
+          {row.description || "—"}
+        </Typography>
+      ),
+    },
+    {
+      header: "Status",
+      cell: (row) => (
+        <Chip
+          label={row.isActive !== false ? "Active" : "Inactive"}
+          size="small"
+          color={row.isActive !== false ? "success" : "default"}
+          variant="outlined"
+          sx={{ fontWeight: 500 }}
+        />
+      ),
+    },
     {
       header: "Actions",
       cell: (row) => (
-        <div className="flex gap-1">
-          <Button variant="ghost" size="icon" onClick={() => navigate(`/departments/edit/${row.id}`)}>
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => setDeleteTarget(row.id)}>
-            <Trash2 className="h-4 w-4 text-destructive" />
-          </Button>
-        </div>
+        <Box sx={{ display: "flex", gap: 0.5 }}>
+          <IconButton
+            size="small"
+            onClick={() => navigate(`/departments/edit/${row.id}`)}
+            color="primary"
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => setDeleteTarget(row.id)}
+            color="error"
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Box>
       ),
     },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Departments</h1>
-          <p className="text-muted-foreground">Manage company departments</p>
-        </div>
-        <Button onClick={() => navigate("/departments/create")}>
-          <Plus className="mr-2 h-4 w-4" /> Add Department
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box>
+          <Typography variant="h1">Departments</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Manage company departments
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => navigate("/departments/create")}
+          sx={{
+            background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+            "&:hover": {
+              background: "linear-gradient(135deg, #2563eb, #1e40af)",
+            },
+          }}
+        >
+          Add Department
         </Button>
-      </div>
+      </Box>
 
-      <div className="max-w-sm">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search departments..." />
-      </div>
+      <Box sx={{ maxWidth: 360 }}>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search departments..."
+        />
+      </Box>
 
       <DataTable columns={columns} data={filteredData} loading={isLoading} />
 
       <ConfirmDialog
-        open={!!deleteTarget}
+        open={deleteTarget !== null}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Delete Department"
         description="Are you sure? This action cannot be undone."
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
       />
-    </div>
+    </Box>
   );
 }

@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Positions.DeletePosition
+namespace EmployeeService.Features.Positions.DeletePosition
 {
     public static class DeletePositionEndpoint
     {
@@ -8,7 +8,7 @@
             {
                 var command = new DeletePositionCommand(id);
                 var result = await mediator.Send(command);
-                var response = ApiResponse<int>.SuccessResponse("Position deleted successfully");
+                var response = ApiResponse<int>.SuccessResponse(result, "Position deleted successfully");
                 return Results.Ok(response);
             }).WithName("DeletePosition").WithTags("Positions");
 

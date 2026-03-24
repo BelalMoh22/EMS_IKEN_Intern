@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Positions.CreatePosition
+namespace EmployeeService.Features.Positions.CreatePosition
 {
     public static class CreatePositionEndpoint
     {
@@ -9,7 +9,7 @@
                 var command = new CreatePositionCommand(dto);
                 var id = await mediator.Send(command);
 
-                var response = ApiResponse<int>.SuccessResponse("Position created successfully");
+                var response = ApiResponse<int>.SuccessResponse(id, "Position created successfully");
 
                 return Results.Created($"/position/{id}", response);
             }).WithName("CreatePosition").WithTags("Positions");

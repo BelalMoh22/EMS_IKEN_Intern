@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Employees.DeleteEmployee
+namespace EmployeeService.Features.Employees.DeleteEmployee
 {
     public static class DeleteEmployeeEndPoint
     {
@@ -8,7 +8,7 @@
             {
                 var command = new DeleteEmployeeCommand(id);
                 var result = await mediator.Send(command);
-                var response = ApiResponse<int>.SuccessResponse("Employee deleted successfully");
+                var response = ApiResponse<int>.SuccessResponse(result, "Employee deleted successfully");
                 return Results.Ok(response);
             }).WithName("DeleteEmployee").WithTags("Employees").RequireAuthorization("FullCRUDEmployee");
 

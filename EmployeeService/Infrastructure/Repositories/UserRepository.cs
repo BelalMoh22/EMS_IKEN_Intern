@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Infrastructure.Repositories
+namespace EmployeeService.Infrastructure.Repositories
 {
     public class UserRepository : Repository<User>
     {
@@ -13,13 +13,14 @@
         {
             var sql = $@"
             INSERT INTO {TableName}
-            (Username, PasswordHash, Role)
+            (Username, PasswordHash, Role, MustChangePassword)
             VALUES
-            (@Username, @PasswordHash, @Role);
+            (@Username, @PasswordHash, @Role, @MustChangePassword);
 
             SELECT CAST(SCOPE_IDENTITY() as int);";
 
-            return await _connection.ExecuteScalarAsync<int>(sql, entity);
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.ExecuteScalarAsync<int>(sql, entity);
         }
 
         public override async Task<int> UpdateAsync(int id, User entity)
@@ -28,15 +29,18 @@
             UPDATE {TableName}
             SET Username = @Username,
                 PasswordHash = @PasswordHash,
-                Role = @Role
+                Role = @Role,
+                MustChangePassword = @MustChangePassword
             WHERE Id = @Id";
 
-            return await _connection.ExecuteAsync(sql, new
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.ExecuteAsync(sql, new
             {
                 Id = id,
                 entity.Username,
                 entity.PasswordHash,
-                entity.Role
+                entity.Role,
+                entity.MustChangePassword
             });
         }
 
@@ -44,7 +48,8 @@
         {
             var sql = $"SELECT * FROM {TableName} WHERE Username = @Username AND IsDeleted = 0";
 
-            return await _connection.QueryFirstOrDefaultAsync<User>(sql , new { Username = username });
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryFirstOrDefaultAsync<User>(sql , new { Username = username });
         }
     }
 }

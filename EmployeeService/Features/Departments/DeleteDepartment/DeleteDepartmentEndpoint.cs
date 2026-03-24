@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Departments.DeleteDepartment
+namespace EmployeeService.Features.Departments.DeleteDepartment
 {
     public static class DeleteDepartmentEndpoint
     {
@@ -8,7 +8,7 @@
             {
                 var command = new DeleteDepartmentCommand(id);
                 var result = await mediator.Send(command);
-                var response = ApiResponse<int>.SuccessResponse("Department deleted successfully");
+                var response = ApiResponse<int>.SuccessResponse(result, "Department deleted successfully");
                 return Results.Ok(response);
             }).WithName("DeleteDepartment").WithTags("Departments");
 

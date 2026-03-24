@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Employees.GetEmployeeById
+namespace EmployeeService.Features.Employees.GetEmployeeById
 {
     public static class GetEmployeeByIdEndpoint
     {
@@ -8,7 +8,7 @@
             {
                 var command = new GetEmployeeByIdQuery(id);
                 var result = await mediator.Send(command);
-                return Results.Ok(result);
+                return Results.Ok(ApiResponse<Employee>.SuccessResponse(result, "Employee retrieved successfully"));
             }).WithName("GetEmployeeById").WithTags("Employees").RequireAuthorization("EmployeesReadOnly");
 
             return app;

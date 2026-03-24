@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Employees
+namespace EmployeeService.Features.Employees
 {
     public static class EmployeesEndpoints
     {
@@ -9,6 +9,7 @@
             DeleteEmployeeEndPoint.MapEndpoint(group);
             GetEmployeesEndpoint.MapEndpoint(group);
             GetEmployeeByIdEndpoint.MapEndpoint(group);
+            GetEmployeeByUserId.GetEmployeeByUserIdEndpoint.MapEndpoint(group);
 
             return group;
         }

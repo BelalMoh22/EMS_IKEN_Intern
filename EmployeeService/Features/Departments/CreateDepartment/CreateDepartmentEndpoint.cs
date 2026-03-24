@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Departments.CreateDepartment
+namespace EmployeeService.Features.Departments.CreateDepartment
 {
     public static class CreateDepartmentEndpoint
     {
@@ -9,7 +9,7 @@
                 var command = new CreateDepartmentCommand(dto);
                 var id = await mediator.Send(command);
 
-                var response = ApiResponse<int>.SuccessResponse("Department created successfully");
+                var response = ApiResponse<int>.SuccessResponse(id, "Department created successfully");
 
                 return Results.Created($"/departments/{id}", response);
             }).WithName("CreateDepartment").WithTags("Departments");

@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Auth.Register
+namespace EmployeeService.Features.Auth.Register
 {
     public static class RegisterEndpoint
     {
@@ -8,8 +8,8 @@
             {
                 var command = new RegisterCommand(dto);
                 var userId = await mediator.Send(command);
-                return Results.Ok(new { userId });
-            }).WithTags("Auth");
+                return Results.Ok(ApiResponse<int>.SuccessResponse(userId, "User registered successfully"));
+            }).WithTags("Auth").RequireAuthorization("FullCRUDEmployee");
 
             return app;
         }

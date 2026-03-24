@@ -14,13 +14,13 @@ To build a reliable and scalable HR system, the following technologies were sele
 *   **React (v18+)**: The core library. Its component-based architecture and efficient reconciliation (Virtual DOM) allow for a highly responsive UI that can handle complex state updates gracefully.
 *   **Vite**: The build tool of choice. Vite provides an extremely fast development environment via ES modules and highly optimized production builds using Rollup, significantly reducing build times compared to legacy tools like Webpack.
 *   **TypeScript**: Provides static typing, which is critical for an enterprise application to prevent runtime errors, document data structures (like `Employee` and `User` types), and improve developer productivity through advanced IDE tooling.
-*   **React Router (v6+)**: Handles client-side navigation. It provides a declarative way to manage complex routing hierarchies, protected routes, and role-based access control.
+*   **React Router (v6+)**: Handles client-side navigation. It provides a declarative way to manage complex routing hierarchies, protected routes, and role-based access control. Implements React Router v7 future flags (`v7_startTransition`, `v7_relativeSplatPath`) for modern transition behavior.
 *   **Axios**: A promise-based HTTP client. It is used for backend communication due to its powerful interceptor support, allowing for centralized JWT handling and automatic token refreshing.
 *   **TanStack Query (React Query)**: The state management layer for asynchronous data. It handles caching, synchronization, and "stale-while-revalidate" logic, removing the need for manual loading/error states in global stores.
 *   **Zustand**: A lightweight, performant state management library for synchronous global state (Authentication, UI settings). It was chosen over Redux for its simplicity and minimal boilerplate.
-*   **TailwindCSS**: A utility-first CSS framework that ensures design consistency and rapid UI development without leaving the HTML/JSX.
-*   **Shadcn UI**: A collection of re-usable components built with Radix UI and Tailwind. It provides high-quality, accessible UI primitives that are fully customizable, ensuring a premium "Enterprise" look and feel.
-*   **React Hook Form**: A library for managing form state. It minimizes re-renders and provides a robust solution for complex validation logic.
+*   **Material UI (MUI v5/v7)**: The core design system and component library, replacing the original TailwindCSS and Shadcn structures. Ensures highly accessible, Google Material Design-compliant layouts out-of-the-box (`@mui/material`), utilizing Grid v2 sizing logic, centralized `<ThemeProvider>` theming mapping to predefined spacing and typography tokens.
+*   **Notistack**: Used for handling seamless snackbar and toast alert notifications recursively directly within the MUI ecosystem framework.
+*   **React Hook Form**: A library for managing form state. It minimizes re-renders and provides a robust solution for complex validation logic integrated directly into MUI `<TextField>` elements via Controlled wrappers.
 *   **Zod**: A TypeScript-first schema validation library. It is used in conjunction with React Hook Form to ensure strict data validation both at the UI level and before API submission.
 
 ---
@@ -32,8 +32,8 @@ The project follows a **Modular Separation of Concerns (SoC)** architecture. Whi
 ### Why this is Scalable:
 1.  **Decoupled API Layer**: Business logic for data fetching is separated from the UI components.
 2.  **Centralized State**: Global concerns like Authentication are isolated in dedicated Stores.
-3.  **Primitive Reusability**: Common UI elements are abstracted into `components/ui` and `components/shared`, ensuring that updates to the design system propagate globally.
-4.  **Hook-Driven Logic**: Complex logic is encapsulated in custom hooks, making components "thin" and focused purely on presentation.
+3.  **Primitive Reusability**: Common UI elements are abstracted into `components/shared`, strictly applying MUI `sx` overrides globally within the `src/theme.ts` provider.
+4.  **Backend Agnostic Configuration**: Environment variables (`.env`) easily target interchangeable backend root API layers.
 
 ---
 
@@ -41,23 +41,22 @@ The project follows a **Modular Separation of Concerns (SoC)** architecture. Whi
 
 ```text
 src/
-├── api/            # API client and individual service modules
+├── api/            # API client and individual service API definitions (.NET API integrations)
 ├── components/     # Reusable UI components
-│   ├── auth/       # Authentication-specific guards (RBAC)
-│   ├── layout/     # Core application wrappers (Sidebar, Header)
-│   ├── shared/     # Form controls and general-purpose components
-│   └── ui/         # Shadcn/UI primitive components
-├── hooks/          # TanStack Query custom hooks for data fetching
-├── lib/            # Third-party library configurations (utils, shadcn)
-├── pages/          # Full page components (Views)
+│   ├── auth/       # Authentication-specific route guards (RBAC)
+│   ├── layout/     # Core application wrappers (MUI AppBars, Drawers)
+│   └── shared/     # MUI Form controls and generalized DataTables components
+├── hooks/          # TanStack Query custom hooks for data fetching & caching
+├── pages/          # Full page components (Views using MUI Layouts)
 ├── stores/         # Zustand global state (Auth, UI)
-├── types/          # Global TypeScript interfaces and enums
-└── App.tsx         # Root component and Routing configuration
+├── types/          # Global TypeScript interfaces and API schemas
+├── theme.ts        # Centralized explicit MUI Theme constants and styling
+└── App.tsx         # Root component, Routing configuration & Providers
 ```
 
 ### Folder Purposes:
-*   **api/**: Contains the Axios instance and functions to interact with the .NET backend.
-*   **components/**: Houses UI building blocks. Divided into `ui` (atomic), `shared` (molecular), and `layout` (organismic).
+*   **api/**: Contains the Axios instance and functions to interact directly with the .NET base URL endpoint specified in `.env`.
+*   **components/**: Houses UI building blocks. Divided into `shared` (molecular layouts) and `layout` (organismic contexts).
 *   **hooks/**: The "brain" of data fetching. Every API entity has a corresponding hook file.
 *   **pages/**: Represents the different routes. These components orchestrate the hooks and display the layout.
 *   **stores/**: Manages non-persisted and persisted state like the user session.
@@ -67,69 +66,49 @@ src/
 
 ## 5. Detailed File-by-File Explanation
 
-### API Layer (`src/api/`)
-*   **`axios.ts`**: The core HTTP client. Configures `baseURL` and implements **Request/Response Interceptors**. It handles JWT injection and 401 token refresh logic.
-*   **`authApi.ts`**: Dedicated service for Authentication. Handles `login` and `refreshToken` payload structures.
-*   **`employeeApi.ts`**: Service for Employee management. Contains methods for fetching paginated lists, single details, creating (registering), and updating employee records.
-*   **`departmentApi.ts`**: Service for Department CRUD. Communicates with the `/departments` backend endpoints.
-*   **`positionApi.ts`**: Service for Position CRUD. Communicates with the `/positions` backend endpoints.
+### API & Network Layer (`src/api/` & `.env`)
+*   **`.env`**: Sets up `VITE_API_BASE_URL` variables. Injects smoothly into your .NET Minimal API backend automatically bypassing local mocks.
+*   **`axios.ts`**: The core HTTP client. Configures `baseURL` implicitly from Vite ENV and implements **Request/Response Interceptors**. It handles JWT injection and 401 token refresh logic.
+*   **`authApi.ts`, `employeeApi.ts`, `departmentApi.ts`, `positionApi.ts`**: Dedicated CRUD services communicating directly via Axios paths for the respective backend models.
 
 ### State Management (`src/stores/`)
-*   **`auth.ts`**: The central vault for the user's session. It defines the `AuthState` interface and uses Zustand's `persist` middleware to ensure the login persists across browser restarts.
+*   **`auth.ts`**: The central vault for the user's session. It defines the `AuthState` interface and uses Zustand's `persist` middleware to ensure the login persists across browser restarts (`hr-auth-mui` local storage key).
 
 ### Authentication Guards (`src/components/auth/`)
-*   **`ProtectedRoute.tsx`**: A higher-order component that restricts access to authenticated users only.
+*   **`ProtectedRoute.tsx`**: A higher-order component that restricts access connecting natively to Zustand's token status tracking.
 *   **`RoleBasedRoute.tsx`**: A granular permission guard. It compares the current user's role against an array of `allowedRoles` to permit or deny access to specific routes.
 
 ### Custom Hooks (`src/hooks/`)
-*   **`useEmployees.ts`**: Encapsulates TanStack Query logic for employees. Contains `useEmployees` (fetch), `useEmployee` (fetch single), `useCreateEmployee`, `useUpdateEmployee`, and `useDeleteEmployee`.
-*   **`useDepartments.ts`**: Manages department data state, including automatic cache invalidation after a department is created or updated.
-*   **`usePositions.ts`**: Manages position data state. Handles the relationship between positions and their parent departments.
-*   **`use-toast.ts`**: A utility hook from Shadcn for triggering UI notifications.
-*   **`use-mobile.tsx`**: Responsive utility hook to detect screen size changes for sidebar behavior.
+*   **`useEmployees.ts`, `useDepartments.ts`, `usePositions.ts`**: Encapsulates TanStack Query logic for mutations/retrievals targeting server APIs.
+*   (All hooks directly integrate with `enqueueSnackbar` from `notistack` for dynamic visual CRUD updates.)
 
 ### Shared Components (`src/components/shared/`)
-*   **`DataTable.tsx`**: A powerful, generic table component used throughout the app for listing data with support for sorting and actions.
-*   **`FormInput.tsx`**: A wrapper around the standard HTML Input that integrates seamlessly with React Hook Form and displays Zod validation errors.
-*   **`FormSelect.tsx`**: A customized select dropdown with support for dynamic options (e.g., selecting a Department by ID).
-*   **`ConfirmDialog.tsx`**: A reusable modal for destructive actions (like deleting an employee) to prevent accidental data loss.
-*   **`SearchInput.tsx`**: A debounced input used to filter tables and lists.
-*   **`LoadingSpinner.tsx`**: A visual indicator used for asynchronous operations.
+*   **`DataTable.tsx`**: A generic abstraction component built heavily on MUI `<Table>`, supporting dynamic headers, accessorKeys, and `<Skeleton>` loading placeholders.
+*   **`FormInput.tsx` & `FormSelect.tsx`**: High-order bindings wrapping `react-hook-form` controllers seamlessly into native MUI `<TextField>` blocks with robust error-state handling.
+*   **`ConfirmDialog.tsx`**: Reusable modal instances driven by MUI `<Dialog>` ensuring transactional safety during `DELETE` triggers.
+*   **`SearchInput.tsx`**: A debounce-styled MUI TextField appended with explicit InputAdornments to trigger table filter states globally.
 
 ### Global Layout (`src/components/layout/`)
-*   **`DashboardLayout.tsx`**: The master template for the authenticated area of the app.
-*   **`AppSidebar.tsx`**: The navigation backbone. It computes which links to show based on the user's RBAC permissions.
-*   **`Header.tsx`**: Top navigation bar containing breadcrumbs and the user's profile/logout menu.
-
-### UI Primitives (`src/components/ui/`)
-*   Includes atomic components like `Button.tsx`, `Card.tsx`, `Dialog.tsx`, etc. These are strictly presentational and based on Shadcn UI / Radix primitives.
+*   **`DashboardLayout.tsx`**: The master template layout injecting MUI flex containers binding the sidebar and pages together.
+*   **`AppSidebar.tsx`**: Uses persistent MUI `<Drawer>` architecture generating role-allowed views strictly dynamically with `@mui/icons-material`.
+*   **`Header.tsx`**: MUI `<AppBar>` mapping the current location context and providing system profile access menus.
 
 ### Pages & Routing (`src/pages/`)
-*   **`Login.tsx`**: The login interface. It handles the initial authentication handshake.
-*   **`Dashboard.tsx`**: The landing page showing high-level stats (Total Employees, etc.).
-*   **`NotFound.tsx`**: A fallback "404" page.
-*   **`employees/EmployeeList.tsx`**: The master view for browsing staff.
-*   **`employees/CreateEmployee.tsx`**: The "Registration" form for adding new employees (Restricted to Admin/HR).
-*   **`employees/EditEmployee.tsx`**: Form for updating existing records.
-*   **`departments/DepartmentList.tsx`**: CRUD interface for managing company departments (Restricted to Admin).
-*   **`departments/CreateDepartment.tsx`**: Form for defining new organizational units.
-*   **`positions/PositionList.tsx`**: CRUD interface for job roles (Restricted to Admin).
-*   **`positions/CreatePosition.tsx`**: Linkage view to create roles within departments.
-
-### Utilities and Types (`src/lib/`, `src/types/`)
-*   **`lib/utils.ts`**: Contains helper functions like `cn` for Tailwind class merging.
-*   **`types/index.ts`**: The TypeScript source of truth for the entire project. Defines all API Request/Response interfaces and the `Role` enum.
+*   **`Login.tsx`**: Resolves `POST /auth/login` strictly passing through API bindings.
+*   **`Dashboard.tsx`**: Pulls statistics synchronously via `useEmployees()` / `useDepartments()` lengths natively instead of hardcoded strings to ensure realtime reporting mapping straight onto MUI `<Card>` grids.
+*   **`NotFound.tsx`**: A fallback "404" page layout component.
+*   **`employees/`**, **`departments/`**, **`positions/`**: Complete modular CRUD views routing into isolated components using MUI `size={{ xs: 12 }}` configurations optimizing Grid v2 structural models.
 
 ---
 
 ## 6. Authentication Flow
 
-1.  **Submission**: User enters credentials in the `Login` page.
-2.  **Request**: Data is validated by **Zod** and sent via `authApi.login`.
-3.  **Response**: Backend returns a `token`, `refreshToken`, and `User` object.
-4.  **Storage**: Zustand's `setAuth` updates the global state and persists it to `localStorage`.
-5.  **Interception**: The `axios.ts` interceptor detects the new token and starts attaching `Authorization: Bearer <token>` to all subsequent requests.
-6.  **Navigation**: The user is redirected to `/dashboard`.
+1.  **Submission**: User enters credentials in the `Login` page hitting the backend API (`API_BASE_URL/auth/login`).
+2.  **Request**: Data is validated by **Zod** schema logic locally before attempting the HTTP transaction.
+3.  **Response**: Backend returns a `token`, `refreshToken`, and `User` schema payload.
+4.  **Storage**: Zustand's `setAuth` updates the global state and persists it heavily encrypted inside the local vault.
+5.  **Interception**: The `axios.ts` interceptor detects the new token context and appends `Authorization: Bearer <token>` to all subsequent requests silently.
+6.  **Navigation**: The user is navigated straight into the protected `/dashboard` layout tree.
 
 ---
 
@@ -144,81 +123,19 @@ The system enforces permissions at the **UI level** via the `RoleBasedRoute` and
 | **Manager** | View Employees only | Employees (Read Only) |
 
 ### Sidebar Implementation:
-The `AppSidebar` component checks `user.role` from the Zustand store. Links like "Departments" or "Settings" are conditionally rendered only for the `Admin` role.
+The `AppSidebar` component maps the `navItems` array matching the role matrix. Lists implicitly block users from ever opening paths they intrinsically do not possess the role clearance for.
 
 ---
 
-## 8. API Communication
+## 8. Data Fetching Architecture
 
-The system uses a centralized Axios instance located in `src/api/axios.ts`. 
+**TanStack Query** acts as the server-state cache manager over the REST endpoints natively avoiding Redux bloat.
 
-*   **Instance Setup**: Configured with a `baseURL` pointing to the .NET Minimal API.
-*   **Security**: The Request Interceptor automatically injects the Bearer token from the `authStore`.
-*   **Robustness**: If a request fails due to an expired token, the Response Interceptor pauses the request, calls the refresh endpoint, updates the store, and retries the original request seamlessly.
-
----
-
-## 9. Data Fetching Architecture
-
-**TanStack Query** acts as the server-state cache manager.
-
-*   **Queries**: Used for fetching data (e.g., `useEmployees`). It handles loading states and caching. Data is automatically refreshed when the window is refocused.
-*   **Mutations**: Used for modifying data (e.g., `createEmployee`). After a successful mutation, `queryClient.invalidateQueries` is called to force a background refresh of relevant lists, ensuring the UI is always up-to-date.
+*   **Queries**: Handles initial dataset loaders. `staleTime` logic seamlessly merges background polling if required.
+*   **Mutations**: Handles mutating states. On `onSuccess()`, the engine runs `queryClient.invalidateQueries({ queryKey: [...] })` commanding the DOM to synchronously retrieve the freshly modified list immediately displaying the newest changes seamlessly.
 
 ---
 
-## 10. Form Handling
+## 9. System Preparation & Extensibility 
 
-Forms are the backbone of the HRMS. The synergy between **React Hook Form** and **Zod** provides:
-
-1.  **Type Safety**: Zod schemas generate TypeScript types, ensuring the data sent to the backend matches the API contracts exactly.
-2.  **Performance**: Uncontrolled components are used to avoid unnecessary React re-renders during typing.
-3.  **User Experience**: Real-time error messages are displayed per field as the user types or on submit.
-
----
-
-## 11. Dashboard UI Architecture
-
-The Dashboard uses a **Composite Layout Strategy**:
-
-*   **Sidebar**: A persistent left-hand navigation. Uses `lucide-react` for iconography.
-*   **Header**: High-level actions and path navigation (Breadcrumbs).
-*   **Main Content**: Encapsulated in the `DashboardLayout`, which provides consistent padding and scroll behavior for all sub-pages.
-
----
-
-## 12. Application Routing
-
-Routing is defined in `src/App.tsx` using a nested approach:
-
-```tsx
-<Routes>
-  <Route path="/login" element={<Login />} />
-  <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-    <Route path="/dashboard" element={<Dashboard />} />
-    <Route path="/employees" element={<EmployeeList />} />
-    {/* Admin/HR Restricted */}
-    <Route path="/employees/create" element={<RoleBasedRoute allowedRoles={['Admin', 'HR']}><CreateEmployee /></RoleBasedRoute>} />
-    {/* Admin Only Restricted */}
-    <Route path="/departments" element={<RoleBasedRoute allowedRoles={['Admin']}><DepartmentList /></RoleBasedRoute>} />
-  </Route>
-</Routes>
-```
-
----
-
-## 13. Complete System Flow
-
-1.  **Initialization**: App loads; Zustand checks `localStorage` for an existing session.
-2.  **Navigation Guard**: `ProtectedRoute` checks if the user is allowed.
-3.  **Data Hydration**: Dashboard renders; `useEmployees` and other hooks fetch initial data from the .NET backend.
-4.  **Transaction**: Admin clicks "Create Employee". The form validates via Zod. On submit, a POST request is sent.
-5.  **State Sync**: TanStack Query invalidates the `employees` cache; the list UI automatically re-fetches and shows the new employee.
-
----
-
-## 14. Conclusion & Scalability
-
-The HR Management System frontend is architected for long-term growth. By isolating state, styling, logic, and API communication into distinct layers, new modules (e.g., Payroll, Recruiting) can be added by simply creating new pages and hooks without risk of breaking existing functionality.
-
-The use of **TypeScript** and **Zod** ensures that as the backend .NET API evolves, the frontend can be updated with high confidence, maintaining a robust bridge zwischen the database and the user interface.
+This codebase has officially decoupled entirely from standalone styles and enforces heavy structural safety. By isolating all HTTP traffic exclusively via `import.meta.env.VITE_API_BASE_URL` inside `axios.ts`, the frontend assumes zero backend implementations other than pure JWT REST communication. You are completely ready to spin up the .NET Minimal target endpoints, match the interface structures found inherently inside `/src/types/index.ts`, and observe direct full-stack CRUD interactions natively!

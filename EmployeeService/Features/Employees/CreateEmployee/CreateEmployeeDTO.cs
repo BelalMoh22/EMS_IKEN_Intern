@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Employees.CreateEmployee
+namespace EmployeeService.Features.Employees.CreateEmployee
 {
     public class CreateEmployeeDTO
     {
@@ -44,5 +44,17 @@
         [Required(ErrorMessage = "PositionId is required.")]
         [ForeignKey("Position")]
         public int PositionId { get; set; }
+
+        [Required(ErrorMessage = "Username is required.")]
+        [MaxLength(50)]
+        public string Username { get; set; }
+
+        [Required(ErrorMessage = "Password is required.")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$",
+            ErrorMessage = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.")]
+        public string Password { get; set; }
+
+        [Required(ErrorMessage = "Role is required.")]
+        public Roles Role { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿global using System.Data;
+global using System.Data;
 global using System.Net;
 global using System.Text.Json;
 global using System.ComponentModel.DataAnnotations;
@@ -18,6 +18,7 @@ global using EmployeeService.Features.Positions;
 global using EmployeeService.Features.Employees.CreateEmployee;
 global using EmployeeService.Features.Employees.UpdateEmployee;
 global using EmployeeService.Features.Employees.DeleteEmployee;
+global using EmployeeService.Features.Employees.GetEmployeeByUserId;
 global using EmployeeService.Features.Employees.GetEmployees;
 global using EmployeeService.Features.Employees.GetEmployeeById;
 global using EmployeeService.Features.Departments.CreateDepartment;

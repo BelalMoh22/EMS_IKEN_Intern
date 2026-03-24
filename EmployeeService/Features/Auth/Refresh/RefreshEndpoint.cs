@@ -7,7 +7,7 @@ namespace EmployeeService.Features.Auth.Refresh
             app.MapPost("/refresh", async (RefreshTokenCommand command, IMediator mediator) =>
             {
                 var response = await mediator.Send(command);
-                return Results.Ok(response);
+                return Results.Ok(ApiResponse<AuthResponse>.SuccessResponse(response, "Token refreshed successfully"));
             }).WithTags("Auth");
 
             return app;

@@ -1,12 +1,12 @@
-﻿namespace EmployeeService.Infrastructure.Repositories
+namespace EmployeeService.Infrastructure.Repositories
 {
     public class RefreshTokenRepository : IRefreshTokenRepository
     {
-        private readonly IDbConnection _connection;
+        private readonly IDbConnectionFactory _connectionFactory;
 
-        public RefreshTokenRepository(IDbConnection connection)
+        public RefreshTokenRepository(IDbConnectionFactory connectionFactory)
         {
-            _connection = connection;
+            _connectionFactory = connectionFactory;
         }
 
         public async Task<int> AddAsync(RefreshToken token)
@@ -20,7 +20,8 @@
                 SELECT CAST(SCOPE_IDENTITY() as int);
             ";
 
-            return await _connection.ExecuteScalarAsync<int>(sql, token);
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.ExecuteScalarAsync<int>(sql, token);
         }
 
         public async Task<IEnumerable<RefreshToken>> GetByUserIdAsync(int userId)
@@ -31,7 +32,8 @@
                 ORDER BY CreatedAt DESC
             ";
 
-            return await _connection.QueryAsync<RefreshToken>(
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryAsync<RefreshToken>(
                 sql, new { UserId = userId });
         }
 
@@ -44,7 +46,8 @@
                 WHERE Id = @Id
             ";
 
-            await _connection.ExecuteAsync(sql, new
+            using var connection = _connectionFactory.CreateConnection();
+            await connection.ExecuteAsync(sql, new
             {
                 Id = id,
                 ReplacedByTokenHash = replacedByTokenHash
@@ -55,7 +58,8 @@
         {
             var sql = @"DELETE FROM RefreshTokens WHERE Expires <= @Now";
 
-            await _connection.ExecuteAsync(sql, new
+            using var connection = _connectionFactory.CreateConnection();
+            await connection.ExecuteAsync(sql, new
             {
                 Now = DateTime.UtcNow
             });
@@ -68,7 +72,8 @@
                 WHERE Token = @Token
             ";
 
-            return await _connection
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection
                 .QueryFirstOrDefaultAsync<RefreshToken>(sql, new { Token = token });
         }
     }

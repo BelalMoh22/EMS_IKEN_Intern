@@ -1,4 +1,4 @@
-﻿using EmployeeService.Features.Auth.Refresh;
+using EmployeeService.Features.Auth.Refresh;
 
 namespace EmployeeService.Features.Auth
 {
@@ -9,6 +9,7 @@ namespace EmployeeService.Features.Auth
             RegisterEndpoint.MapEndpoint(group);
             LoginEndpoint.MapEndpoint(group);
             RefreshEndpoint.MapEndpoint(group);
+            EmployeeService.Features.Auth.ChangePassword.ChangePasswordEndpoint.MapEndpoint(group);
             return group;
         }
     }

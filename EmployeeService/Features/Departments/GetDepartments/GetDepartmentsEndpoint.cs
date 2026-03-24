@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Departments.GetDepartments
+namespace EmployeeService.Features.Departments.GetDepartments
 {
     public static class GetDepartmentsEndpoint
     {
@@ -8,7 +8,7 @@
             {
                 var command = new GetDepartmentsQuery();
                 var result = await mediator.Send(command);
-                return Results.Ok(result);
+                return Results.Ok(ApiResponse<IEnumerable<Department>>.SuccessResponse(result, "Departments retrieved successfully"));
             }).WithName("GetDepartments").WithTags("Departments");
 
             return app;

@@ -1,44 +1,84 @@
 import {
-  LayoutDashboard,
-  Users,
-  Building2,
-  Briefcase,
-  LogOut,
-} from "lucide-react";
+  Box,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  Divider,
+  Avatar,
+} from "@mui/material";
+import PersonIcon from "@mui/icons-material/Person";
+import PeopleIcon from "@mui/icons-material/People";
+import BusinessIcon from "@mui/icons-material/Business";
+import WorkIcon from "@mui/icons-material/Work";
+import LogoutIcon from "@mui/icons-material/Logout";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import LockResetIcon from "@mui/icons-material/LockReset";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
-import { NavLink } from "@/components/NavLink";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarFooter,
-  useSidebar,
-} from "@/components/ui/sidebar";
+import type { Role } from "@/types";
 
-const navItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, roles: ["Admin", "HR", "Manager"] },
-  { title: "Employees", url: "/employees", icon: Users, roles: ["Admin", "HR", "Manager"] },
-  { title: "Departments", url: "/departments", icon: Building2, roles: ["Admin"] },
-  { title: "Positions", url: "/positions", icon: Briefcase, roles: ["Admin"] },
-] as const;
+interface NavItem {
+  title: string;
+  url: string;
+  icon: React.ReactNode;
+  roles: Role[];
+}
 
-export function AppSidebar() {
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
+const navItems: NavItem[] = [
+  {
+    title: "Profile",
+    url: "/profile",
+    icon: <PersonIcon />,
+    roles: ["Admin", "HR", "Manager", "Employee"],
+  },
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: <DashboardIcon />,
+    roles: ["Admin", "HR", "Manager"],
+  },
+  {
+    title: "Employees",
+    url: "/employees",
+    icon: <PeopleIcon />,
+    roles: ["Admin", "HR", "Manager"],
+  },
+  {
+    title: "Departments",
+    url: "/departments",
+    icon: <BusinessIcon />,
+    roles: ["Admin"],
+  },
+  {
+    title: "Positions",
+    url: "/positions",
+    icon: <WorkIcon />,
+    roles: ["Admin"],
+  },
+  {
+    title: "Change Password",
+    url: "/change-password",
+    icon: <LockResetIcon />,
+    roles: ["Admin", "HR", "Manager", "Employee"],
+  },
+];
+
+interface Props {
+  collapsed: boolean;
+  width: number;
+}
+
+export function AppSidebar({ collapsed, width }: Props) {
   const location = useLocation();
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
   const filteredItems = navItems.filter((item) =>
-    user ? (item.roles as readonly string[]).includes(user.role) : false
+    user ? item.roles.includes(user.role) : false
   );
 
   const handleLogout = () => {
@@ -46,61 +86,205 @@ export function AppSidebar() {
     navigate("/login");
   };
 
+  const initials = user?.username
+    ? user.username.substring(0, 2).toUpperCase()
+    : "??";
+
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border px-4 py-3">
+    <Drawer
+      variant="permanent"
+      sx={{
+        width,
+        flexShrink: 0,
+        "& .MuiDrawer-paper": {
+          width,
+          transition: "width 0.2s ease",
+          overflowX: "hidden",
+          bgcolor: "#0f172a",
+          color: "#e2e8f0",
+          borderRight: "1px solid #1e293b",
+        },
+      }}
+    >
+      {/* Header */}
+      <Box
+        sx={{
+          px: 2,
+          py: 1.5,
+          borderBottom: "1px solid #1e293b",
+          display: "flex",
+          alignItems: "center",
+          gap: 1.5,
+          minHeight: 56,
+        }}
+      >
+        <Box
+          sx={{
+            width: 36,
+            height: 36,
+            borderRadius: 1.5,
+            background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "0.85rem",
+            fontWeight: 700,
+            flexShrink: 0,
+            boxShadow: "0 4px 12px rgba(59,130,246,0.3)",
+          }}
+        >
+          HR
+        </Box>
         {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground text-sm font-bold">
-              HR
-            </div>
-            <span className="text-sm font-semibold text-sidebar-foreground">HR System</span>
-          </div>
+          <Box>
+            <Typography variant="body2" fontWeight={700} noWrap sx={{ color: "#f1f5f9" }}>
+              HR System
+            </Typography>
+            <Typography variant="caption" sx={{ color: "#64748b", fontSize: "0.65rem" }}>
+              Management Portal
+            </Typography>
+          </Box>
         )}
-        {collapsed && (
-          <div className="flex items-center justify-center">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground text-sm font-bold">
-              HR
-            </div>
-          </div>
-        )}
-      </SidebarHeader>
+      </Box>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {filteredItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={location.pathname.startsWith(item.url)}>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/dashboard"}
-                      className="hover:bg-sidebar-accent/50"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+      {/* User Info */}
+      {!collapsed && user && (
+        <Box
+          sx={{
+            px: 2,
+            py: 1.5,
+            borderBottom: "1px solid #1e293b",
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+          }}
+        >
+          <Avatar
+            sx={{
+              width: 32,
+              height: 32,
+              bgcolor: "#3b82f6",
+              fontSize: "0.75rem",
+              fontWeight: 600,
+            }}
+          >
+            {initials}
+          </Avatar>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography
+              variant="body2"
+              fontWeight={500}
+              noWrap
+              sx={{ color: "#f1f5f9", fontSize: "0.8rem" }}
+            >
+              {user.username}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{ color: "#64748b", fontSize: "0.65rem" }}
+            >
+              {user.role}
+            </Typography>
+          </Box>
+        </Box>
+      )}
 
-      <SidebarFooter className="border-t border-sidebar-border">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleLogout} tooltip="Logout">
-              <LogOut className="h-4 w-4" />
-              {!collapsed && <span>Logout</span>}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
+      {/* Navigation Label */}
+      {!collapsed && (
+        <Typography
+          variant="caption"
+          sx={{
+            px: 2,
+            pt: 2,
+            pb: 0.5,
+            color: "#475569",
+            textTransform: "uppercase",
+            letterSpacing: 1.5,
+            fontSize: "0.6rem",
+            fontWeight: 600,
+          }}
+        >
+          Navigation
+        </Typography>
+      )}
+
+      {/* Nav Items */}
+      <List sx={{ flexGrow: 1, px: 1 }}>
+        {filteredItems.map((item) => {
+          const isActive =
+            location.pathname === item.url ||
+            (item.url !== "/profile" && location.pathname.startsWith(item.url));
+          return (
+            <ListItemButton
+              key={item.title}
+              onClick={() => navigate(item.url)}
+              selected={isActive}
+              sx={{
+                borderRadius: 1.5,
+                mb: 0.5,
+                minHeight: 40,
+                justifyContent: collapsed ? "center" : "flex-start",
+                px: collapsed ? 1 : 2,
+                "&.Mui-selected": {
+                  bgcolor: "rgba(59,130,246,0.12)",
+                  color: "#60a5fa",
+                  "& .MuiListItemIcon-root": { color: "#60a5fa" },
+                  "&:hover": { bgcolor: "rgba(59,130,246,0.18)" },
+                },
+                "&:hover": { bgcolor: "rgba(255,255,255,0.04)" },
+                transition: "all 0.15s ease",
+              }}
+            >
+              <ListItemIcon
+                sx={{ color: "inherit", minWidth: collapsed ? 0 : 36 }}
+              >
+                {item.icon}
+              </ListItemIcon>
+              {!collapsed && (
+                <ListItemText
+                  primary={item.title}
+                  primaryTypographyProps={{
+                    fontSize: "0.85rem",
+                    fontWeight: isActive ? 600 : 400,
+                  }}
+                />
+              )}
+            </ListItemButton>
+          );
+        })}
+      </List>
+
+      {/* Footer */}
+      <Divider sx={{ borderColor: "#1e293b" }} />
+      <List sx={{ px: 1, pb: 1 }}>
+        <ListItemButton
+          onClick={handleLogout}
+          sx={{
+            borderRadius: 1.5,
+            minHeight: 40,
+            justifyContent: collapsed ? "center" : "flex-start",
+            px: collapsed ? 1 : 2,
+            color: "#ef4444",
+            "&:hover": { bgcolor: "rgba(239,68,68,0.08)" },
+          }}
+        >
+          <ListItemIcon
+            sx={{ color: "inherit", minWidth: collapsed ? 0 : 36 }}
+          >
+            <LogoutIcon fontSize="small" />
+          </ListItemIcon>
+          {!collapsed && (
+            <ListItemText
+              primary="Logout"
+              primaryTypographyProps={{
+                fontSize: "0.85rem",
+                fontWeight: 500,
+              }}
+            />
+          )}
+        </ListItemButton>
+      </List>
+    </Drawer>
   );
 }

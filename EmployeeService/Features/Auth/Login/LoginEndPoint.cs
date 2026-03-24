@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Auth.Login
+namespace EmployeeService.Features.Auth.Login
 {
     public static class LoginEndpoint
     {
@@ -6,9 +6,9 @@
         {
             app.MapPost("/login",async (LoginDto dto, IMediator mediator) =>
             {
-                var command = new RefreshCommand(dto);
-                var token = await mediator.Send(command);
-                return Results.Ok(new { token });
+                var command = new LoginCommand(dto);
+                var response = await mediator.Send(command);
+                return Results.Ok(ApiResponse<AuthResponse>.SuccessResponse(response, "Login successful"));
             }).WithTags("Auth");
 
             return app;

@@ -9,9 +9,10 @@ interface Props {
 
 export function RoleBasedRoute({ children, allowedRoles }: Props) {
   const user = useAuthStore((s) => s.user);
-  const bypassRoleCheck = true;
-  if (!bypassRoleCheck && (!user || !allowedRoles.includes(user.role))) {
-    return <Navigate to="/dashboard" replace />;
+
+  if (!user || !allowedRoles.includes(user.role)) {
+    return <Navigate to="/profile" replace />;
   }
+
   return <>{children}</>;
 }

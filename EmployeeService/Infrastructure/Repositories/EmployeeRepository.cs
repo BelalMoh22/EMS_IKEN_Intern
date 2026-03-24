@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Infrastructure.Repositories
+namespace EmployeeService.Infrastructure.Repositories
 {
     public class EmployeeRepository : Repository<Employee>
     {
@@ -25,6 +25,7 @@
                     HireDate,
                     Status,
                     PositionId,
+                    UserId,
                     IsDeleted
                 )
                 VALUES
@@ -40,13 +41,15 @@
                     @HireDate,
                     @Status,
                     @PositionId,
+                    @UserId,
                     @IsDeleted
                 );
 
                 SELECT CAST(SCOPE_IDENTITY() AS INT);
             ";
 
-            return await _connection.ExecuteScalarAsync<int>(sql, employee);
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.ExecuteScalarAsync<int>(sql, employee);
         }
 
         public override async Task<int> UpdateAsync(int id, Employee employee)
@@ -68,7 +71,8 @@
                 WHERE Id = @Id
             ";
 
-            return await _connection.ExecuteAsync(sql, new
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.ExecuteAsync(sql, new
             {
                 Id = id,
                 employee.FirstName,
@@ -83,6 +87,13 @@
                 employee.Status,
                 employee.PositionId
             });
+        }
+
+        public async Task<Employee?> GetByUserIdAsync(int userId)
+        {
+            var sql = $"SELECT * FROM {TableName} WHERE UserId = @UserId AND IsDeleted = 0";
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QuerySingleOrDefaultAsync<Employee>(sql, new { UserId = userId });
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Employees.GetEmployees
+namespace EmployeeService.Features.Employees.GetEmployees
 {
     public static class GetEmployeesEndpoint
     {
@@ -8,7 +8,7 @@
             {
                 var command = new GetEmployeesQuery();
                 var result = await mediator.Send(command);
-                return Results.Ok(result);
+                return Results.Ok(ApiResponse<IEnumerable<Employee>>.SuccessResponse(result, "Employees retrieved successfully"));
             }).WithName("GetEmployees").WithTags("Employees").RequireAuthorization("EmployeesReadOnly");
 
             return app;

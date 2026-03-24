@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Positions.GetPositionById
+namespace EmployeeService.Features.Positions.GetPositionById
 {
     public static class GetPositionByIdEndpoint
     {
@@ -8,7 +8,7 @@
             {
                 var command = new GetPositionByIdQuery(id);
                 var result = await mediator.Send(command);
-                return Results.Ok(result);
+                return Results.Ok(ApiResponse<Position>.SuccessResponse(result, "Position retrieved successfully"));
             }).WithName("GetPositionById").WithTags("Positions");
 
             return app;

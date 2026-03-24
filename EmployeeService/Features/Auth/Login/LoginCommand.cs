@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Auth.Login
+namespace EmployeeService.Features.Auth.Login
 {
-    public record RefreshCommand(LoginDto dto): IRequest<AuthResponse>;
+    public record LoginCommand(LoginDto dto): IRequest<AuthResponse>;
 }

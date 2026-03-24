@@ -1,82 +1,138 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePositions, useDeletePosition } from "@/hooks/usePositions";
+import { useDepartments } from "@/hooks/useDepartments";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Box, Typography, Button, IconButton } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import type { Position } from "@/types";
 
 export default function PositionList() {
   const navigate = useNavigate();
   const { data, isLoading } = usePositions();
+  const { data: departments } = useDepartments();
   const deleteMutation = useDeletePosition();
-  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
   const [search, setSearch] = useState("");
+
+  const getDeptName = useCallback(
+    (deptId: number) =>
+      departments?.find((d) => d.id === deptId)?.departmentName ?? "—",
+    [departments]
+  );
 
   const filteredData = useMemo(() => {
     if (!data) return [];
     if (!search) return data;
     const s = search.toLowerCase();
-    return data.filter(p => 
-      p.title.toLowerCase().includes(s) || 
-      p.departmentName?.toLowerCase().includes(s) ||
-      p.description.toLowerCase().includes(s)
+    return data.filter(
+      (p) =>
+        p.positionName?.toLowerCase().includes(s) ||
+        getDeptName(p.departmentId)?.toLowerCase().includes(s)
     );
-  }, [data, search]);
+  }, [data, search, departments]);
 
   const handleDelete = () => {
-    if (deleteTarget) {
-      deleteMutation.mutate(deleteTarget, { onSuccess: () => setDeleteTarget(null) });
+    if (deleteTarget !== null) {
+      deleteMutation.mutate(deleteTarget, {
+        onSuccess: () => setDeleteTarget(null),
+      });
     }
   };
 
   const columns: Column<Position>[] = [
-    { header: "Title", accessorKey: "title" },
-    { header: "Department", accessorKey: "departmentName" },
-    { header: "Description", accessorKey: "description" },
+    {
+      header: "Position Name",
+      cell: (row) => (
+        <Typography variant="body2" fontWeight={500}>
+          {row.positionName}
+        </Typography>
+      ),
+    },
+    {
+      header: "Department",
+      cell: (row) => getDeptName(row.departmentId),
+    },
+    {
+      header: "Salary Range",
+      cell: (row) =>
+        `$${row.minSalary?.toLocaleString()} – $${row.maxSalary?.toLocaleString()}`,
+    },
     {
       header: "Actions",
       cell: (row) => (
-        <div className="flex gap-1">
-          <Button variant="ghost" size="icon" onClick={() => navigate(`/positions/edit/${row.id}`)}>
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" onClick={() => setDeleteTarget(row.id)}>
-            <Trash2 className="h-4 w-4 text-destructive" />
-          </Button>
-        </div>
+        <Box sx={{ display: "flex", gap: 0.5 }}>
+          <IconButton
+            size="small"
+            onClick={() => navigate(`/positions/edit/${row.id}`)}
+            color="primary"
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => setDeleteTarget(row.id)}
+            color="error"
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Box>
       ),
     },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Positions</h1>
-          <p className="text-muted-foreground">Manage job positions</p>
-        </div>
-        <Button onClick={() => navigate("/positions/create")}>
-          <Plus className="mr-2 h-4 w-4" /> Add Position
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box>
+          <Typography variant="h1">Positions</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Manage job positions
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => navigate("/positions/create")}
+          sx={{
+            background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+            "&:hover": {
+              background: "linear-gradient(135deg, #2563eb, #1e40af)",
+            },
+          }}
+        >
+          Add Position
         </Button>
-      </div>
+      </Box>
 
-      <div className="max-w-sm">
-        <SearchInput value={search} onChange={setSearch} placeholder="Search positions..." />
-      </div>
+      <Box sx={{ maxWidth: 360 }}>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search positions..."
+        />
+      </Box>
 
       <DataTable columns={columns} data={filteredData} loading={isLoading} />
 
       <ConfirmDialog
-        open={!!deleteTarget}
+        open={deleteTarget !== null}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Delete Position"
         description="Are you sure? This action cannot be undone."
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
       />
-    </div>
+    </Box>
   );
 }
