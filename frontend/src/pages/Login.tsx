@@ -31,11 +31,25 @@ export default function Login() {
   const onSubmit = async (values: LoginForm) => {
     setLoading(true);
     try {
+      // Mock login for UI testing without backend
+      if (values.email === "admin@example.com" && values.password === "123456") {
+        setAuth("mock-token", "mock-refresh-token", {
+          id: "1",
+          email: "admin@example.com",
+          firstName: "Admin",
+          lastName: "User",
+          role: "Admin",
+        });
+        toast.success("Login successful (Mock Mode)");
+        navigate("/dashboard");
+        return;
+      }
+
       const data = await authApi.login(values);
       setAuth(data.token, data.refreshToken, data.user);
       navigate("/dashboard");
     } catch {
-      toast.error("Invalid credentials");
+      toast.error("Invalid credentials (or backend is offline)");
     } finally {
       setLoading(false);
     }

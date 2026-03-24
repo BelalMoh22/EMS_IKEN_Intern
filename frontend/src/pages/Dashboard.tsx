@@ -6,9 +6,9 @@ export default function Dashboard() {
   const user = useAuthStore((s) => s.user);
 
   const stats = [
-    { title: "Employees", icon: Users, value: "—", description: "Total employees" },
-    { title: "Departments", icon: Building2, value: "—", description: "Active departments" },
-    { title: "Positions", icon: Briefcase, value: "—", description: "Open positions" },
+    { title: "Employees", icon: Users, value: "-", description: "Total employees" },
+    { title: "Departments", icon: Building2, value: "-", description: "Active departments" },
+    { title: "Positions", icon: Briefcase, value: "-", description: "Open positions" },
   ];
 
   return (

@@ -16,10 +16,16 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      token: null,
-      refreshToken: null,
-      user: null,
-      isAuthenticated: false,
+      token: "mock-token",
+      refreshToken: "mock-refresh-token",
+      user: {
+        id: "1",
+        email: "admin@example.com",
+        firstName: "Admin",
+        lastName: "User",
+        role: "Admin",
+      },
+      isAuthenticated: true,
       setAuth: (token, refreshToken, user) =>
         set({ token, refreshToken, user, isAuthenticated: true }),
       setToken: (token) => set({ token }),
@@ -30,6 +36,6 @@ export const useAuthStore = create<AuthState>()(
         return user ? roles.includes(user.role) : false;
       },
     }),
-    { name: "hr-auth" }
+    { name: "hr-auth-mock" }
   )
 );

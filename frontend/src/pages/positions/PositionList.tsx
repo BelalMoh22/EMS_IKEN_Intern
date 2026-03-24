@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePositions, useDeletePosition } from "@/hooks/usePositions";
 import { DataTable, type Column } from "@/components/shared/DataTable";
+import { SearchInput } from "@/components/shared/SearchInput";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -12,6 +13,18 @@ export default function PositionList() {
   const { data, isLoading } = usePositions();
   const deleteMutation = useDeletePosition();
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  const filteredData = useMemo(() => {
+    if (!data) return [];
+    if (!search) return data;
+    const s = search.toLowerCase();
+    return data.filter(p => 
+      p.title.toLowerCase().includes(s) || 
+      p.departmentName?.toLowerCase().includes(s) ||
+      p.description.toLowerCase().includes(s)
+    );
+  }, [data, search]);
 
   const handleDelete = () => {
     if (deleteTarget) {
@@ -50,7 +63,11 @@ export default function PositionList() {
         </Button>
       </div>
 
-      <DataTable columns={columns} data={data ?? []} loading={isLoading} />
+      <div className="max-w-sm">
+        <SearchInput value={search} onChange={setSearch} placeholder="Search positions..." />
+      </div>
+
+      <DataTable columns={columns} data={filteredData} loading={isLoading} />
 
       <ConfirmDialog
         open={!!deleteTarget}

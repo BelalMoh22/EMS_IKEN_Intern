@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDepartments, useDeleteDepartment } from "@/hooks/useDepartments";
 import { DataTable, type Column } from "@/components/shared/DataTable";
+import { SearchInput } from "@/components/shared/SearchInput";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -12,6 +13,17 @@ export default function DepartmentList() {
   const { data, isLoading } = useDepartments();
   const deleteMutation = useDeleteDepartment();
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  const filteredData = useMemo(() => {
+    if (!data) return [];
+    if (!search) return data;
+    const s = search.toLowerCase();
+    return data.filter(d => 
+      d.name.toLowerCase().includes(s) || 
+      d.description.toLowerCase().includes(s)
+    );
+  }, [data, search]);
 
   const handleDelete = () => {
     if (deleteTarget) {
@@ -49,7 +61,11 @@ export default function DepartmentList() {
         </Button>
       </div>
 
-      <DataTable columns={columns} data={data ?? []} loading={isLoading} />
+      <div className="max-w-sm">
+        <SearchInput value={search} onChange={setSearch} placeholder="Search departments..." />
+      </div>
+
+      <DataTable columns={columns} data={filteredData} loading={isLoading} />
 
       <ConfirmDialog
         open={!!deleteTarget}
