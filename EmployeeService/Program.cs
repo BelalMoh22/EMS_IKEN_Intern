@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 namespace EmployeeService
 {
     public class Program
@@ -9,6 +10,9 @@ namespace EmployeeService
             builder.Logging.AddConsole();
 
             // Add services to the container(DI).
+            builder.Services.ConfigureHttpJsonOptions(options => {
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
@@ -71,17 +75,12 @@ namespace EmployeeService
             {
                 builder.AddPolicy("FullCRUD", context =>
                 {
-                    context.RequireRole(Roles.Admin.ToString());
+                    context.RequireRole(Roles.HR.ToString());
                 });
 
                 builder.AddPolicy("EmployeesReadOnly", context =>
                 {
-                    context.RequireRole(Roles.HR.ToString(), Roles.Admin.ToString(), Roles.Manager.ToString());
-                });
-
-                builder.AddPolicy("FullCRUDEmployee", context =>
-                {
-                    context.RequireRole(Roles.HR.ToString(), Roles.Admin.ToString());
+                    context.RequireRole(Roles.HR.ToString(), Roles.Manager.ToString());
                 });
             });
 
@@ -106,6 +105,25 @@ namespace EmployeeService
             var app = builder.Build();
             app.Logger.LogInformation("Application started successfully (Information)");
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var userRepo = scope.ServiceProvider.GetRequiredService<UserRepository>();
+                var existingUser = await userRepo.GetByUsernameAsync("admin_hr");
+                if (existingUser == null)
+                {
+                    var hrUser = new User
+                    {
+                        Username = "admin_hr",
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                        Role = Roles.HR,
+                        MustChangePassword = true,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    await userRepo.AddAsync(hrUser);
+                    app.Logger.LogInformation("Seeded Initial HR User (admin_hr / Admin@123).");
+                }
+            }
+            
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();

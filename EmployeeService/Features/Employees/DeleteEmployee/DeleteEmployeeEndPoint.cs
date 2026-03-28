@@ -10,7 +10,7 @@ namespace EmployeeService.Features.Employees.DeleteEmployee
                 var result = await mediator.Send(command);
                 var response = ApiResponse<int>.SuccessResponse(result, "Employee deleted successfully");
                 return Results.Ok(response);
-            }).WithName("DeleteEmployee").WithTags("Employees").RequireAuthorization("FullCRUDEmployee");
+            }).WithName("DeleteEmployee").WithTags("Employees").RequireAuthorization("FullCRUD");
 
             return app;
         }

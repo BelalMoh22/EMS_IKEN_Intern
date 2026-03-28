@@ -1,10 +1,9 @@
-﻿namespace EmployeeService.Domain.Enums
+namespace EmployeeService.Domain.Enums
 {
     public enum Roles
     {
-        Admin =1,
-        HR = 2,
-        Manager = 3,
-        Employee = 4
+        HR = 1,
+        Manager = 2,
+        Employee = 3
     }
 }

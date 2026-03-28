@@ -11,7 +11,7 @@ namespace EmployeeService.Features.Employees.CreateEmployee
                
                 var response = ApiResponse<int>.SuccessResponse(id, "Employee created successfully");
                 return Results.Created($"/employees/{id}", response);
-            }).WithName("CreateEmployee").WithTags("Employees").RequireAuthorization("FullCRUDEmployee");
+            }).WithName("CreateEmployee").WithTags("Employees").RequireAuthorization("FullCRUD");
 
             return app;
         }

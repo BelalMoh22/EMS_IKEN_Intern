@@ -18,7 +18,7 @@ namespace EmployeeService.Features.Employees.GetEmployeeByUserId
                 SELECT 
                     e.Id,
                     e.FirstName,
-                    e.LastName,
+                    e.Lastname,
                     e.NationalId,
                     e.Email,
                     e.PhoneNumber,

@@ -10,7 +10,7 @@ namespace EmployeeService.Features.Employees.UpdateEmployee
                 var rows = await mediator.Send(command);
                 var response = ApiResponse<int>.SuccessResponse(rows, "Employee updated successfully");
                 return Results.Ok(response);
-            }).WithDescription("Updating an existing Employee").WithTags("Employees").RequireAuthorization("FullCRUDEmployee");
+            }).WithDescription("Updating an existing Employee").WithTags("Employees").RequireAuthorization("FullCRUD");
 
             return app;
         }
