@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Auth.Register
+namespace EmployeeService.Features.Auth.Register
 {
     public class RegisterHandler : IRequestHandler<RegisterCommand, int>
     {
@@ -17,7 +17,7 @@
             if (!Enum.IsDefined(typeof(Roles), request.dto.Role))
                     errors.Add("Invalid role value.");
 
-            var exists = await _userRepository.ExistsAsync("Username = @Username AND IsDeleted = 0",new { request.dto.Username });
+            var exists = await _userRepository.ExistsAsync(u => u.Username == request.dto.Username && u.IsDeleted == false);
             if (exists)
                 errors.Add("Username already exists.");
 

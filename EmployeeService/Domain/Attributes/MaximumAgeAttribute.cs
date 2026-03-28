@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace EmployeeService.Domain.Attributes
+﻿namespace EmployeeService.Domain.Attributes
 {
     public class MaximumAgeAttribute : ValidationAttribute
     {

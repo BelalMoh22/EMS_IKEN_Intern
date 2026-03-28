@@ -1,6 +1,3 @@
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-
 namespace EmployeeService.Features.Employees.CreateEmployee
 {
     public static class CreateEmployeeEndPoint

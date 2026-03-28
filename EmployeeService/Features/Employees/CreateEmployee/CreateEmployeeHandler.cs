@@ -21,7 +21,7 @@ namespace EmployeeService.Features.Employees.CreateEmployee
             await _rules.ValidateForCreateAsync(dto);
 
             // Step 2: Validate Username uniqueness
-            var userExists = await _userRepository.ExistsAsync("Username = @Username AND IsDeleted = 0", new { dto.Username });
+            var userExists = await _userRepository.ExistsAsync(u => u.Username == dto.Username && u.IsDeleted == false);
             if (userExists)
             {
                 throw new Exceptions.ValidationException(new List<string> { "Username already exists." });

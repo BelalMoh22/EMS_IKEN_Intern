@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Infrastructure.BusinessRules.Departments
+namespace EmployeeService.Infrastructure.BusinessRules.Departments
 {
     public sealed class DepartmentBusinessRules : IDepartmentBusinessRules
     {
@@ -18,12 +18,12 @@
             var errors = new List<string>();
             errors.AddRange(ValidationHelper.ValidateModel(dto));
 
-            var departmentNameExists = await _departmentRepository.ExistsAsync("DepartmentName = @DepartmentName", new { dto.DepartmentName });
+            var departmentNameExists = await _departmentRepository.ExistsAsync(d => d.DepartmentName == dto.DepartmentName);
 
             if (departmentNameExists)
                 errors.Add($"Department name : '{dto.DepartmentName}' already exists.");
 
-            var emailExists = await _departmentRepository.ExistsAsync("Email = @Email", new { dto.Email });
+            var emailExists = await _departmentRepository.ExistsAsync(d => d.Email == dto.Email);
             if (emailExists)
                 errors.Add($"Email : '{dto.Email}' already exists.");
 
@@ -34,7 +34,7 @@
                 if (manager == null)
                     errors.Add($"Employee with Id {dto.ManagerId.Value} does not exist.");
 
-                var managerAlreadyAssigned = await _departmentRepository.ExistsAsync("ManagerId = @ManagerId", new { ManagerId = dto.ManagerId.Value });
+                var managerAlreadyAssigned = await _departmentRepository.ExistsAsync(d => d.ManagerId == dto.ManagerId.Value);
                 if (managerAlreadyAssigned)
                     errors.Add($"Employee with Id: {dto.ManagerId.Value} is already assigned as a manager to another department.");
             }
@@ -52,11 +52,11 @@
             var effectiveEmail =dto.Email ?? existingDepartment.Email;
             var effectiveManagerId = dto.ManagerId != 0 ? dto.ManagerId : existingDepartment.ManagerId;
 
-            var nameExists = await _departmentRepository.ExistsAsync("DepartmentName = @DepartmentName AND Id != @Id", new { DepartmentName = effectiveName, Id = departmentId });
+            var nameExists = await _departmentRepository.ExistsAsync(d => d.DepartmentName == effectiveName && d.Id != departmentId);
             if (nameExists)
                 errors.Add($"Department name : '{effectiveName}' already exists.");
 
-            var emailExists = await _departmentRepository.ExistsAsync("Email = @Email AND Id != @Id",new { Email = effectiveEmail, Id = departmentId });
+            var emailExists = await _departmentRepository.ExistsAsync(d => d.Email == effectiveEmail && d.Id != departmentId);
             if (emailExists)
                 errors.Add($"Email : '{effectiveEmail}' already exists.");
 
@@ -67,10 +67,7 @@
                 if (manager == null)
                     errors.Add($"Employee with Id {effectiveManagerId.Value} does not exist.");
 
-                var managerAlreadyAssigned = await _departmentRepository.ExistsAsync(
-                    "ManagerId = @ManagerId AND Id != @DepartmentId",
-                     new { ManagerId = effectiveManagerId, DepartmentId = departmentId }
-                );
+                var managerAlreadyAssigned = await _departmentRepository.ExistsAsync(d => d.ManagerId == effectiveManagerId && d.Id != departmentId);
                 if (managerAlreadyAssigned)
                     errors.Add($"Employee with Id: {effectiveManagerId.Value} is already assigned as manager of another department.");
             }
@@ -83,7 +80,7 @@
         {
             var errors = new List<string>();
 
-            var hasPositions = await _positionRepository.ExistsAsync("DepartmentId = @DepartmentId",new { DepartmentId = departmentId });
+            var hasPositions = await _positionRepository.ExistsAsync(p => p.DepartmentId == departmentId);
             if (hasPositions)
                 errors.Add("Cannot delete department because it is assigned to one or more positions.");
 

@@ -18,7 +18,7 @@ namespace EmployeeService.Features.Employees.GetEmployeeByUserId
                 SELECT 
                     e.Id,
                     e.FirstName,
-                    e.Lastname,
+                    e.LastName,
                     e.NationalId,
                     e.Email,
                     e.PhoneNumber,
@@ -39,7 +39,7 @@ namespace EmployeeService.Features.Employees.GetEmployeeByUserId
             var profile = await connection.QuerySingleOrDefaultAsync<EmployeeProfileDto>(sql, new { UserId = request.UserId });
 
             if (profile == null)
-                throw new Exceptions.NotFoundException($"Employee with UserId {request.UserId} not found.");
+                throw new NotFoundException($"Employee with UserId {request.UserId} not found.");
 
             return profile;
         }

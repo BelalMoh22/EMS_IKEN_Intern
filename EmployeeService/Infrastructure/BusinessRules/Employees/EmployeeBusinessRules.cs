@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Infrastructure.BusinessRules.Employees
+namespace EmployeeService.Infrastructure.BusinessRules.Employees
 {
     public class EmployeeBusinessRules : IEmployeeBusinessRules
     {
@@ -23,13 +23,13 @@
                 errors.Add($"Position with Id {dto.PositionId} does not exist.");
 
             var emailExists = await _employeeRepository
-                .ExistsAsync("Email = @Email", new { dto.Email });
+                .ExistsAsync(e => e.Email == dto.Email);
 
             if (emailExists)
                 errors.Add($"Email '{dto.Email}' is already in use.");
 
             var nationalIdExists = await _employeeRepository
-                .ExistsAsync("NationalId = @NationalId", new { dto.NationalId });
+                .ExistsAsync(e => e.NationalId == dto.NationalId);
 
             if (nationalIdExists)
                 errors.Add($"National ID '{dto.NationalId}' is already in use.");
@@ -37,12 +37,10 @@
             if (dto.Salary <= 0)
                 errors.Add("Salary must be greater than zero.");
 
-            if (position != null &&
-                (dto.Salary < position.MinSalary || dto.Salary > position.MaxSalary))
+            if (position != null && (dto.Salary < position.MinSalary || dto.Salary > position.MaxSalary))
                 errors.Add($"Salary must be between {position.MinSalary} and {position.MaxSalary}.");
 
-            if (dto.Status.HasValue &&
-                !Enum.IsDefined(typeof(EmployeeStatus), dto.Status.Value))
+            if (dto.Status.HasValue && !Enum.IsDefined(typeof(EmployeeStatus), dto.Status.Value))
                 errors.Add("Invalid employee status.");
 
             if (errors.Any())
@@ -64,16 +62,12 @@
             if (position is null)
                 errors.Add($"Position with Id {effectivePositionId} does not exist.");
 
-            var emailExists = await _employeeRepository.ExistsAsync(
-                "Email = @Email AND Id != @Id",
-                new { Email = effectiveEmail, Id = employeeId });
+            var emailExists = await _employeeRepository.ExistsAsync(e => e.Email == effectiveEmail && e.Id != employeeId);
 
             if (emailExists)
                 errors.Add($"Email '{effectiveEmail}' is already in use.");
 
-            var nationalIdExists = await _employeeRepository.ExistsAsync(
-                "NationalId = @NationalId AND Id != @Id",
-                new { NationalId = effectiveNationalId, Id = employeeId });
+            var nationalIdExists = await _employeeRepository.ExistsAsync(e => e.NationalId == effectiveNationalId && e.Id != employeeId);
 
             if (nationalIdExists)
                 errors.Add($"National ID '{effectiveNationalId}' is already in use.");
@@ -81,8 +75,7 @@
             if (effectiveSalary <= 0)
                 errors.Add("Salary must be greater than zero.");
 
-            if (position != null &&
-                (effectiveSalary < position.MinSalary || effectiveSalary > position.MaxSalary))
+            if (position != null &&(effectiveSalary < position.MinSalary || effectiveSalary > position.MaxSalary))
                 errors.Add($"Salary must be between {position.MinSalary} and {position.MaxSalary}.");
 
             if (effectiveStatus.HasValue &&!Enum.IsDefined(typeof(EmployeeStatus), effectiveStatus.Value))

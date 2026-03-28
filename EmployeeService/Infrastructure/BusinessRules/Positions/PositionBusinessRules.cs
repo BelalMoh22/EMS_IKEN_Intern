@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Infrastructure.BusinessRules.Positions
+namespace EmployeeService.Infrastructure.BusinessRules.Positions
 {
     public sealed class PositionBusinessRules : IPositionBusinessRules
     {
@@ -18,7 +18,7 @@
             var errors = new List<string>();
             errors.AddRange(ValidationHelper.ValidateModel(dto));
 
-            var nameExists = await _positionRepository.ExistsAsync("PositionName = @PositionName",new { dto.PositionName });
+            var nameExists = await _positionRepository.ExistsAsync(p => p.PositionName == dto.PositionName);
             if (nameExists)
                 errors.Add($"Position name '{dto.PositionName}' already exists.");
 
@@ -31,7 +31,7 @@
             }
             else
             {
-                var departmentExists = await _departmentRepository.ExistsAsync("Id = @DepartmentId", new { dto.DepartmentId });
+                var departmentExists = await _departmentRepository.ExistsAsync(d => d.Id == dto.DepartmentId);
                 if (!departmentExists)
                     errors.Add($"Department with Id {dto.DepartmentId} does not exist.");
             }
@@ -52,9 +52,7 @@
 
             var effectiveDepartmentId =dto.DepartmentId ?? existingPosition.DepartmentId;
 
-            var nameExists = await _positionRepository.ExistsAsync(
-                "PositionName = @PositionName AND Id != @Id",
-                new { PositionName = effectiveName, Id = positionId });
+            var nameExists = await _positionRepository.ExistsAsync(p => p.PositionName == effectiveName && p.Id != positionId);
             if (nameExists)
                 errors.Add($"Position name '{effectiveName}' already exists.");
 
@@ -70,9 +68,7 @@
             }
             else
             {
-                var departmentExists = await _departmentRepository.ExistsAsync(
-                    "Id = @DepartmentId",
-                    new { DepartmentId = effectiveDepartmentId });
+                var departmentExists = await _departmentRepository.ExistsAsync(d => d.Id == effectiveDepartmentId);
 
                 if (!departmentExists)
                     errors.Add($"Department with Id {effectiveDepartmentId} does not exist.");
@@ -86,7 +82,7 @@
         {
             var errors = new List<string>();
 
-            var isAssignedToEmployees = await _employeeRepository.ExistsAsync("PositionId = @PositionId",new { PositionId = positionId });
+            var isAssignedToEmployees = await _employeeRepository.ExistsAsync(e => e.PositionId == positionId);
             if (isAssignedToEmployees)
                 errors.Add("Cannot delete position because it is assigned to one or more employees.");
 

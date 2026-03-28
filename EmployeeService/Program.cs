@@ -44,10 +44,10 @@ namespace EmployeeService
             builder.Services.AddScoped<IRepository<Department>, DepartmentRepository>();
             builder.Services.AddScoped<IRepository<Position>, PositionRepository>();
             builder.Services.AddScoped<UserRepository>();
+            builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<IEmployeeBusinessRules, EmployeeBusinessRules>();
             builder.Services.AddScoped<IPositionBusinessRules, PositionBusinessRules>();
             builder.Services.AddScoped<IDepartmentBusinessRules, DepartmentBusinessRules>();
-            builder.Services.AddScoped<IRefreshTokenRepository,RefreshTokenRepository>();
 
             // Use Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -62,9 +62,7 @@ namespace EmployeeService
 
                         ValidIssuer = builder.Configuration["Jwt:Issuer"],
                         ValidAudience = builder.Configuration["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
-                        ),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
                         ClockSkew = TimeSpan.Zero 
                     };
                 });
@@ -88,8 +86,7 @@ namespace EmployeeService
             });
 
             // Inject MediatR into DI Container
-            builder.Services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
             var appName = builder.Configuration["ApplicationSettings:ApplicationName"];
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

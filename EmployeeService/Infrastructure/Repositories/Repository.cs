@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+
 namespace EmployeeService.Infrastructure.Repositories
 {
     public abstract class Repository<T> : IRepository<T> where T : BaseEntity
@@ -53,11 +55,77 @@ namespace EmployeeService.Infrastructure.Repositories
             return await SoftDeleteAsync(id);
         }
 
-        public async Task<bool> ExistsAsync(string condition, object? parameters = null)
+        private (string, DynamicParameters) BuildWhereClause(Expression<Func<T, bool>> predicate)
         {
-            var sql = $"SELECT 1 FROM {TableName} WHERE {condition}";
+            var parameters = new DynamicParameters();
+            var count = 0;
+            var where = ParseExpression(predicate.Body, parameters, ref count);
+            return (where, parameters);
+        }
+
+        private string ParseExpression(Expression expr, DynamicParameters parameters, ref int count)
+        {
+            if (expr is BinaryExpression binary)
+            {
+                if (binary.NodeType == ExpressionType.AndAlso || binary.NodeType == ExpressionType.And)
+                    return $"({ParseExpression(binary.Left, parameters, ref count)} AND {ParseExpression(binary.Right, parameters, ref count)})";
+                
+                if (binary.NodeType == ExpressionType.OrElse || binary.NodeType == ExpressionType.Or)
+                    return $"({ParseExpression(binary.Left, parameters, ref count)} OR {ParseExpression(binary.Right, parameters, ref count)})";
+
+                var propertyName = GetPropertyName(binary.Left);
+                var value = Expression.Lambda(binary.Right).Compile().DynamicInvoke();
+                
+                var operatorSql = binary.NodeType switch
+                {
+                    ExpressionType.Equal => "=",
+                    ExpressionType.NotEqual => "!=",
+                    ExpressionType.GreaterThan => ">",
+                    ExpressionType.GreaterThanOrEqual => ">=",
+                    ExpressionType.LessThan => "<",
+                    ExpressionType.LessThanOrEqual => "<=",
+                    _ => throw new NotSupportedException($"Operator {binary.NodeType} not supported")
+                };
+
+                if (value == null && operatorSql == "=") return $"{propertyName} IS NULL";
+                if (value == null && operatorSql == "!=") return $"{propertyName} IS NOT NULL";
+
+                var paramName = $"@p{count++}";
+                parameters.Add(paramName, value);
+                return $"{propertyName} {operatorSql} {paramName}";
+            }
+            if (expr is UnaryExpression unary && unary.NodeType == ExpressionType.Not)
+            {
+                return $"{GetPropertyName(unary.Operand)} = 0";
+            }
+            if (expr is MemberExpression member && member.Type == typeof(bool))
+            {
+                return $"{GetPropertyName(member)} = 1";
+            }
+            
+            throw new NotSupportedException($"Expression type {expr.NodeType} not supported.");
+        }
+
+        private string GetPropertyName(Expression expr)
+        {
+            if (expr is MemberExpression member) return member.Member.Name;
+            if (expr is UnaryExpression unary && unary.NodeType == ExpressionType.Convert && unary.Operand is MemberExpression mem) return mem.Member.Name;
+            throw new NotSupportedException($"Left side of the expression must be a property. Found {expr.NodeType}");
+        }
+
+        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
+        {
+            var (whereClause, parameters) = BuildWhereClause(predicate);
+
+            var sql = $"SELECT 1 FROM {TableName} WHERE {whereClause}";
+
             using var connection = _connectionFactory.CreateConnection();
-            var result = await connection.QueryFirstOrDefaultAsync<int?>(sql, parameters);
+
+            var result = await connection.QueryFirstOrDefaultAsync<int?>(
+                sql,
+                parameters
+            );
+
             return result.HasValue;
         }
 

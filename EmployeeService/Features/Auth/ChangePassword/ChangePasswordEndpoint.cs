@@ -4,12 +4,8 @@ namespace EmployeeService.Features.Auth.ChangePassword
     {
         public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
         {
-            app.MapPut("/change-password", async (
-                [FromServices] IMediator mediator,
-                [FromBody] ChangePasswordRequestDto body,
-                HttpContext httpContext) =>
+            app.MapPut("/change-password", async ([FromServices] IMediator mediator,[FromBody] ChangePasswordRequestDto body,HttpContext httpContext) =>
             {
-                // Extract userId from JWT claims — NEVER trust the client
                 var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
@@ -30,10 +26,7 @@ namespace EmployeeService.Features.Auth.ChangePassword
                     ? Results.Ok(ApiResponse<object>.SuccessResponse(null!, "Password changed successfully."))
                     : Results.BadRequest(ApiResponse<object>.FailureResponse(new[] { "Failed to change password." }));
 
-            })
-            .RequireAuthorization()   // ← JWT required
-            .WithName("ChangePassword")
-            .WithTags("Auth");
+            }).RequireAuthorization().WithName("ChangePassword").WithTags("Auth");
 
             return app;
         }

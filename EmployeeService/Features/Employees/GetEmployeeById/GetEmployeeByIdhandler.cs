@@ -1,10 +1,10 @@
 ﻿namespace EmployeeService.Features.Employees.GetEmployeeById
 {
-    public class GetEmployeeByIdhandler : IRequestHandler<GetEmployeeByIdQuery, Employee?>
+    public class GetEmployeeByIdHandler : IRequestHandler<GetEmployeeByIdQuery, Employee?>
     {
         private readonly IRepository<Employee> _repo;
 
-        public GetEmployeeByIdhandler(IRepository<Employee> repo)
+        public GetEmployeeByIdHandler(IRepository<Employee> repo)
         {
             _repo = repo;
         }
@@ -16,7 +16,7 @@
             
             var employee = await _repo.GetByIdAsync(request.Id);
             if(employee == null)
-                throw new Exceptions.NotFoundException($"Employee with Id {request.Id} not found.");
+                throw new NotFoundException($"Employee with Id {request.Id} not found.");
 
             return employee;
         }

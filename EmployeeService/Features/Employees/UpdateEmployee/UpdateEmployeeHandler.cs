@@ -24,7 +24,8 @@
             var dto = request.dto;
             await _rules.ValidateForUpdateAsync(request.Id, dto, employee);
 
-            employee.Update(dto.FirstName,
+            employee.Update(
+            dto.FirstName,
             dto.Lastname,
             dto.NationalId,
             dto.Email,

@@ -29,8 +29,7 @@ namespace EmployeeService.Middlewares
             }
             catch (Exception ex)
             {
-                await HandleExceptionAsync(context, 500,
-                    new List<string> { ex.Message });
+                await HandleExceptionAsync(context, 500,new List<string> { ex.Message });
             }
 
         }

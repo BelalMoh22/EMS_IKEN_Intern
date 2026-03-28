@@ -33,8 +33,7 @@ namespace EmployeeService.Infrastructure.Repositories
             ";
 
             using var connection = _connectionFactory.CreateConnection();
-            return await connection.QueryAsync<RefreshToken>(
-                sql, new { UserId = userId });
+            return await connection.QueryAsync<RefreshToken>(sql, new { UserId = userId });
         }
 
         public async Task RevokeAsync(int id, string? replacedByTokenHash = null)
@@ -73,8 +72,7 @@ namespace EmployeeService.Infrastructure.Repositories
             ";
 
             using var connection = _connectionFactory.CreateConnection();
-            return await connection
-                .QueryFirstOrDefaultAsync<RefreshToken>(sql, new { Token = token });
+            return await connection.QueryFirstOrDefaultAsync<RefreshToken>(sql, new { Token = token });
         }
     }
 }

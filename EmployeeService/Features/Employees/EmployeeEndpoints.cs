@@ -9,7 +9,7 @@ namespace EmployeeService.Features.Employees
             DeleteEmployeeEndPoint.MapEndpoint(group);
             GetEmployeesEndpoint.MapEndpoint(group);
             GetEmployeeByIdEndpoint.MapEndpoint(group);
-            GetEmployeeByUserId.GetEmployeeByUserIdEndpoint.MapEndpoint(group);
+            GetEmployeeByUserIdEndpoint.MapEndpoint(group);
 
             return group;
         }

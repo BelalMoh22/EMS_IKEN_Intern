@@ -49,3 +49,5 @@ global using EmployeeService.Infrastructure.Security;
 global using EmployeeService.Features.Auth;
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.OpenApi.Models;
+global using EmployeeService.Features.Auth.ChangePassword;
+global using EmployeeService.Features.Auth.Refresh;
