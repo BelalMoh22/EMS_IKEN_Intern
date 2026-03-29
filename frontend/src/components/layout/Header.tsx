@@ -14,7 +14,6 @@ import { useAuthStore } from "@/stores/auth";
 import { useNavigate } from "react-router-dom";
 
 const roleColors: Record<string, string> = {
-  Admin: "#7c3aed",
   HR: "#2563eb",
   Manager: "#059669",
   Employee: "#d97706",
@@ -71,7 +70,11 @@ export function Header({ onToggleSidebar }: Props) {
             {initials}
           </Avatar>
           <Box sx={{ display: { xs: "none", sm: "block" } }}>
-            <Typography variant="body2" fontWeight={500} sx={{ lineHeight: 1.2 }}>
+            <Typography
+              variant="body2"
+              fontWeight={500}
+              sx={{ lineHeight: 1.2 }}
+            >
               {user?.username}
             </Typography>
           </Box>
@@ -87,7 +90,11 @@ export function Header({ onToggleSidebar }: Props) {
             }}
           />
           <Tooltip title="Logout">
-            <IconButton size="small" onClick={handleLogout} sx={{ color: "text.secondary" }}>
+            <IconButton
+              size="small"
+              onClick={handleLogout}
+              sx={{ color: "text.secondary" }}
+            >
               <LogoutIcon fontSize="small" />
             </IconButton>
           </Tooltip>

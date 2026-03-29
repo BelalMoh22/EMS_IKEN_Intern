@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist } from "zustand/middleware"; // persist save state to localStorage
 import type { User, Role } from "@/types";
 
 interface AuthState {
@@ -18,7 +18,8 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set, get) => ({ // set : update state, get : read state
+      // Initial state
       accessToken: null,
       refreshToken: null,
       user: null,
@@ -26,7 +27,7 @@ export const useAuthStore = create<AuthState>()(
       _hasHydrated: false,
 
       setAuth: (accessToken, refreshToken, user) =>
-        set({ accessToken, refreshToken, user, isAuthenticated: true }),
+        set({ accessToken, refreshToken, user, isAuthenticated: true }), // called after login
 
       setTokens: (accessToken, refreshToken) =>
         set({ accessToken, refreshToken }),

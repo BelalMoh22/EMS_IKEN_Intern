@@ -68,9 +68,12 @@ export default function Login() {
       } else {
         navigate("/profile");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Login failed:", error);
-      const msg = error?.response?.data?.message || error?.response?.data?.errors?.[0] || "Invalid credentials. Please try again.";
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.errors?.[0] ||
+        "Invalid credentials. Please try again.";
       enqueueSnackbar(msg, { variant: "error" });
     } finally {
       setLoading(false);
@@ -84,7 +87,8 @@ export default function Login() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)",
+        background:
+          "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)",
         p: 2,
       }}
     >

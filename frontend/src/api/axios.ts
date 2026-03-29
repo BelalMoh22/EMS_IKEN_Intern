@@ -20,12 +20,13 @@ api.interceptors.request.use((config) => {
 
 // ── Response interceptor: handle 401 → refresh → retry ──
 let isRefreshing = false;
+
 let failedQueue: Array<{
   resolve: (value: unknown) => void;
   reject: (reason?: unknown) => void;
 }> = [];
 
-const processQueue = (error: unknown, token: string | null = null) => {
+const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -96,7 +97,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

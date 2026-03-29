@@ -14,10 +14,17 @@ export function DashboardLayout() {
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <AppSidebar collapsed={collapsed} width={sidebarWidth} />
-      <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-        <Header onToggleSidebar={() => setCollapsed((prev) => !prev)} />
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          minWidth: 0,
+        }}
+      >
+        <Header onToggleSidebar={() => setCollapsed((collapse) => !collapse)} />
         <Box component="main" sx={{ flexGrow: 1, p: 3, overflow: "auto" }}>
-          <Outlet />
+          <Outlet /> {/*// Render the nested routes */}
         </Box>
       </Box>
     </Box>

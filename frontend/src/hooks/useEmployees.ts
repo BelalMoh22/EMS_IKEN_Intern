@@ -1,20 +1,28 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"; // useQuery : fetch data , useMutation : update data(PUT , POST , DELETE) , useQueryClient : control cache
 import { employeeApi } from "@/api/employeeApi";
 import type { CreateEmployeeRequest, UpdateEmployeeRequest } from "@/types";
 import { enqueueSnackbar } from "notistack";
 
+/*
+  With TanStack you get :
+  caching : Stores data by queryKey => queryKey: ["employees"]
+  auto refetch
+  loading state
+  error handling
+  background updates
+ */
 export function useEmployees() {
   return useQuery({
-    queryKey: ["employees"],
-    queryFn: employeeApi.getAll,
-  });
+    queryKey: ["employees"], // Unique identifier for cache
+    queryFn: employeeApi.getAll, // unction that fetches data
+  }); // Result :  const { data, isLoading } = useEmployees();
 }
 
 export function useEmployee(id: number) {
   return useQuery({
-    queryKey: ["employees", id],
+    queryKey: ["employees", id], // Unique per employee
     queryFn: () => employeeApi.getById(id),
-    enabled: !!id,
+    enabled: !!id, // Prevents execution if id is falsy
   });
 }
 
@@ -31,7 +39,7 @@ export function useCreateEmployee() {
   return useMutation({
     mutationFn: (data: CreateEmployeeRequest) => employeeApi.create(data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["employees"] });
+      qc.invalidateQueries({ queryKey: ["employees"] }); // “Refetch employees list”
       enqueueSnackbar("Employee created successfully", { variant: "success" });
     },
     onError: () =>

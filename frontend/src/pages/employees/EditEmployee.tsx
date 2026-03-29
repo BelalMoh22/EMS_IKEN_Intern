@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { useEmployee, useUpdateEmployee } from "@/hooks/useEmployees";
 import { usePositions } from "@/hooks/usePositions";
 import { FormInput } from "@/components/shared/FormInput";
@@ -21,6 +21,8 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useEffect } from "react";
+import { STATUS_ENUM_MAP } from "@/types";
+import type { EmployeeStatus } from "@/types";
 
 const schema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -46,7 +48,7 @@ export default function EditEmployee() {
   const { data: positions } = usePositions();
 
   const methods = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       firstName: "",
       lastname: "",
@@ -73,16 +75,7 @@ export default function EditEmployee() {
         address: employee.address ?? "",
         salary: employee.salary ?? 0,
         positionId: employee.positionId ?? 0,
-        status:
-          employee.status === "Active"
-            ? 1
-            : employee.status === "Inactive"
-            ? 2
-            : employee.status === "Suspended"
-            ? 3
-            : employee.status === "Terminated"
-            ? 4
-            : 1,
+        status: STATUS_ENUM_MAP[employee.status as EmployeeStatus] ?? 1,
       });
     }
   }, [employee, methods]);

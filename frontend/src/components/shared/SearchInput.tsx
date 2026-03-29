@@ -8,7 +8,11 @@ interface Props {
   placeholder?: string;
 }
 
-export function SearchInput({ value, onChange, placeholder = "Search..." }: Props) {
+export function SearchInput({
+  value,
+  onChange,
+  placeholder = "Search...",
+}: Props) {
   const [internal, setInternal] = useState(value);
 
   useEffect(() => {

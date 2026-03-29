@@ -34,13 +34,8 @@ export function useCreatePosition() {
 export function useUpdatePosition() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: number;
-      data: UpdatePositionRequest;
-    }) => positionApi.update(id, data),
+    mutationFn: ({ id, data }: { id: number; data: UpdatePositionRequest }) =>
+      positionApi.update(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["positions"] });
       enqueueSnackbar("Position updated successfully", { variant: "success" });

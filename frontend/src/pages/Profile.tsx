@@ -26,7 +26,6 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import type { EmployeeProfile } from "@/types";
 
 const roleColors: Record<string, string> = {
-  Admin: "#7c3aed",
   HR: "#2563eb",
   Manager: "#059669",
   Employee: "#d97706",
@@ -143,10 +142,10 @@ export default function Profile() {
                 />
                 {myEmployee && (
                   <Chip
-                    label={myEmployee.status === 1 ? "Active" : myEmployee.status === 2 ? "Inactive" : myEmployee.status === 3 ? "Suspended" : "Terminated"}
+                    label={myEmployee.status ?? "Active"}
                     size="small"
                     variant="outlined"
-                    color={myEmployee.status === 1 ? "success" : "default"}
+                    color={myEmployee.status === "Active" ? "success" : "default"}
                     sx={{ fontWeight: 500 }}
                   />
                 )}

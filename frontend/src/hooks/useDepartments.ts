@@ -24,7 +24,9 @@ export function useCreateDepartment() {
     mutationFn: (data: CreateDepartmentRequest) => departmentApi.create(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["departments"] });
-      enqueueSnackbar("Department created successfully", { variant: "success" });
+      enqueueSnackbar("Department created successfully", {
+        variant: "success",
+      });
     },
     onError: () =>
       enqueueSnackbar("Failed to create department", { variant: "error" }),
@@ -34,16 +36,13 @@ export function useCreateDepartment() {
 export function useUpdateDepartment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: number;
-      data: UpdateDepartmentRequest;
-    }) => departmentApi.update(id, data),
+    mutationFn: ({ id, data }: { id: number; data: UpdateDepartmentRequest }) =>
+      departmentApi.update(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["departments"] });
-      enqueueSnackbar("Department updated successfully", { variant: "success" });
+      enqueueSnackbar("Department updated successfully", {
+        variant: "success",
+      });
     },
     onError: () =>
       enqueueSnackbar("Failed to update department", { variant: "error" }),
@@ -56,7 +55,9 @@ export function useDeleteDepartment() {
     mutationFn: (id: number) => departmentApi.delete(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["departments"] });
-      enqueueSnackbar("Department deleted successfully", { variant: "success" });
+      enqueueSnackbar("Department deleted successfully", {
+        variant: "success",
+      });
     },
     onError: () =>
       enqueueSnackbar("Failed to delete department", { variant: "error" }),

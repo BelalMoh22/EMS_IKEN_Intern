@@ -16,7 +16,7 @@ export function jwtDecode(token: string): User {
       atob(base64)
         .split("")
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
+        .join(""),
     );
 
     const payload = JSON.parse(jsonPayload);
@@ -25,15 +25,16 @@ export function jwtDecode(token: string): User {
     const id =
       payload[
         "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-      ] ?? payload["nameid"] ?? payload["sub"];
+      ] ??
+      payload["nameid"] ??
+      payload["sub"];
 
-    const username =
-      payload["unique_name"] ?? payload["name"] ?? "User";
+    const username = payload["unique_name"] ?? payload["name"] ?? "User";
 
     const role =
-      payload[
-        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-      ] ?? payload["role"] ?? "Employee";
+      payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ??
+      payload["role"] ??
+      "Employee";
 
     return {
       id: Number(id),

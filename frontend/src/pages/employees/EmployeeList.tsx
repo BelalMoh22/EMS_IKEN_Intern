@@ -18,9 +18,9 @@ const PAGE_SIZE = 10;
 export default function EmployeeList() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
-  const canCreate = user?.role === "Admin" || user?.role === "HR";
-  const canEdit = user?.role === "Admin" || user?.role === "HR";
-  const canDelete = user?.role === "Admin" || user?.role === "HR";
+  const canCreate = user?.role === "HR";
+  const canEdit = user?.role === "HR";
+  const canDelete = user?.role === "HR";
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);

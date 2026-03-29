@@ -32,37 +32,37 @@ const navItems: NavItem[] = [
     title: "Profile",
     url: "/profile",
     icon: <PersonIcon />,
-    roles: ["Admin", "HR", "Manager", "Employee"],
+    roles: ["HR", "Manager", "Employee"],
   },
   {
     title: "Dashboard",
     url: "/dashboard",
     icon: <DashboardIcon />,
-    roles: ["Admin", "HR", "Manager"],
+    roles: ["HR", "Manager"],
   },
   {
     title: "Employees",
     url: "/employees",
     icon: <PeopleIcon />,
-    roles: ["Admin", "HR", "Manager"],
+    roles: ["HR", "Manager"],
   },
   {
     title: "Departments",
     url: "/departments",
     icon: <BusinessIcon />,
-    roles: ["Admin"],
+    roles: ["HR"],
   },
   {
     title: "Positions",
     url: "/positions",
     icon: <WorkIcon />,
-    roles: ["Admin"],
+    roles: ["HR"],
   },
   {
     title: "Change Password",
     url: "/change-password",
     icon: <LockResetIcon />,
-    roles: ["Admin", "HR", "Manager", "Employee"],
+    roles: ["HR", "Manager", "Employee"],
   },
 ];
 
@@ -78,7 +78,7 @@ export function AppSidebar({ collapsed, width }: Props) {
   const logout = useAuthStore((s) => s.logout);
 
   const filteredItems = navItems.filter((item) =>
-    user ? item.roles.includes(user.role) : false
+    user ? item.roles.includes(user.role) : false,
   );
 
   const handleLogout = () => {
@@ -138,10 +138,18 @@ export function AppSidebar({ collapsed, width }: Props) {
         </Box>
         {!collapsed && (
           <Box>
-            <Typography variant="body2" fontWeight={700} noWrap sx={{ color: "#f1f5f9" }}>
+            <Typography
+              variant="body2"
+              fontWeight={700}
+              noWrap
+              sx={{ color: "#f1f5f9" }}
+            >
               HR System
             </Typography>
-            <Typography variant="caption" sx={{ color: "#64748b", fontSize: "0.65rem" }}>
+            <Typography
+              variant="caption"
+              sx={{ color: "#64748b", fontSize: "0.65rem" }}
+            >
               Management Portal
             </Typography>
           </Box>
@@ -213,8 +221,7 @@ export function AppSidebar({ collapsed, width }: Props) {
       <List sx={{ flexGrow: 1, px: 1 }}>
         {filteredItems.map((item) => {
           const isActive =
-            location.pathname === item.url ||
-            (item.url !== "/profile" && location.pathname.startsWith(item.url));
+            location.pathname === item.url || (item.url !== "/profile" && location.pathname.startsWith(item.url));
           return (
             <ListItemButton
               key={item.title}
@@ -269,9 +276,7 @@ export function AppSidebar({ collapsed, width }: Props) {
             "&:hover": { bgcolor: "rgba(239,68,68,0.08)" },
           }}
         >
-          <ListItemIcon
-            sx={{ color: "inherit", minWidth: collapsed ? 0 : 36 }}
-          >
+          <ListItemIcon sx={{ color: "inherit", minWidth: collapsed ? 0 : 36 }}>
             <LogoutIcon fontSize="small" />
           </ListItemIcon>
           {!collapsed && (

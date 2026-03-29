@@ -1,12 +1,12 @@
 // ─── Roles ───────────────────────────────────────────────
-export type Role = "Admin" | "HR" | "Manager" | "Employee";
+export type Role = "HR" | "Manager" | "Employee";
 
 // ─── Auth ────────────────────────────────────────────────
 export interface User {
   id: number;
   username: string;
   role: Role;
-  mustChangePassword?: boolean;
+  mustChangePassword?: boolean; // ? : Optional
 }
 
 export interface LoginRequest {
@@ -14,7 +14,6 @@ export interface LoginRequest {
   password: string;
 }
 
-/** Backend returns { token: { accessToken, refreshToken } } from /login */
 export interface AuthTokenPair {
   accessToken: string;
   refreshToken: string;
@@ -29,13 +28,12 @@ export interface LoginResponse {
   mustChangePassword: boolean;
 }
 
-/** /auth/refresh returns { accessToken, refreshToken } directly */
 export type RefreshResponse = AuthTokenPair;
 
 export interface RegisterRequest {
   username: string;
   password: string;
-  role: number; // 1=Admin, 2=HR, 3=Manager, 4=Employee
+  role: number;
 }
 
 export interface RegisterResponse {
@@ -54,7 +52,7 @@ export type EmployeeStatus = "Active" | "Inactive" | "Suspended" | "Terminated";
 export interface Employee {
   id: number;
   firstName: string;
-  lastname: string;        // backend uses "lastname" (lowercase 'n')
+  lastname: string;
   nationalId: string;
   email: string;
   phoneNumber: string;
@@ -62,15 +60,14 @@ export interface Employee {
   address: string;
   salary: number;
   hireDate: string;
-  status: EmployeeStatus | null;
+  status: EmployeeStatus;
   positionId: number;
   position?: Position | null;
   createdAt: string;
   isDeleted: boolean;
 }
 
-export interface EmployeeProfile extends Omit<Employee, 'status'> {
-  status: number;
+export interface EmployeeProfile extends Employee {
   positionName: string;
   departmentName: string;
 }
@@ -85,7 +82,7 @@ export interface CreateEmployeeRequest {
   address: string;
   salary: number;
   hireDate?: string;
-  status?: number;    // 1=Active, 2=Inactive, 3=Suspended, 4=Terminated
+  status?: number; // 1=Active, 2=Inactive, 3=Suspended, 4=Terminated
   positionId: number;
   username: string;
   password: string;
@@ -158,7 +155,6 @@ export interface UpdatePositionRequest {
   departmentId?: number;
 }
 
-// ─── API Response wrapper (backend uses ApiResponse<T>) ──
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -168,17 +164,15 @@ export interface ApiResponse<T> {
 
 // ─── Role enum mapping helper ────────────────────────────
 export const ROLE_ENUM_MAP: Record<Role, number> = {
-  Admin: 1,
-  HR: 2,
-  Manager: 3,
-  Employee: 4,
+  HR: 1,
+  Manager: 2,
+  Employee: 3,
 };
 
 export const ROLE_FROM_NUMBER: Record<number, Role> = {
-  1: "Admin",
-  2: "HR",
-  3: "Manager",
-  4: "Employee",
+  1: "HR",
+  2: "Manager",
+  3: "Employee",
 };
 
 export const STATUS_ENUM_MAP: Record<EmployeeStatus, number> = {

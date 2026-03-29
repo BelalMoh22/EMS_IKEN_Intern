@@ -6,11 +6,22 @@ const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+    console.error(
+      "404 Error: User attempted to access non-existent route:",
+      location.pathname,
+    );
   }, [location.pathname]);
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", bgcolor: "grey.100" }}>
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "grey.100",
+      }}
+    >
       <Box sx={{ textAlign: "center" }}>
         <Typography variant="h3" fontWeight={700} gutterBottom>
           404

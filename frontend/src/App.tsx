@@ -20,13 +20,18 @@ import ChangePassword from "@/pages/ChangePassword";
 
 const queryClient = new QueryClient({
   defaultOptions: {
+    // These are default behaviors for all queries , Instead of writing options in every useQuery, you define them once here
     queries: { retry: 1, refetchOnWindowFocus: false },
   },
-});
+}); // Creates a global configuration object for React Query
+// All useQuery() calls in your app will follow these rules
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    {/* Without this: useQuery will NOT work*/}
+    <BrowserRouter
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <Routes>
         {/* Public route */}
         <Route path="/login" element={<Login />} />
@@ -44,52 +49,52 @@ const App = () => (
 
           {/* Change Password – accessible by ALL authenticated users */}
           <Route path="/change-password" element={<ChangePassword />} />
-
-          {/* Dashboard – Admin, HR, Manager */}
+          {/* =================================================================== */}
+          {/* Dashboard – HR, Manager */}
           <Route
             path="/dashboard"
             element={
-              <RoleBasedRoute allowedRoles={["Admin", "HR", "Manager"]}>
+              <RoleBasedRoute allowedRoles={["HR", "Manager"]}>
                 <Dashboard />
               </RoleBasedRoute>
             }
           />
 
-          {/* Employees – Admin, HR, Manager (Manager = read-only, enforced in UI) */}
+          {/* Employees – HR, Manager (Manager = read-only, enforced in UI) */}
           <Route
             path="/employees"
             element={
-              <RoleBasedRoute allowedRoles={["Admin", "HR", "Manager"]}>
+              <RoleBasedRoute allowedRoles={["HR", "Manager"]}>
                 <EmployeeList />
               </RoleBasedRoute>
             }
           />
 
-          {/* Create Employee – Admin, HR only */}
+          {/* Create Employee – HR only */}
           <Route
             path="/employees/create"
             element={
-              <RoleBasedRoute allowedRoles={["Admin", "HR"]}>
+              <RoleBasedRoute allowedRoles={["HR"]}>
                 <CreateEmployee />
               </RoleBasedRoute>
             }
           />
 
-          {/* Edit Employee – Admin, HR only */}
+          {/* Edit Employee – HR only */}
           <Route
             path="/employees/edit/:id"
             element={
-              <RoleBasedRoute allowedRoles={["Admin", "HR"]}>
+              <RoleBasedRoute allowedRoles={["HR"]}>
                 <EditEmployee />
               </RoleBasedRoute>
             }
           />
 
-          {/* Departments – Admin only */}
+          {/* Departments – HR only */}
           <Route
             path="/departments"
             element={
-              <RoleBasedRoute allowedRoles={["Admin"]}>
+              <RoleBasedRoute allowedRoles={["HR"]}>
                 <DepartmentList />
               </RoleBasedRoute>
             }
@@ -97,7 +102,7 @@ const App = () => (
           <Route
             path="/departments/create"
             element={
-              <RoleBasedRoute allowedRoles={["Admin"]}>
+              <RoleBasedRoute allowedRoles={["HR"]}>
                 <CreateDepartment />
               </RoleBasedRoute>
             }
@@ -105,17 +110,17 @@ const App = () => (
           <Route
             path="/departments/edit/:id"
             element={
-              <RoleBasedRoute allowedRoles={["Admin"]}>
+              <RoleBasedRoute allowedRoles={["HR"]}>
                 <EditDepartment />
               </RoleBasedRoute>
             }
           />
 
-          {/* Positions – Admin only */}
+          {/* Positions – HR only */}
           <Route
             path="/positions"
             element={
-              <RoleBasedRoute allowedRoles={["Admin"]}>
+              <RoleBasedRoute allowedRoles={["HR"]}>
                 <PositionList />
               </RoleBasedRoute>
             }
@@ -123,7 +128,7 @@ const App = () => (
           <Route
             path="/positions/create"
             element={
-              <RoleBasedRoute allowedRoles={["Admin"]}>
+              <RoleBasedRoute allowedRoles={["HR"]}>
                 <CreatePosition />
               </RoleBasedRoute>
             }
@@ -131,7 +136,7 @@ const App = () => (
           <Route
             path="/positions/edit/:id"
             element={
-              <RoleBasedRoute allowedRoles={["Admin"]}>
+              <RoleBasedRoute allowedRoles={["HR"]}>
                 <EditPosition />
               </RoleBasedRoute>
             }

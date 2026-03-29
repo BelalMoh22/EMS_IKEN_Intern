@@ -46,7 +46,8 @@ export default function Dashboard() {
       <Box>
         <Typography variant="h1">Dashboard</Typography>
         <Typography variant="body2" color="text.secondary">
-          Welcome back, {user?.username}! Here's an overview of your organization.
+          Welcome back, {user?.username}! Here's an overview of your
+          organization.
         </Typography>
       </Box>
 

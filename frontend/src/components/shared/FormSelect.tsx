@@ -13,8 +13,16 @@ interface Props {
   options: Option[];
 }
 
-export function FormSelect({ name, label, placeholder = "Select...", options }: Props) {
-  const { control, formState: { errors } } = useFormContext();
+export function FormSelect({
+  name,
+  label,
+  placeholder = "Select...",
+  options,
+}: Props) {
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
   const error = errors[name];
 
   return (

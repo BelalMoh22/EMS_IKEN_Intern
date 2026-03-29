@@ -12,14 +12,18 @@ interface Props {
 }
 
 export function FormInput({ name, label, type = "text", placeholder }: Props) {
-  const { register, formState: { errors } } = useFormContext();
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
   const [showPassword, setShowPassword] = useState(false);
   const error = errors[name];
 
-  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+  const togglePasswordVisibility = () => setShowPassword((show) => !show);
 
   // If the type is password, determine whether to show it as text or password
-  const inputType = type === "password" ? (showPassword ? "text" : "password") : type;
+  const inputType =
+    type === "password" ? (showPassword ? "text" : "password") : type;
 
   return (
     <TextField

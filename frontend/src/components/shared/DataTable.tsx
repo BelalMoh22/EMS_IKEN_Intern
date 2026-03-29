@@ -30,7 +30,14 @@ interface Props<T> {
   loading?: boolean;
 }
 
-export function DataTable<T>({ columns, data, page = 1, totalPages = 1, onPageChange, loading }: Props<T>) {
+export function DataTable<T>({
+  columns,
+  data,
+  page = 1,
+  totalPages = 1,
+  onPageChange,
+  loading,
+}: Props<T>) {
   if (loading) {
     return (
       <TableContainer component={Paper} variant="outlined">
@@ -47,7 +54,7 @@ export function DataTable<T>({ columns, data, page = 1, totalPages = 1, onPageCh
               <TableRow key={i}>
                 {columns.map((_, j) => (
                   <TableCell key={j}>
-                    <Skeleton variant="text" width="75%" />
+                    <Skeleton variant="text" width="75%" animation="wave" />
                   </TableCell>
                 ))}
               </TableRow>
@@ -60,7 +67,16 @@ export function DataTable<T>({ columns, data, page = 1, totalPages = 1, onPageCh
 
   if (!data.length) {
     return (
-      <Paper variant="outlined" sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", py: 8 }}>
+      <Paper
+        variant="outlined"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          py: 8,
+        }}
+      >
         <InboxIcon sx={{ fontSize: 48, color: "text.disabled" }} />
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
           No data found
@@ -85,7 +101,13 @@ export function DataTable<T>({ columns, data, page = 1, totalPages = 1, onPageCh
               <TableRow key={i} hover>
                 {columns.map((col, j) => (
                   <TableCell key={j}>
-                    {col.cell ? col.cell(row) : String((row as Record<string, unknown>)[col.accessorKey as string] ?? "")}
+                    {col.cell
+                      ? col.cell(row)
+                      : String(
+                          (row as Record<string, unknown>)[
+                            col.accessorKey as string
+                          ] ?? "",
+                        )}
                   </TableCell>
                 ))}
               </TableRow>
@@ -94,15 +116,31 @@ export function DataTable<T>({ columns, data, page = 1, totalPages = 1, onPageCh
         </Table>
       </TableContainer>
       {totalPages > 1 && onPageChange && (
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Typography variant="body2" color="text.secondary">
             Page {page} of {totalPages}
           </Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
-            <Button variant="outlined" size="small" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={page <= 1}
+              onClick={() => onPageChange(page - 1)}
+            >
               <ChevronLeftIcon fontSize="small" />
             </Button>
-            <Button variant="outlined" size="small" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={page >= totalPages}
+              onClick={() => onPageChange(page + 1)}
+            >
               <ChevronRightIcon fontSize="small" />
             </Button>
           </Box>

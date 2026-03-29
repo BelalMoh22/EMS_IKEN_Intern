@@ -18,14 +18,18 @@ export const employeeApi = {
    * GET /api/employees/{id}
    */
   getById: (id: number) =>
-    api.get<ApiResponse<Employee>>(`/employees/${id}`).then((r) => r.data.data!),
+    api
+      .get<ApiResponse<Employee>>(`/employees/${id}`)
+      .then((r) => r.data.data!),
 
   /**
    * GET /api/employees/by-user/{userId}
    * Fetches the mapped employee profile for the authenticated User
    */
   getByUserId: (userId: number) =>
-    api.get<ApiResponse<EmployeeProfile>>(`/employees/by-user/${userId}`).then((r) => r.data.data!),
+    api
+      .get<ApiResponse<EmployeeProfile>>(`/employees/by-user/${userId}`)
+      .then((r) => r.data.data!),
 
   /**
    * POST /api/employees → creates employee record
@@ -38,11 +42,11 @@ export const employeeApi = {
    * PUT /api/employees/{id}
    */
   update: (id: number, data: UpdateEmployeeRequest) =>
-    api.put<ApiResponse<void>>(`/employees/${id}`, data).then((r) => r.data.data!),
+    api.put<ApiResponse<void>>(`/employees/${id}`, data).then((r) => r.data),
 
   /**
    * DELETE /api/employees/{id}
    */
   delete: (id: number) =>
-    api.delete<ApiResponse<void>>(`/employees/${id}`).then((r) => r.data.data!),
+    api.delete<ApiResponse<void>>(`/employees/${id}`).then((r) => r.data),
 };

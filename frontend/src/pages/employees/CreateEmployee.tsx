@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { useCreateEmployee } from "@/hooks/useEmployees";
 import { useDepartments } from "@/hooks/useDepartments";
 import { usePositions } from "@/hooks/usePositions";
@@ -45,7 +45,7 @@ const schema = z.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/,
       "Password must contain uppercase, lowercase, number, and special character"
     ),
-  role: z.enum(["Admin", "HR", "Manager", "Employee"]),
+  role: z.enum(["HR", "Manager", "Employee"]),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -59,7 +59,7 @@ export default function CreateEmployee() {
   const [submitting, setSubmitting] = useState(false);
 
   const methods = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       firstName: "",
       lastname: "",
@@ -194,7 +194,6 @@ export default function CreateEmployee() {
                     name="role"
                     label="Role"
                     options={[
-                      { label: "Admin", value: "Admin" },
                       { label: "HR", value: "HR" },
                       { label: "Manager", value: "Manager" },
                       { label: "Employee", value: "Employee" },

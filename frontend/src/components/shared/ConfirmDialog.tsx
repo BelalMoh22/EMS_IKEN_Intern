@@ -16,9 +16,21 @@ interface Props {
   loading?: boolean;
 }
 
-export function ConfirmDialog({ open, onOpenChange, title, description, onConfirm, loading }: Props) {
+export function ConfirmDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  onConfirm,
+  loading,
+}: Props) {
   return (
-    <Dialog open={open} onClose={() => onOpenChange(false)} maxWidth="xs" fullWidth>
+    <Dialog
+      open={open}
+      onClose={() => onOpenChange(false)}
+      maxWidth="xs"
+      fullWidth
+    >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <DialogContentText>{description}</DialogContentText>
@@ -27,7 +39,12 @@ export function ConfirmDialog({ open, onOpenChange, title, description, onConfir
         <Button onClick={() => onOpenChange(false)} disabled={loading}>
           Cancel
         </Button>
-        <Button onClick={onConfirm} disabled={loading} color="error" variant="contained">
+        <Button
+          onClick={onConfirm}
+          disabled={loading}
+          color="error"
+          variant="contained"
+        >
           {loading ? "Deleting..." : "Delete"}
         </Button>
       </DialogActions>
