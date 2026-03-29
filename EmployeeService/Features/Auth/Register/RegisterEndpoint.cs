@@ -4,12 +4,12 @@ namespace EmployeeService.Features.Auth.Register
     {
         public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
         {
-            app.MapPost("/register",async (RegisterDto dto, IMediator mediator) =>
+            app.MapPost("/register", async (RegisterDto dto, IMediator mediator) =>
             {
                 var command = new RegisterCommand(dto);
                 var userId = await mediator.Send(command);
                 return Results.Ok(ApiResponse<int>.SuccessResponse(userId, "User registered successfully"));
-            }).WithTags("Auth").RequireAuthorization("FullCRUDEmployee");
+            }).WithTags("Auth");
 
             return app;
         }

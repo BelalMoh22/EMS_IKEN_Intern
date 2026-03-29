@@ -1,4 +1,6 @@
+using EmployeeService.Infrastructure.Data;
 using System.Text.Json.Serialization;
+
 namespace EmployeeService
 {
     public class Program
@@ -104,25 +106,6 @@ namespace EmployeeService
 
             var app = builder.Build();
             app.Logger.LogInformation("Application started successfully (Information)");
-
-            using (var scope = app.Services.CreateScope())
-            {
-                var userRepo = scope.ServiceProvider.GetRequiredService<UserRepository>();
-                var existingUser = await userRepo.GetByUsernameAsync("admin_hr");
-                if (existingUser == null)
-                {
-                    var hrUser = new User
-                    {
-                        Username = "admin_hr",
-                        PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
-                        Role = Roles.HR,
-                        MustChangePassword = true,
-                        CreatedAt = DateTime.UtcNow
-                    };
-                    await userRepo.AddAsync(hrUser);
-                    app.Logger.LogInformation("Seeded Initial HR User (admin_hr / Admin@123).");
-                }
-            }
             
             if (app.Environment.IsDevelopment())
             {
@@ -142,7 +125,11 @@ namespace EmployeeService
             app.MapGroup("/api/departments").MapDepartmentEndpoints().RequireAuthorization("FullCRUD");
             app.MapGroup("/api/positions").MapPositionEndpoints().RequireAuthorization("FullCRUD");
 
+            //// Seed Database
+            //await DatabaseSeeder.SeedAsync(app.Services);
+
             app.Run();
+
         }
     }
 }
