@@ -4,10 +4,9 @@ import { useDepartments, useDeleteDepartment } from "@/hooks/useDepartments";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { Box, Typography, Button, IconButton, Chip } from "@mui/material";
+import { Box, Typography, Button, Chip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { ActionButtons } from "@/components/shared/ActionButtons";
 import type { Department } from "@/types";
 
 export default function DepartmentList() {
@@ -70,22 +69,13 @@ export default function DepartmentList() {
     {
       header: "Actions",
       cell: (row) => (
-        <Box sx={{ display: "flex", gap: 0.5 }}>
-          <IconButton
-            size="small"
-            onClick={() => navigate(`/departments/edit/${row.id}`)}
-            color="primary"
-          >
-            <EditIcon fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => setDeleteTarget(row.id)}
-            color="error"
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        </Box>
+        <ActionButtons
+          basePath="/departments"
+          id={row.id}
+          canEdit={true}
+          canDelete={true}
+          onDelete={(id) => setDeleteTarget(Number(id))}
+        />
       ),
     },
   ];
@@ -128,7 +118,12 @@ export default function DepartmentList() {
         />
       </Box>
 
-      <DataTable columns={columns} data={filteredData} loading={isLoading} />
+      <DataTable 
+        columns={columns} 
+        data={filteredData} 
+        loading={isLoading} 
+        onRowClick={(row) => navigate(`/departments/${row.id}`)}
+      />
 
       <ConfirmDialog
         open={deleteTarget !== null}

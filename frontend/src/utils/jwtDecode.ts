@@ -1,19 +1,15 @@
 import type { User, Role } from "@/types";
 
-/**
- * Decode a JWT access token to extract user info from claims.
- *
- * The backend puts these claims in the JWT:
- * - ClaimTypes.NameIdentifier → user ID  (claim key: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")
- * - JwtRegisteredClaimNames.UniqueName → username  (claim key: "unique_name")
- * - ClaimTypes.Role → role string         (claim key: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")
+/*
+  Decode a JWT access token to extract user info from claims.
  */
 export function jwtDecode(token: string): User {
   try {
-    const base64Url = token.split(".")[1];
+    const base64Url = token.split(".")[1]; // [0] = header, [1] = payload , [2] = signature
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const jsonPayload = decodeURIComponent(
-      atob(base64)
+      // Converts encoded string → normal string
+      atob(base64) // Decodes Base64 → string
         .split("")
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
         .join(""),

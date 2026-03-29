@@ -22,8 +22,7 @@ export function FormInput({ name, label, type = "text", placeholder }: Props) {
   const togglePasswordVisibility = () => setShowPassword((show) => !show);
 
   // If the type is password, determine whether to show it as text or password
-  const inputType =
-    type === "password" ? (showPassword ? "text" : "password") : type;
+  const inputType = type === "password" ? (showPassword ? "text" : "password") : type;
 
   return (
     <TextField

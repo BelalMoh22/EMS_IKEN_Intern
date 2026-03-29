@@ -28,6 +28,7 @@ interface Props<T> {
   totalPages?: number;
   onPageChange?: (page: number) => void;
   loading?: boolean;
+  onRowClick?: (row: T) => void;
 }
 
 export function DataTable<T>({
@@ -37,6 +38,7 @@ export function DataTable<T>({
   totalPages = 1,
   onPageChange,
   loading,
+  onRowClick,
 }: Props<T>) {
   if (loading) {
     return (
@@ -98,7 +100,12 @@ export function DataTable<T>({
           </TableHead>
           <TableBody>
             {data.map((row, i) => (
-              <TableRow key={i} hover>
+              <TableRow
+                key={i}
+                hover
+                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                sx={{ cursor: onRowClick ? "pointer" : "default" }}
+              >
                 {columns.map((col, j) => (
                   <TableCell key={j}>
                     {col.cell

@@ -7,10 +7,9 @@ import { useDepartments } from "@/hooks/useDepartments";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { Box, Typography, Button, IconButton, Chip } from "@mui/material";
+import { Box, Typography, Button, Chip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { ActionButtons } from "@/components/shared/ActionButtons";
 import type { Employee } from "@/types";
 
 const PAGE_SIZE = 10;
@@ -110,33 +109,18 @@ export default function EmployeeList() {
         />
       ),
     },
-    ...(canEdit
-      ? [
-          {
-            header: "Actions" as const,
-            cell: (row: Employee) => (
-              <Box sx={{ display: "flex", gap: 0.5 }}>
-                <IconButton
-                  size="small"
-                  onClick={() => navigate(`/employees/edit/${row.id}`)}
-                  color="primary"
-                >
-                  <EditIcon fontSize="small" />
-                </IconButton>
-                {canDelete && (
-                  <IconButton
-                    size="small"
-                    onClick={() => setDeleteTarget(row.id)}
-                    color="error"
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                )}
-              </Box>
-            ),
-          },
-        ]
-      : []),
+    {
+      header: "Actions" as const,
+      cell: (row: Employee) => (
+        <ActionButtons
+          basePath="/employees"
+          id={row.id}
+          canEdit={canEdit}
+          canDelete={canDelete}
+          onDelete={(id) => setDeleteTarget(Number(id))}
+        />
+      ),
+    },
   ];
 
   const handleSearch = useCallback(
@@ -196,6 +180,7 @@ export default function EmployeeList() {
         page={page}
         totalPages={totalPages}
         onPageChange={setPage}
+        onRowClick={(row) => navigate(`/employees/${row.id}`)}
       />
 
       <ConfirmDialog

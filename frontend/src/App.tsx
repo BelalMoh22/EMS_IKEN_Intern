@@ -9,12 +9,15 @@ import Dashboard from "@/pages/Dashboard";
 import EmployeeList from "@/pages/employees/EmployeeList";
 import CreateEmployee from "@/pages/employees/CreateEmployee";
 import EditEmployee from "@/pages/employees/EditEmployee";
+import EmployeeDetails from "@/pages/employees/EmployeeDetails";
 import DepartmentList from "@/pages/departments/DepartmentList";
 import CreateDepartment from "@/pages/departments/CreateDepartment";
 import EditDepartment from "@/pages/departments/EditDepartment";
+import DepartmentDetails from "@/pages/departments/DepartmentDetails";
 import PositionList from "@/pages/positions/PositionList";
 import CreatePosition from "@/pages/positions/CreatePosition";
 import EditPosition from "@/pages/positions/EditPosition";
+import PositionDetails from "@/pages/positions/PositionDetails";
 import NotFound from "@/pages/NotFound";
 import ChangePassword from "@/pages/ChangePassword";
 
@@ -69,6 +72,14 @@ const App = () => (
               </RoleBasedRoute>
             }
           />
+          <Route
+            path="/employees/:id"
+            element={
+              <RoleBasedRoute allowedRoles={["HR", "Manager"]}>
+                <EmployeeDetails />
+              </RoleBasedRoute>
+            }
+          />
 
           {/* Create Employee – HR only */}
           <Route
@@ -100,6 +111,14 @@ const App = () => (
             }
           />
           <Route
+            path="/departments/:id"
+            element={
+              <RoleBasedRoute allowedRoles={["HR"]}>
+                <DepartmentDetails />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
             path="/departments/create"
             element={
               <RoleBasedRoute allowedRoles={["HR"]}>
@@ -122,6 +141,14 @@ const App = () => (
             element={
               <RoleBasedRoute allowedRoles={["HR"]}>
                 <PositionList />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/positions/:id"
+            element={
+              <RoleBasedRoute allowedRoles={["HR"]}>
+                <PositionDetails />
               </RoleBasedRoute>
             }
           />

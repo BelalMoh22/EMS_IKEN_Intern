@@ -46,7 +46,11 @@ function InfoRow({
     <Box sx={{ display: "flex", alignItems: "center", gap: 2, py: 1.5 }}>
       <Box sx={{ color: "text.secondary", display: "flex" }}>{icon}</Box>
       <Box sx={{ flex: 1 }}>
-        <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: "block" }}
+        >
           {label}
         </Typography>
         {loading ? (
@@ -78,7 +82,15 @@ export default function Profile() {
   const departmentName = myEmployee?.departmentName;
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3, maxWidth: 900, mx: "auto" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 3,
+        maxWidth: 900,
+        mx: "auto",
+      }}
+    >
       {/* Header Card */}
       <Card
         sx={{
@@ -122,13 +134,24 @@ export default function Profile() {
               <Typography variant="h4" fontWeight={700} sx={{ mb: 0.5 }}>
                 {myEmployee
                   ? `${myEmployee.firstName} ${myEmployee.lastname}`
-                  : user?.username ?? "User"}
+                  : (user?.username ?? "User")}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mb: 1.5 }}
+              >
                 {positionName ?? "Position not assigned"}
                 {departmentName ? ` · ${departmentName}` : ""}
               </Typography>
-              <Box sx={{ display: "flex", gap: 1, justifyContent: { xs: "center", sm: "flex-start" }, flexWrap: "wrap" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  justifyContent: { xs: "center", sm: "flex-start" },
+                  flexWrap: "wrap",
+                }}
+              >
                 <Chip
                   label={user?.role ?? "Employee"}
                   size="small"
@@ -145,7 +168,9 @@ export default function Profile() {
                     label={myEmployee.status ?? "Active"}
                     size="small"
                     variant="outlined"
-                    color={myEmployee.status === "Active" ? "success" : "default"}
+                    color={
+                      myEmployee.status === "Active" ? "success" : "default"
+                    }
                     sx={{ fontWeight: 500 }}
                   />
                 )}
@@ -161,7 +186,9 @@ export default function Profile() {
         <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+              >
                 <PersonIcon color="primary" />
                 <Typography variant="h5">Personal Information</Typography>
               </Box>
@@ -193,11 +220,14 @@ export default function Profile() {
                 label="Date of Birth"
                 value={
                   myEmployee?.dateOfBirth
-                    ? new Date(myEmployee.dateOfBirth).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })
+                    ? new Date(myEmployee.dateOfBirth).toLocaleDateString(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        },
+                      )
                     : undefined
                 }
                 loading={isLoading}
@@ -216,7 +246,9 @@ export default function Profile() {
         <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+              >
                 <WorkIcon color="primary" />
                 <Typography variant="h5">Job Information</Typography>
               </Box>
@@ -238,11 +270,14 @@ export default function Profile() {
                 label="Hire Date"
                 value={
                   myEmployee?.hireDate
-                    ? new Date(myEmployee.hireDate).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })
+                    ? new Date(myEmployee.hireDate).toLocaleDateString(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        },
+                      )
                     : undefined
                 }
                 loading={isLoading}
@@ -271,7 +306,9 @@ export default function Profile() {
         <Grid size={{ xs: 12 }}>
           <Card>
             <CardContent>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+              >
                 <SecurityIcon color="primary" />
                 <Typography variant="h5">Account Information</Typography>
               </Box>
