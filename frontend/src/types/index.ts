@@ -47,7 +47,7 @@ export interface ChangePasswordRequest {
 }
 
 // ─── Employee ────────────────────────────────────────────
-export type EmployeeStatus = "Active" | "Inactive" | "Suspended" | "Terminated";
+export type EmployeeStatus = "Active" | "Inactive" | "Terminated";
 
 export interface Employee {
   id: number;
@@ -82,7 +82,7 @@ export interface CreateEmployeeRequest {
   address: string;
   salary: number;
   hireDate?: string;
-  status?: number; // 1=Active, 2=Inactive, 3=Suspended, 4=Terminated
+  status?: number; // 1=Active, 2=Inactive, 3=Terminated
   positionId: number;
   username: string;
   password: string;
@@ -180,13 +180,11 @@ export const ROLE_FROM_NUMBER: Record<number, Role> = {
 export const STATUS_ENUM_MAP: Record<EmployeeStatus, number> = {
   Active: 1,
   Inactive: 2,
-  Suspended: 3,
-  Terminated: 4,
+  Terminated: 3,
 };
 
 export const STATUS_FROM_NUMBER: Record<number, EmployeeStatus> = {
   1: "Active",
   2: "Inactive",
-  3: "Suspended",
-  4: "Terminated",
+  3: "Terminated",
 };

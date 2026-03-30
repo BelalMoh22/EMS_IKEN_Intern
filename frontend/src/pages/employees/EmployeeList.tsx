@@ -83,14 +83,12 @@ export default function EmployeeList() {
     }
   };
 
-  const statusColor = (status: string | null) => {
+  const statusColor = (status: string | null | undefined) => {
     switch (status) {
       case "Active":
         return "success";
       case "Inactive":
         return "default";
-      case "Suspended":
-        return "warning";
       case "Terminated":
         return "error";
       default:

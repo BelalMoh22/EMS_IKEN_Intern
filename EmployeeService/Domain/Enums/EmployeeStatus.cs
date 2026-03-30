@@ -1,10 +1,9 @@
-﻿namespace EmployeeService.Domain.Enums
+namespace EmployeeService.Domain.Enums
 {
     public enum EmployeeStatus
     {
         Active = 1,
         Inactive = 2,
-        Suspended = 3,
-        Terminated = 4
+        Terminated = 3
     }
 }

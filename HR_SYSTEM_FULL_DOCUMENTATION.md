@@ -648,7 +648,7 @@ Create a dedicated `/api/auth/me` or `/api/profile` endpoint that returns the cu
 | `Address` | `string` | Residential address |
 | `Salary` | `decimal` | Monthly salary (must be within position range) |
 | `HireDate` | `DateTime` | Date of hire (auto-set to UtcNow on creation) |
-| `Status` | `EmployeeStatus?` | Active/Inactive/Suspended/Terminated |
+| `Status` | `EmployeeStatus?` | Active/Inactive/Terminated |
 | `PositionId` | `int` | Foreign key to Position |
 | `Position` | `Position` | Navigation property |
 
@@ -716,7 +716,7 @@ Admin = 1, HR = 2, Manager = 3, Employee = 4
 
 #### EmployeeStatus (`Domain/Enums/EmployeeStatus.cs`)
 ```
-Active = 1, Inactive = 2, Suspended = 3, Terminated = 4
+Active = 1, Inactive = 2, Terminated = 3
 ```
 
 ---

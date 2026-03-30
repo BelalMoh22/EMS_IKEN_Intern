@@ -39,7 +39,7 @@ const schema = z.object({
   address: z.string().min(1, "Address is required"),
   salary: z.coerce.number().min(0, "Salary must be positive"),
   positionId: z.coerce.number().min(1, "Position is required"),
-  status: z.coerce.number().min(1).max(4),
+  status: z.coerce.number().min(1).max(3),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -240,8 +240,7 @@ export default function EditEmployee() {
                     options={[
                       { label: "Active", value: "1" },
                       { label: "Inactive", value: "2" },
-                      { label: "Suspended", value: "3" },
-                      { label: "Terminated", value: "4" },
+                      { label: "Terminated", value: "3" },
                     ]}
                   />
                 </Grid>

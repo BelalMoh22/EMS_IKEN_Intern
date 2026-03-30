@@ -98,8 +98,6 @@ export default function EmployeeDetails() {
         return "success";
       case "Inactive":
         return "default";
-      case "Suspended":
-        return "warning";
       case "Terminated":
         return "error";
       default:
