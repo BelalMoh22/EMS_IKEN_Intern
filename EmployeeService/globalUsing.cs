@@ -52,5 +52,5 @@ global using Microsoft.OpenApi.Models;
 global using EmployeeService.Features.Auth.ChangePassword;
 global using EmployeeService.Features.Auth.Refresh;
 global using EmployeeService.Features.Attendance;
-global using EmployeeService.Features.Attendance.UploadPreview;
-global using EmployeeService.Features.Attendance.Confirm;
+global using EmployeeService.Features.Attendance.Sync;
+global using EmployeeService.Features.Attendance.MyAttendance;

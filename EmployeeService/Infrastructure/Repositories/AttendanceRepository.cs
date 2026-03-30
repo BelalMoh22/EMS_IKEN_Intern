@@ -1,4 +1,4 @@
-namespace EmployeeService.Infrastructure.Repositories
+﻿namespace EmployeeService.Infrastructure.Repositories
 {
     public class AttendanceRepository
     {
@@ -29,14 +29,85 @@ namespace EmployeeService.Infrastructure.Repositories
             return count > 0;
         }
 
+        /// Gets an existing attendance record for one employee on one date. Returns null if not found.
+        public async Task<Attendance?> GetByEmployeeAndDateAsync(int employeeId, DateTime date)
+        {
+            const string sql = @"
+                SELECT Id, EmployeeId, Date, CheckIn, CheckOut, LateMinutes, EarlyLeaveMinutes, WorkingMinutes, Status, CreatedAt
+                FROM Attendance
+                WHERE EmployeeId = @EmployeeId
+                  AND CAST(Date AS DATE) = CAST(@Date AS DATE)";
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryFirstOrDefaultAsync<Attendance>(sql, new { EmployeeId = employeeId, Date = date.Date });
+        }
+
+        /// <summary>
+        /// Gets all attendance records for an employee, ordered by date descending.
+        /// </summary>
+        public async Task<IEnumerable<Attendance>> GetByEmployeeIdAsync(int employeeId)
+        {
+            const string sql = @"
+                SELECT Id, EmployeeId, Date, CheckIn, CheckOut, LateMinutes, EarlyLeaveMinutes, WorkingMinutes, Status, CreatedAt
+                FROM Attendance
+                WHERE EmployeeId = @EmployeeId
+                ORDER BY Date DESC";
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryAsync<Attendance>(sql, new { EmployeeId = employeeId });
+        }
+
+        /// <summary>
+        /// Inserts a single attendance record.
+        /// </summary>
+        public async Task InsertAsync(Attendance record)
+        {
+            const string sql = @"
+                INSERT INTO Attendance (EmployeeId, Date, CheckIn, CheckOut, LateMinutes, EarlyLeaveMinutes, WorkingMinutes, Status, CreatedAt)
+                VALUES (@EmployeeId, @Date, @CheckIn, @CheckOut, @LateMinutes, @EarlyLeaveMinutes, @WorkingMinutes, @Status, @CreatedAt)";
+
+            using var connection = _connectionFactory.CreateConnection();
+            await connection.ExecuteAsync(sql, record);
+            _logger.LogInformation("Inserted attendance record for EmployeeId {EmployeeId} on {Date}.", record.EmployeeId, record.Date);
+        }
+
+        /// <summary>
+        /// Updates an existing attendance record by Id.
+        /// </summary>
+        public async Task UpdateAsync(int id, Attendance record)
+        {
+            const string sql = @"
+                UPDATE Attendance
+                SET CheckIn = @CheckIn,
+                    CheckOut = @CheckOut,
+                    LateMinutes = @LateMinutes,
+                    EarlyLeaveMinutes = @EarlyLeaveMinutes,
+                    WorkingMinutes = @WorkingMinutes,
+                    Status = @Status
+                WHERE Id = @Id";
+
+            using var connection = _connectionFactory.CreateConnection();
+            await connection.ExecuteAsync(sql, new
+            {
+                Id = id,
+                record.CheckIn,
+                record.CheckOut,
+                record.LateMinutes,
+                record.EarlyLeaveMinutes,
+                record.WorkingMinutes,
+                record.Status
+            });
+            _logger.LogInformation("Updated attendance record Id {Id}.", id);
+        }
+
         /// <summary>
         /// Bulk-inserts confirmed attendance records inside a single transaction.
         /// </summary>
         public async Task BulkInsertAsync(IEnumerable<Attendance> records)
         {
             const string sql = @"
-                INSERT INTO Attendance (EmployeeId, Date, CheckIn, CheckOut, LateMinutes, Status, CreatedAt)
-                VALUES (@EmployeeId, @Date, @CheckIn, @CheckOut, @LateMinutes, @Status, @CreatedAt)";
+                INSERT INTO Attendance (EmployeeId, Date, CheckIn, CheckOut, LateMinutes, EarlyLeaveMinutes, WorkingMinutes, Status, CreatedAt)
+                VALUES (@EmployeeId, @Date, @CheckIn, @CheckOut, @LateMinutes, @EarlyLeaveMinutes, @WorkingMinutes, @Status, @CreatedAt)";
 
             using var connection = _connectionFactory.CreateConnection();
             connection.Open();
@@ -55,3 +126,4 @@ namespace EmployeeService.Infrastructure.Repositories
         }
     }
 }
+

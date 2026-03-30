@@ -164,9 +164,48 @@ export interface AttendancePreviewDto {
   checkIn: string | null;
   checkOut: string | null;
   lateMinutes: number;
+  earlyLeaveMinutes: number;
+  workingMinutes: number;
   status: string;
   isValid: boolean;
   errors: string[];
+}
+
+export interface SyncResult {
+  inserted: number;
+  updated: number;
+  skipped: number;
+  errors: string[];
+  records: AttendanceRecordDto[];
+}
+
+export interface AttendanceRecordDto {
+  employeeId: number;
+  employeeName: string;
+  date: string;
+  checkIn: string | null;
+  checkOut: string | null;
+  lateMinutes: number;
+  earlyLeaveMinutes: number;
+  workingMinutes: number;
+  status: string;
+}
+
+export interface MyAttendanceRecord {
+  date: string;
+  checkIn: string | null;
+  checkOut: string | null;
+  status: string;
+  lateMinutes: number;
+  earlyLeaveMinutes: number;
+  workingMinutes: number;
+}
+
+export interface MyAttendanceResult {
+  records: MyAttendanceRecord[];
+  totalLateMinutes: number;
+  totalEarlyLeaveMinutes: number;
+  totalWorkingMinutes: number;
 }
 
 export interface ApiResponse<T> {

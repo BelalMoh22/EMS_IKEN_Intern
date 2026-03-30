@@ -17,6 +17,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
 import type { Role } from "@/types";
@@ -60,10 +61,16 @@ const navItems: NavItem[] = [
     roles: ["HR"],
   },
   {
-    title: "Upload Attendance",
+    title: "Attendance",
     url: "/attendance/upload",
     icon: <EventAvailableIcon />,
     roles: ["HR"],
+  },
+  {
+    title: "My Attendance",
+    url: "/attendance/my",
+    icon: <CalendarTodayIcon />,
+    roles: ["Employee", "HR", "Manager"],
   },
   {
     title: "Change Password",
