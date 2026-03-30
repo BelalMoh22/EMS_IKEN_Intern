@@ -1,37 +1,24 @@
 import api from "./axios";
-import type { ApiResponse, AttendancePreviewDto } from "@/types";
+import type { ApiResponse, AttendancePreviewDto, SyncResult, MyAttendanceResult } from "@/types";
 
 export const attendanceApi = {
   /**
-   * POST /api/attendance/upload-preview
-   * Uploads an Excel/CSV file and returns a validated preview without saving to DB.
+   * POST /api/attendance/sync
+   * Validates and saves the data from the static server file directly to the database.
    */
-  uploadPreview: async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await api.post<ApiResponse<AttendancePreviewDto[]>>(
-      "/attendance/upload-preview",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
+  sync: async () => {
+    const response = await api.post<ApiResponse<SyncResult>>(
+      "/attendance/sync"
     );
-    return response.data.data!;
+    return response.data;
   },
 
   /**
-   * GET /api/attendance/employees/{id} - stub for future
+   * GET /api/attendance/my
+   * Gets the attendance records and summary for the currently logged in employee.
    */
-
-  /**
-   * POST /api/attendance/confirm
-   * Sends the reviewed list of valid attendance rows to save to the database.
-   */
-  confirm: async (rows: AttendancePreviewDto[]) => {
-    const response = await api.post<ApiResponse<number>>("/attendance/confirm", rows);
-    return response.data;
+  getMyAttendance: async () => {
+    const response = await api.get<ApiResponse<MyAttendanceResult>>("/attendance/my");
+    return response.data.data!;
   },
 };

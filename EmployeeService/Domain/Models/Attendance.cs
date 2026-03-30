@@ -13,6 +13,8 @@ namespace EmployeeService.Domain.Models
         public TimeSpan? CheckOut { get; set; }
 
         public int LateMinutes { get; set; }
+        public int EarlyLeaveMinutes { get; set; }
+        public int WorkingMinutes { get; set; }
         public string Status { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

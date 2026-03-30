@@ -4,8 +4,8 @@ namespace EmployeeService.Features.Attendance
     {
         public static RouteGroupBuilder MapAttendanceEndpoints(this RouteGroupBuilder group)
         {
-            UploadPreview.UploadAttendancePreviewEndpoint.MapEndpoint(group);
-            Confirm.ConfirmAttendanceEndpoint.MapEndpoint(group);
+            Sync.SyncAttendanceEndpoint.MapEndpoint(group);
+            MyAttendance.GetMyAttendanceEndpoint.MapEndpoint(group);
             return group;
         }
     }

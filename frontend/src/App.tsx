@@ -20,7 +20,8 @@ import EditPosition from "@/pages/positions/EditPosition";
 import PositionDetails from "@/pages/positions/PositionDetails";
 import NotFound from "@/pages/NotFound";
 import ChangePassword from "@/pages/ChangePassword";
-import AttendanceUpload from "@/pages/attendance/AttendanceUpload";
+import Attendance from "@/pages/attendance/AttendanceSync";
+import MyAttendance from "@/pages/attendance/MyAttendance";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -141,7 +142,17 @@ const App = () => (
             path="/attendance/upload"
             element={
               <RoleBasedRoute allowedRoles={["HR"]}>
-                <AttendanceUpload />
+                <Attendance />
+              </RoleBasedRoute>
+            }
+          />
+
+          {/* My Attendance - Accessible by Employee, HR, Manager */}
+          <Route
+            path="/attendance/my"
+            element={
+              <RoleBasedRoute allowedRoles={["Employee", "HR", "Manager"]}>
+                <MyAttendance />
               </RoleBasedRoute>
             }
           />
