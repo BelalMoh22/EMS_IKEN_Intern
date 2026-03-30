@@ -101,7 +101,7 @@ export default function PositionDetails() {
       }
     >
       <Card elevation={0} sx={{ backgroundColor: "transparent" }}>
-        <CardContent sx={{ p: 0 }}>
+        <CardContent sx={{ p: 3 }}>
           <Box sx={{ mb: 4 }}>
             <Typography variant="h4" fontWeight="bold">
               {position.positionName}

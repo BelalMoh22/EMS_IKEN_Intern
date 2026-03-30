@@ -123,7 +123,7 @@ export default function EmployeeDetails() {
       }
     >
       <Card elevation={0} sx={{ backgroundColor: "transparent" }}>
-        <CardContent sx={{ p: 0 }}>
+        <CardContent sx={{ p: 3 }}>
           <Box
             sx={{
               mb: 4,

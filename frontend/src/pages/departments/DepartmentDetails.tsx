@@ -93,7 +93,7 @@ export default function DepartmentDetails() {
       }
     >
       <Card elevation={0} sx={{ backgroundColor: "transparent" }}>
-        <CardContent sx={{ p: 0 }}>
+        <CardContent sx={{ p: 3 }}>
           <Box sx={{ mb: 4, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <Box>
               <Typography variant="h4" fontWeight="bold">
