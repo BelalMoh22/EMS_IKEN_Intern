@@ -50,6 +50,7 @@ namespace EmployeeService
             builder.Services.AddScoped<IEmployeeBusinessRules, EmployeeBusinessRules>();
             builder.Services.AddScoped<IPositionBusinessRules, PositionBusinessRules>();
             builder.Services.AddScoped<IDepartmentBusinessRules, DepartmentBusinessRules>();
+            builder.Services.AddScoped<AttendanceRepository>();
 
             // Use Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -134,6 +135,7 @@ namespace EmployeeService
             app.MapGroup("/api/employees").MapEmployeesEndpoints();
             app.MapGroup("/api/departments").MapDepartmentEndpoints().RequireAuthorization("FullCRUD");
             app.MapGroup("/api/positions").MapPositionEndpoints().RequireAuthorization("FullCRUD");
+            app.MapGroup("/api/attendance").MapAttendanceEndpoints();
 
             app.Run();
         }

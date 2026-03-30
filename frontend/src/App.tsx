@@ -20,6 +20,7 @@ import EditPosition from "@/pages/positions/EditPosition";
 import PositionDetails from "@/pages/positions/PositionDetails";
 import NotFound from "@/pages/NotFound";
 import ChangePassword from "@/pages/ChangePassword";
+import AttendanceUpload from "@/pages/attendance/AttendanceUpload";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -131,6 +132,16 @@ const App = () => (
             element={
               <RoleBasedRoute allowedRoles={["HR"]}>
                 <EditDepartment />
+              </RoleBasedRoute>
+            }
+          />
+
+          {/* Attendance - HR only */}
+          <Route
+            path="/attendance/upload"
+            element={
+              <RoleBasedRoute allowedRoles={["HR"]}>
+                <AttendanceUpload />
               </RoleBasedRoute>
             }
           />

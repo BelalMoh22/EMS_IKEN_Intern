@@ -157,6 +157,18 @@ export interface UpdatePositionRequest {
   targetEmployeeCount?: number;
 }
 
+// ─── Attendance ──────────────────────────────────────────
+export interface AttendancePreviewDto {
+  employeeId: number;
+  date: string;
+  checkIn: string | null;
+  checkOut: string | null;
+  lateMinutes: number;
+  status: string;
+  isValid: boolean;
+  errors: string[];
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
