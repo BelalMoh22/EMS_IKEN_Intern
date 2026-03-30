@@ -1,4 +1,5 @@
-﻿namespace EmployeeService.Features.Positions.GetPositionById
+namespace EmployeeService.Features.Positions.GetPositionById
 {
-    public record GetPositionByIdQuery(int Id) : IRequest<Position?>;
+    using EmployeeService.Features.Positions;
+    public record GetPositionByIdQuery(int Id) : IRequest<PositionDto?>;
 }

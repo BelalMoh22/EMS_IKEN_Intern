@@ -12,7 +12,10 @@ namespace EmployeeService.Features.Employees.GetEmployeeByUserId
         public async Task<EmployeeProfileDto?> Handle(GetEmployeeByUserIdQuery request, CancellationToken cancellationToken)
         {
             if (request.UserId <= 0)
-                throw new Exceptions.ValidationException(new() { "UserId must be greater than 0." });
+                throw new Exceptions.ValidationException(new Dictionary<string, List<string>>
+                {
+                    { "id", new List<string> { "Id must be a positive integer." } }
+                });
 
             var sql = @"
                 SELECT 

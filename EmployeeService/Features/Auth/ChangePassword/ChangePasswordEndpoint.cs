@@ -24,7 +24,10 @@ namespace EmployeeService.Features.Auth.ChangePassword
 
                 return result
                     ? Results.Ok(ApiResponse<object>.SuccessResponse(null!, "Password changed successfully."))
-                    : Results.BadRequest(ApiResponse<object>.FailureResponse(new[] { "Failed to change password." }));
+                    : Results.BadRequest(ApiResponse<object>.FailureResponse(new Dictionary<string, List<string>>
+                    {
+                        { "password", new List<string> { "Failed to change password." } }
+                    }));
 
             }).RequireAuthorization().WithName("ChangePassword").WithTags("Auth");
 

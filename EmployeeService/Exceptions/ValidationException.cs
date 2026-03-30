@@ -1,11 +1,10 @@
 ﻿namespace EmployeeService.Exceptions
 {
-    public class ValidationException : AppException
+    public class ValidationException : Exception
     {
-        public List<string> Errors { get; }
+        public Dictionary<string, List<string>> Errors { get; }
 
-        public ValidationException(List<string> errors)
-            : base("Validation Failed")
+        public ValidationException(Dictionary<string, List<string>> errors)
         {
             Errors = errors;
         }

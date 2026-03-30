@@ -8,7 +8,7 @@ namespace EmployeeService.Features.Positions.GetPositionById
             {
                 var command = new GetPositionByIdQuery(id);
                 var result = await mediator.Send(command);
-                return Results.Ok(ApiResponse<Position>.SuccessResponse(result, "Position retrieved successfully"));
+                return Results.Ok(ApiResponse<PositionDto>.SuccessResponse(result, "Position retrieved successfully"));
             }).WithName("GetPositionById").WithTags("Positions");
 
             return app;

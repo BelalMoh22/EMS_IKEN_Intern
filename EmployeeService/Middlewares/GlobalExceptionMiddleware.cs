@@ -17,37 +17,49 @@ namespace EmployeeService.Middlewares
             }
             catch (Exceptions.ValidationException ex)
             {
-                await HandleExceptionAsync(context, 400, ex.Errors);
+                await HandleValidationException(context, ex);
             }
             catch (NotFoundException ex)
             {
-                await HandleExceptionAsync(context, 404, new List<string> { ex.Message });
+                await HandleGenericException(context, 404, ex.Message);
             }
             catch (UnauthorizedAccessException ex)
             {
-                await HandleExceptionAsync(context, 401, new List<string> { ex.Message });
+                await HandleGenericException(context, 401, ex.Message);
             }
             catch (Exception ex)
             {
-                await HandleExceptionAsync(context, 500,new List<string> { ex.Message });
+                await HandleGenericException(context, 500, ex.Message);
             }
-
         }
 
+        private static async Task HandleValidationException(HttpContext context, Exceptions.ValidationException ex)
+        {
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
 
-        private static Task HandleExceptionAsync(HttpContext context, int statusCode, List<string> errors)
+            var response = ApiResponse<string>.FailureResponse(
+                ex.Errors,
+                "Validation failed"
+            );
+
+            var json = JsonSerializer.Serialize(response);
+            await context.Response.WriteAsync(json);
+        }
+
+        private static async Task HandleGenericException(HttpContext context, int statusCode, string message)
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = statusCode;
 
-            var response = ApiResponse<string>.FailureResponse(
-                errors,
-                "An error occurred while processing your request."
-            );
-            
-            var json = JsonSerializer.Serialize(response);
+            var response = new ApiResponse<string>
+            {
+                Success = false,
+                Message = message
+            };
 
-            return context.Response.WriteAsync(json);
+            var json = JsonSerializer.Serialize(response);
+            await context.Response.WriteAsync(json);
         }
     }
 }

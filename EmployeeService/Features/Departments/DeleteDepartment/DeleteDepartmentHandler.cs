@@ -14,7 +14,10 @@
         public async Task<int> Handle(DeleteDepartmentCommand request, CancellationToken cancellationToken)
         {
             if (request.id <= 0)
-                throw new Exceptions.ValidationException(new() {"Invalid department Id." });
+                throw new Exceptions.ValidationException(new Dictionary<string, List<string>>
+                {
+                    { "id", new List<string> { "Id must be a positive integer." } }
+                });
 
             await _rules.ValidateForDeleteAsync(request.id);
             var rows = await _repo.DeleteAsync(request.id);

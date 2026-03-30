@@ -1,4 +1,5 @@
-﻿namespace EmployeeService.Features.Positions.GetPositions
+namespace EmployeeService.Features.Positions.GetPositions
 {
-    public record GetPositionsQuery() : IRequest<IEnumerable<Position>>;
+    using EmployeeService.Features.Positions;
+    public record GetPositionsQuery() : IRequest<IEnumerable<PositionDto>>;
 }

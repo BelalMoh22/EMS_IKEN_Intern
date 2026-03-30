@@ -45,7 +45,10 @@ namespace EmployeeService.Infrastructure.Repositories
             var affected = await connection.ExecuteAsync(sql, new { Id = id });
 
             if (affected == 0)
-                throw new Exceptions.ValidationException( new() { $"Entity with Id {id} does not exist or is already inactive." });
+                throw new Exceptions.ValidationException(new Dictionary<string, List<string>>
+                {
+                    { "row", new List<string> { "The row could not be found or is already deleted." } }
+                });
 
             _logger.LogDebug("Executing SOFT DELETE for Id {Id}", id);
             return affected;

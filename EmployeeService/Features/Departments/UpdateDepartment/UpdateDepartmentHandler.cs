@@ -1,4 +1,4 @@
-﻿using EmployeeService.Domain.Models;
+using EmployeeService.Domain.Models;
 
 namespace EmployeeService.Features.Departments.UpdateDepartment
 {
@@ -15,7 +15,7 @@ namespace EmployeeService.Features.Departments.UpdateDepartment
         public async Task<int> Handle(UpdateDepartmentCommand request, CancellationToken cancellationToken)
         {
             if (request.Id <= 0)
-                throw new Exceptions.ValidationException(new() {"Invalid department Id." });
+                throw new Exceptions.ValidationException(new Dictionary<string, List<string>> { { "id", new List<string> { "Id must be a positive integer." } } });
 
             var existingDepartment = await _repo.GetByIdAsync(request.Id);
             if (existingDepartment == null)
@@ -27,7 +27,6 @@ namespace EmployeeService.Features.Departments.UpdateDepartment
             existingDepartment.Update(
                 dto.DepartmentName,
                 dto.Description,
-                dto.Email,
                 dto.ManagerId,
                 dto.IsActive
             );

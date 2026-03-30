@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Positions.UpdatePosition
+namespace EmployeeService.Features.Positions.UpdatePosition
 {
     public class UpdatePositionHandler : IRequestHandler<UpdatePositionCommand, int>
     {
@@ -14,7 +14,7 @@
         public async Task<int> Handle(UpdatePositionCommand request, CancellationToken cancellationToken)
         {
             if (request.Id <= 0)
-                throw new Exceptions.ValidationException(new() { "Invalid position Id." });
+                throw new Exceptions.ValidationException(new Dictionary<string, List<string>> { { "id", new List<string> { "Id must be a positive integer." } } });
 
             var existingPosition = await _repo.GetByIdAsync(request.Id);
             if (existingPosition == null)
@@ -23,7 +23,7 @@
             var dto = request.dto;
             await _rules.ValidateForUpdateAsync(request.Id, dto, existingPosition);
 
-            existingPosition.Update(dto.PositionName,dto.MinSalary,dto.MaxSalary,dto.DepartmentId);
+            existingPosition.Update(dto.PositionName,dto.MinSalary,dto.MaxSalary,dto.DepartmentId, dto.TargetEmployeeCount);
 
             return await _repo.UpdateAsync(request.Id, existingPosition);
         }

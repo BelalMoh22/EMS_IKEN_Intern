@@ -20,12 +20,8 @@ namespace EmployeeService.Features.Employees.CreateEmployee
             // Step 1: Validate Employee Rules
             await _rules.ValidateForCreateAsync(dto);
 
-            // Step 2: Validate Username uniqueness
-            var userExists = await _userRepository.ExistsAsync(u => u.Username == dto.Username && u.IsDeleted == false);
-            if (userExists)
-            {
-                throw new Exceptions.ValidationException(new List<string> { "Username already exists." });
-            }
+            // Step 2: Validate Username uniqueness (Now handled inside Step 1 rules)
+            // Removed redundant check logic
 
             // Step 3: Create User mapped internally
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);

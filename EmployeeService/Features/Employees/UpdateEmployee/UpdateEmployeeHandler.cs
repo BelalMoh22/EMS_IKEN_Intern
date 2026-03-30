@@ -15,7 +15,10 @@
         public async Task<int> Handle(UpdateEmployeeCommand request,CancellationToken cancellationToken)
         {
             if (request.Id <= 0)
-                throw new Exceptions.ValidationException(new() { "Invalid employee Id." });
+                throw new Exceptions.ValidationException(new Dictionary<string, List<string>>
+                {
+                    { "id", new List<string> { "Id must be a positive integer." } }
+                });
 
             var employee = await _repo.GetByIdAsync(request.Id);
             if (employee is null)

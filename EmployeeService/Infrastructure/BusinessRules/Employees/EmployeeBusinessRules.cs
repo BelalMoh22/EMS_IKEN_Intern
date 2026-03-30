@@ -1,88 +1,93 @@
 namespace EmployeeService.Infrastructure.BusinessRules.Employees
 {
-    public class EmployeeBusinessRules : IEmployeeBusinessRules
+    public class EmployeeBusinessRules : BaseBusinessRules, IEmployeeBusinessRules
     {
         private readonly IRepository<Employee> _employeeRepository;
         private readonly IRepository<Position> _positionRepository;
+        private readonly UserRepository _userRepository;
 
         public EmployeeBusinessRules(
             IRepository<Employee> employeeRepository,
-            IRepository<Position> positionRepository)
+            IRepository<Position> positionRepository,
+            UserRepository userRepository)
         {
             _employeeRepository = employeeRepository;
             _positionRepository = positionRepository;
+            _userRepository = userRepository;
         }
 
         public async Task ValidateForCreateAsync(CreateEmployeeDTO dto)
         {
-            var errors = new List<string>();
-            errors.AddRange(ValidationHelper.ValidateModel(dto));
+            var errors = ValidationHelper.ValidateModel(dto);
 
             var position = await _positionRepository.GetByIdAsync(dto.PositionId);
             if (position is null)
-                errors.Add($"Position with Id {dto.PositionId} does not exist.");
+                AddError(errors, "positionId", $"Position with Id {dto.PositionId} does not exist.");
 
-            var emailExists = await _employeeRepository
-                .ExistsAsync(e => e.Email == dto.Email);
+            if (await _employeeRepository.ExistsAsync(e => e.Email == dto.Email))
+                AddError(errors, "email", $"Email '{dto.Email}' is already in use.");
 
-            if (emailExists)
-                errors.Add($"Email '{dto.Email}' is already in use.");
+            if (await _employeeRepository.ExistsAsync(e => e.NationalId == dto.NationalId))
+                AddError(errors, "nationalId", $"National ID '{dto.NationalId}' is already in use.");
 
-            var nationalIdExists = await _employeeRepository
-                .ExistsAsync(e => e.NationalId == dto.NationalId);
-
-            if (nationalIdExists)
-                errors.Add($"National ID '{dto.NationalId}' is already in use.");
+            if (await _userRepository.ExistsAsync(u => u.Username == dto.Username))
+                AddError(errors, "username", "Username already exists.");
 
             if (dto.Salary <= 0)
-                errors.Add("Salary must be greater than zero.");
+                AddError(errors, "salary", "Salary must be greater than zero.");
 
-            if (position != null && (dto.Salary < position.MinSalary || dto.Salary > position.MaxSalary))
-                errors.Add($"Salary must be between {position.MinSalary} and {position.MaxSalary}.");
+            if (position != null &&
+                (dto.Salary < position.MinSalary || dto.Salary > position.MaxSalary))
+                AddError(errors, "salary", $"Salary must be between {position.MinSalary} and {position.MaxSalary}.");
 
-            if (dto.Status.HasValue && !Enum.IsDefined(typeof(EmployeeStatus), dto.Status.Value))
-                errors.Add("Invalid employee status.");
+            if (position != null && (dto.Status == EmployeeStatus.Active || dto.Status == null))
+            {
+                if (position.CurrentEmployeeCount >= position.TargetEmployeeCount)
+                    AddError(errors, "positionId", "Position capacity reached");
+            }
 
-            if (errors.Any())
-                throw new Exceptions.ValidationException(errors);
+            ThrowIfAny(errors);
         }
 
-        public async Task ValidateForUpdateAsync(int employeeId,UpdateEmployeeDTO dto,Employee existingEmployee)
+        public async Task ValidateForUpdateAsync(int employeeId, UpdateEmployeeDTO dto, Employee existing)
         {
-            var errors = new List<string>();
-            errors.AddRange(ValidationHelper.ValidateModel(dto));
+            var errors = ValidationHelper.ValidateModel(dto);
 
-            var effectiveEmail = dto.Email ?? existingEmployee.Email;
-            var effectiveNationalId = dto.NationalId ?? existingEmployee.NationalId;
-            var effectiveSalary = dto.Salary ?? existingEmployee.Salary;
-            var effectivePositionId = dto.PositionId ?? existingEmployee.PositionId;
-            var effectiveStatus = dto.Status ?? existingEmployee.Status;
+            var email = dto.Email ?? existing.Email;
+            var nationalId = dto.NationalId ?? existing.NationalId;
+            var salary = dto.Salary ?? existing.Salary;
+            var positionId = dto.PositionId ?? existing.PositionId;
 
-            var position = await _positionRepository.GetByIdAsync(effectivePositionId);
+            var position = await _positionRepository.GetByIdAsync(positionId);
             if (position is null)
-                errors.Add($"Position with Id {effectivePositionId} does not exist.");
+                AddError(errors, "positionId", $"Position with Id {positionId} does not exist.");
 
-            var emailExists = await _employeeRepository.ExistsAsync(e => e.Email == effectiveEmail && e.Id != employeeId);
+            if (await _employeeRepository.ExistsAsync(e => e.Email == email && e.Id != employeeId))
+                AddError(errors, "email", $"Email '{email}' is already in use.");
 
-            if (emailExists)
-                errors.Add($"Email '{effectiveEmail}' is already in use.");
+            if (await _employeeRepository.ExistsAsync(e => e.NationalId == nationalId && e.Id != employeeId))
+                AddError(errors, "nationalId", $"National ID '{nationalId}' is already in use.");
 
-            var nationalIdExists = await _employeeRepository.ExistsAsync(e => e.NationalId == effectiveNationalId && e.Id != employeeId);
+            if (salary <= 0)
+                AddError(errors, "salary", "Salary must be greater than zero.");
 
-            if (nationalIdExists)
-                errors.Add($"National ID '{effectiveNationalId}' is already in use.");
+            if (position != null &&
+                (salary < position.MinSalary || salary > position.MaxSalary))
+                AddError(errors, "salary", $"Salary must be between {position.MinSalary} and {position.MaxSalary}.");
 
-            if (effectiveSalary <= 0)
-                errors.Add("Salary must be greater than zero.");
+            // Capacity Check for Update
+            // 1. Employee moving to another position while being/becoming active
+            // 2. Employee staying in same position but becoming active from inactive
+            bool willBeActive = (dto.Status ?? existing.Status) == EmployeeStatus.Active;
+            bool isAlreadyActiveInSamePosition = (existing.Status == EmployeeStatus.Active && (dto.PositionId == null || dto.PositionId == existing.PositionId));
 
-            if (position != null &&(effectiveSalary < position.MinSalary || effectiveSalary > position.MaxSalary))
-                errors.Add($"Salary must be between {position.MinSalary} and {position.MaxSalary}.");
+            if (position != null && willBeActive && !isAlreadyActiveInSamePosition)
+            {
+                if (position.CurrentEmployeeCount >= position.TargetEmployeeCount)
+                    AddError(errors, "positionId", "Position capacity reached");
+            }
 
-            if (effectiveStatus.HasValue &&!Enum.IsDefined(typeof(EmployeeStatus), effectiveStatus.Value))
-                errors.Add("Invalid employee status.");
-
-            if (errors.Any())
-                throw new Exceptions.ValidationException(errors);
+            ThrowIfAny(errors);
         }
     }
 }

@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-
 namespace EmployeeService.Features.Auth.ChangePassword
 {
     public class ChangePasswordHandler : IRequestHandler<ChangePasswordCommand, bool>
@@ -13,35 +12,33 @@ namespace EmployeeService.Features.Auth.ChangePassword
 
         public async Task<bool> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
         {
-            if (request.NewPassword != request.ConfirmPassword)
-            {
-                throw new Exceptions.ValidationException(
-                    new List<string> { "New password and confirm password do not match." });
-            }
+            var errors = new Dictionary<string, List<string>>();
 
+            // Confirm password match
+            if (request.NewPassword != request.ConfirmPassword)
+                AddError(errors, "confirmPassword", "New password and confirm password do not match.");
+
+            // Strong password validation
             if (!IsStrongPassword(request.NewPassword))
-            {
-                throw new Exceptions.ValidationException(
-                    new List<string> { "Password must be at least 8 characters and contain an uppercase letter, a number, and a special character." });
-            }
+                AddError(errors, "newPassword", "Password must be at least 8 characters and contain an uppercase letter, a number, and a special character.");
 
             var user = await _userRepository.GetByIdAsync(request.UserId);
             if (user == null)
-            {
                 throw new NotFoundException("User not found.");
-            }
 
+            // Validate current password
             if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
-            {
-                throw new UnauthorizedAccessException("Invalid current password.");
-            }
+                AddError(errors, "currentPassword", "Invalid current password.");
 
+            // Prevent same password reuse
             if (BCrypt.Net.BCrypt.Verify(request.NewPassword, user.PasswordHash))
-            {
-                throw new Exceptions.ValidationException(
-                    new List<string> { "New password must be different from the current password." });
-            }
+                AddError(errors, "newPassword", "New password must be different from the current password.");
 
+            // Throw validation errors
+            if (errors.Any())
+                throw new Exceptions.ValidationException(errors);
+
+            // Update password
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
             user.MustChangePassword = false;
 
@@ -57,6 +54,14 @@ namespace EmployeeService.Features.Auth.ChangePassword
             return Regex.IsMatch(password, @"[A-Z]")
                 && Regex.IsMatch(password, @"[0-9]")
                 && Regex.IsMatch(password, @"[^a-zA-Z0-9]");
+        }
+
+        private void AddError(Dictionary<string, List<string>> errors, string field, string message)
+        {
+            if (!errors.ContainsKey(field))
+                errors[field] = new List<string>();
+
+            errors[field].Add(message);
         }
     }
 }

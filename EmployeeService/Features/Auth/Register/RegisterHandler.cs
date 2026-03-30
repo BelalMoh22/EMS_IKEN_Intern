@@ -1,4 +1,4 @@
-namespace EmployeeService.Features.Auth.Register
+﻿namespace EmployeeService.Features.Auth.Register
 {
     public class RegisterHandler : IRequestHandler<RegisterCommand, int>
     {
@@ -11,16 +11,20 @@ namespace EmployeeService.Features.Auth.Register
 
         public async Task<int> Handle(RegisterCommand request, CancellationToken cancellationToken)
         {
-            var errors = new List<string>();
-            errors.AddRange(ValidationHelper.ValidateModel(request.dto));
+            var errors = ValidationHelper.ValidateModel(request.dto);
 
+            // Validate Role
             if (!Enum.IsDefined(typeof(Roles), request.dto.Role))
-                    errors.Add("Invalid role value.");
+                AddError(errors, "role", "Invalid role value.");
 
-            var exists = await _userRepository.ExistsAsync(u => u.Username == request.dto.Username && u.IsDeleted == false);
+            // Check username uniqueness
+            var exists = await _userRepository
+                .ExistsAsync(u => u.Username == request.dto.Username && !u.IsDeleted);
+
             if (exists)
-                errors.Add("Username already exists.");
+                AddError(errors, "username", "Username already exists.");
 
+            // Throw if any errors
             if (errors.Any())
                 throw new Exceptions.ValidationException(errors);
 
@@ -34,6 +38,15 @@ namespace EmployeeService.Features.Auth.Register
             };
 
             return await _userRepository.AddAsync(user);
+        }
+
+        // 🔥 Local helper (or move to Base class if you want)
+        private void AddError(Dictionary<string, List<string>> errors, string field, string message)
+        {
+            if (!errors.ContainsKey(field))
+                errors[field] = new List<string>();
+
+            errors[field].Add(message);
         }
     }
 }

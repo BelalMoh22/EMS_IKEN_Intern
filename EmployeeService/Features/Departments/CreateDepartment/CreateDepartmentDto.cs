@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Departments.CreateDepartment
+namespace EmployeeService.Features.Departments.CreateDepartment
 {
     public class CreateDepartmentDto
     {
@@ -6,10 +6,6 @@
         public string DepartmentName { get; set; }
 
         public string? Description { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Email is required.")]
-        [EmailAddress(ErrorMessage = "Email must contain @ and be valid.")]
-        public string Email { get; set; }
 
         public int? ManagerId { get; set; }
     }

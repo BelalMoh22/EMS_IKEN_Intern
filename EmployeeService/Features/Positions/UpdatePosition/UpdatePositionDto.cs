@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Positions.UpdatePosition
+namespace EmployeeService.Features.Positions.UpdatePosition
 {
     public class UpdatePositionDto
     {
@@ -11,5 +11,8 @@
         public decimal? MaxSalary { get; init; }
 
         public int? DepartmentId { get; init; }
+        
+        [Range(0, 1000, ErrorMessage = "Target employee count must be between 0 and 1000.")]
+        public int? TargetEmployeeCount { get; init; }
     }
 }

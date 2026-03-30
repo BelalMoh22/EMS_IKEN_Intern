@@ -14,7 +14,10 @@ namespace EmployeeService.Features.Employees.DeleteEmployee
         public async Task<int> Handle(DeleteEmployeeCommand request, CancellationToken cancellationToken)
         {
             if (request.id <= 0)
-                throw new Exceptions.ValidationException(new() {"Invalid employee Id." });
+                throw new Exceptions.ValidationException(new Dictionary<string, List<string>>
+                {
+                    { "id", new List<string> { "Id must be a positive integer." } }
+                });
 
             var employee = await _repo.GetByIdAsync(request.id);
             if (employee == null)

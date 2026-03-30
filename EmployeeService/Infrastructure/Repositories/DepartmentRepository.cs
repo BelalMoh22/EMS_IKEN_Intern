@@ -29,7 +29,6 @@ namespace EmployeeService.Infrastructure.Repositories
             SET
                 DepartmentName = @DepartmentName,
                 Description = @Description,
-                Email = @Email,
                 ManagerId = @ManagerId,
                 IsActive = @IsActive
                 WHERE Id = @Id
@@ -41,7 +40,6 @@ namespace EmployeeService.Infrastructure.Repositories
                 Id = id,
                 department.DepartmentName,
                 department.Description,
-                department.Email,
                 department.ManagerId,
                 department.IsActive
             });
