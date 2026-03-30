@@ -25,6 +25,7 @@ namespace EmployeeService.Features.Positions.GetPositionById
             {
                 throw new NotFoundException($"Position with Id {request.Id} not found.");
             }
+
             return new PositionDto
             {
                 Id = position.Id,

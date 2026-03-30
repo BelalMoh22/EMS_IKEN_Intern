@@ -1,12 +1,14 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { usePosition, useUpdatePosition } from "@/hooks/usePositions";
 import { useDepartments } from "@/hooks/useDepartments";
 import { FormInput } from "@/components/shared/FormInput";
 import { FormSelect } from "@/components/shared/FormSelect";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { handleApiErrors } from "@/utils/handleApiErrors";
+import { useSnackbar } from "notistack";
 import {
   Box,
   Typography,
@@ -27,6 +29,9 @@ const schema = z.object({
   departmentId: z.coerce.number().min(1, "Department is required"),
   minSalary: z.coerce.number().min(0, "Min salary must be positive"),
   maxSalary: z.coerce.number().min(0, "Max salary must be positive"),
+  targetEmployeeCount: z.coerce
+    .number()
+    .min(1, "Target count must be at least 1"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -38,14 +43,16 @@ export default function EditPosition() {
   const { data: position, isLoading } = usePosition(numId);
   const updateMutation = useUpdatePosition();
   const { data: departments } = useDepartments();
+  const { enqueueSnackbar } = useSnackbar();
 
   const methods = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       positionName: "",
       departmentId: 0,
       minSalary: 0,
       maxSalary: 0,
+      targetEmployeeCount: 1,
     },
   });
 
@@ -56,6 +63,7 @@ export default function EditPosition() {
         departmentId: position.departmentId ?? 0,
         minSalary: position.minSalary ?? 0,
         maxSalary: position.maxSalary ?? 0,
+        targetEmployeeCount: position.targetEmployeeCount ?? 1,
       });
     }
   }, [position, methods]);
@@ -63,7 +71,15 @@ export default function EditPosition() {
   const onSubmit = (values: FormData) => {
     updateMutation.mutate(
       { id: numId, data: values },
-      { onSuccess: () => navigate("/positions") }
+      {
+        onSuccess: () => {
+          navigate("/positions");
+        },
+        onError: (error) => {
+          const message = handleApiErrors(error, methods);
+          enqueueSnackbar(message, { variant: "error" });
+        },
+      },
     );
   };
 
@@ -113,10 +129,25 @@ export default function EditPosition() {
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormInput name="minSalary" label="Min Salary" type="number" />
+                  <FormInput
+                    name="minSalary"
+                    label="Min Salary"
+                    type="number"
+                  />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormInput name="maxSalary" label="Max Salary" type="number" />
+                  <FormInput
+                    name="maxSalary"
+                    label="Max Salary"
+                    type="number"
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormInput
+                    name="targetEmployeeCount"
+                    label="Target Employee Count"
+                    type="number"
+                  />
                 </Grid>
               </Grid>
               <Box sx={{ display: "flex", gap: 1.5, pt: 2 }}>

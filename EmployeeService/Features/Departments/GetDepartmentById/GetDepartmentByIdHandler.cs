@@ -18,7 +18,7 @@
                 });
             var department = await _repo.GetByIdAsync(request.Id); 
             if (department == null)
-                throw new Exceptions.NotFoundException($"Department with Id {request.Id} not found.");
+                throw new NotFoundException($"Department with Id {request.Id} not found.");
 
             return department;
         }

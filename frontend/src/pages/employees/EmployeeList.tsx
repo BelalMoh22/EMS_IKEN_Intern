@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEmployees, useDeleteEmployee } from "@/hooks/useEmployees";
@@ -11,6 +12,8 @@ import { Box, Typography, Button, Chip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { ActionButtons } from "@/components/shared/ActionButtons";
 import type { Employee } from "@/types";
+import { getGeneralErrors } from "@/utils/handleApiErrors";
+import { useSnackbar } from "notistack";
 
 const PAGE_SIZE = 10;
 
@@ -29,6 +32,7 @@ export default function EmployeeList() {
   const { data: positions } = usePositions();
   const { data: departments } = useDepartments();
   const deleteMutation = useDeleteEmployee();
+  const { enqueueSnackbar } = useSnackbar();
 
   // Client-side search & pagination since backend returns full array
   const filtered = useMemo(() => {
@@ -40,7 +44,7 @@ export default function EmployeeList() {
         e.firstName?.toLowerCase().includes(s) ||
         e.lastname?.toLowerCase().includes(s) ||
         e.email?.toLowerCase().includes(s) ||
-        e.phoneNumber?.toLowerCase().includes(s)
+        e.phoneNumber?.toLowerCase().includes(s),
     );
   }, [employees, search]);
 
@@ -53,13 +57,28 @@ export default function EmployeeList() {
   const getDepartmentName = (posId: number) => {
     const pos = positions?.find((p) => p.id === posId);
     if (!pos) return "—";
-    return departments?.find((d) => d.id === pos.departmentId)?.departmentName ?? "—";
+    return (
+      departments?.find((d) => d.id === pos.departmentId)?.departmentName ?? "—"
+    );
   };
 
   const handleDelete = () => {
     if (deleteTarget !== null) {
       deleteMutation.mutate(deleteTarget, {
-        onSuccess: () => setDeleteTarget(null),
+        onSuccess: () => {
+          setDeleteTarget(null);
+        },
+        onError: (error) => {
+          const errors = getGeneralErrors(error);
+          if (errors.length > 0) {
+            errors.forEach((msg) => enqueueSnackbar(msg, { variant: "error" }));
+          } else {
+            const data = (error as any)?.response?.data;
+            enqueueSnackbar(data?.message || "Failed to delete employee", {
+              variant: "error",
+            });
+          }
+        },
       });
     }
   };
@@ -123,13 +142,10 @@ export default function EmployeeList() {
     },
   ];
 
-  const handleSearch = useCallback(
-    (v: string) => {
-      setSearch(v);
-      setPage(1);
-    },
-    []
-  );
+  const handleSearch = useCallback((v: string) => {
+    setSearch(v);
+    setPage(1);
+  }, []);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>

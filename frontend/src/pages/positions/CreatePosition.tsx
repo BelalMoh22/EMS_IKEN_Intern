@@ -1,11 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { useCreatePosition } from "@/hooks/usePositions";
 import { useDepartments } from "@/hooks/useDepartments";
 import { FormInput } from "@/components/shared/FormInput";
 import { FormSelect } from "@/components/shared/FormSelect";
+import { handleApiErrors } from "@/utils/handleApiErrors";
+import { useSnackbar } from "notistack";
 import {
   Box,
   Typography,
@@ -25,6 +27,9 @@ const schema = z.object({
   departmentId: z.coerce.number().min(1, "Department is required"),
   minSalary: z.coerce.number().min(0, "Min salary must be positive"),
   maxSalary: z.coerce.number().min(0, "Max salary must be positive"),
+  targetEmployeeCount: z.coerce
+    .number()
+    .min(1, "Target count must be at least 1"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -33,20 +38,28 @@ export default function CreatePosition() {
   const navigate = useNavigate();
   const createMutation = useCreatePosition();
   const { data: departments } = useDepartments();
+  const { enqueueSnackbar } = useSnackbar();
 
   const methods = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       positionName: "",
       departmentId: 0,
       minSalary: 0,
       maxSalary: 0,
+      targetEmployeeCount: 1,
     },
   });
 
   const onSubmit = (values: FormData) => {
     createMutation.mutate(values, {
-      onSuccess: () => navigate("/positions"),
+      onSuccess: () => {
+        navigate("/positions");
+      },
+      onError: (error) => {
+        const message = handleApiErrors(error, methods);
+        enqueueSnackbar(message, { variant: "error" });
+      },
     });
   };
 
@@ -110,6 +123,14 @@ export default function CreatePosition() {
                     label="Max Salary"
                     type="number"
                     placeholder="80000"
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormInput
+                    name="targetEmployeeCount"
+                    label="Target Employee Count"
+                    type="number"
+                    placeholder="10"
                   />
                 </Grid>
               </Grid>

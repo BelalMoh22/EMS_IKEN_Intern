@@ -18,8 +18,7 @@
                 AddError(errors, "role", "Invalid role value.");
 
             // Check username uniqueness
-            var exists = await _userRepository
-                .ExistsAsync(u => u.Username == request.dto.Username && !u.IsDeleted);
+            var exists = await _userRepository.ExistsAsync(u => u.Username == request.dto.Username && !u.IsDeleted);
 
             if (exists)
                 AddError(errors, "username", "Username already exists.");

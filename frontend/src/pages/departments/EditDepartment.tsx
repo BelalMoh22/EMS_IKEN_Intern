@@ -1,11 +1,18 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod/v4";
-import { useDepartment, useUpdateDepartment } from "@/hooks/useDepartments";
+import { z } from "zod";
+import {
+  useDepartment,
+  useUpdateDepartment,
+  useDepartments,
+} from "@/hooks/useDepartments";
+import { useEmployees } from "@/hooks/useEmployees";
 import { FormInput } from "@/components/shared/FormInput";
 import { FormSelect } from "@/components/shared/FormSelect";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { handleApiErrors } from "@/utils/handleApiErrors";
+import { useSnackbar } from "notistack";
 import {
   Box,
   Typography,
@@ -24,7 +31,6 @@ import { useEffect } from "react";
 const schema = z.object({
   departmentName: z.string().min(1, "Department name is required"),
   description: z.string().optional(),
-  email: z.string().email("Valid email is required"),
   managerId: z.coerce.number().optional(),
   isActive: z.string(),
 });
@@ -36,14 +42,16 @@ export default function EditDepartment() {
   const numId = Number(id);
   const navigate = useNavigate();
   const { data: department, isLoading } = useDepartment(numId);
+  const { data: employees } = useEmployees();
+  const { data: departments } = useDepartments();
   const updateMutation = useUpdateDepartment();
+  const { enqueueSnackbar } = useSnackbar();
 
   const methods = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       departmentName: "",
       description: "",
-      email: "",
       managerId: undefined,
       isActive: "true",
     },
@@ -54,7 +62,6 @@ export default function EditDepartment() {
       methods.reset({
         departmentName: department.departmentName ?? "",
         description: department.description ?? "",
-        email: department.email ?? "",
         managerId: department.managerId ?? undefined,
         isActive: department.isActive !== false ? "true" : "false",
       });
@@ -68,12 +75,19 @@ export default function EditDepartment() {
         data: {
           departmentName: values.departmentName,
           description: values.description,
-          email: values.email,
           managerId: values.managerId || null,
           isActive: values.isActive === "true",
         },
       },
-      { onSuccess: () => navigate("/departments") }
+      {
+        onSuccess: () => {
+          navigate("/departments");
+        },
+        onError: (error) => {
+          const message = handleApiErrors(error, methods);
+          enqueueSnackbar(message, { variant: "error" });
+        },
+      },
     );
   };
 
@@ -110,14 +124,30 @@ export default function EditDepartment() {
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormInput name="departmentName" label="Department Name" />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormInput name="email" label="Department Email" type="email" />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
+                <Grid size={{ xs: 12, sm: 12 }}>
                   <FormInput name="description" label="Description" />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormInput name="managerId" label="Manager ID" type="number" />
+                  <FormSelect
+                    name="managerId"
+                    label="Manager"
+                    options={[
+                      { label: "None", value: "0" },
+                      ...(employees
+                        ?.filter(
+                          (e) =>
+                            e.id === department?.managerId || // Keep current manager
+                            !departments?.some(
+                              (d) =>
+                                d.managerId === e.id && d.isActive !== false,
+                            ),
+                        )
+                        .map((e) => ({
+                          label: `${e.firstName} ${e.lastname}`,
+                          value: String(e.id),
+                        })) ?? []),
+                    ]}
+                  />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormSelect

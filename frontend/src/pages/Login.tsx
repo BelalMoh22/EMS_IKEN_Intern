@@ -17,6 +17,7 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useSnackbar } from "notistack";
 import { jwtDecode } from "@/utils/jwtDecode";
+import { handleApiErrors } from "@/utils/handleApiErrors";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -70,11 +71,8 @@ export default function Login() {
       }
     } catch (error) {
       console.error("Login failed:", error);
-      const msg =
-        error?.response?.data?.message ||
-        error?.response?.data?.errors?.[0] ||
-        "Invalid credentials. Please try again.";
-      enqueueSnackbar(msg, { variant: "error" });
+      const message = handleApiErrors(error, methods);
+      enqueueSnackbar(message, { variant: "error" });
     } finally {
       setLoading(false);
     }

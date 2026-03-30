@@ -108,7 +108,6 @@ export interface Department {
   id: number;
   departmentName: string;
   description: string | null;
-  email: string;
   managerId: number | null;
   isActive: boolean | null;
   createdAt: string;
@@ -118,14 +117,12 @@ export interface Department {
 export interface CreateDepartmentRequest {
   departmentName: string;
   description?: string;
-  email: string;
   managerId?: number | null;
 }
 
 export interface UpdateDepartmentRequest {
   departmentName?: string;
   description?: string;
-  email?: string;
   managerId?: number | null;
   isActive?: boolean;
 }
@@ -137,6 +134,9 @@ export interface Position {
   minSalary: number;
   maxSalary: number;
   departmentId: number;
+  targetEmployeeCount: number;
+  currentEmployeeCount: number;
+  isFull: boolean;
   createdAt: string;
   isDeleted: boolean;
 }
@@ -146,6 +146,7 @@ export interface CreatePositionRequest {
   minSalary: number;
   maxSalary: number;
   departmentId: number;
+  targetEmployeeCount: number;
 }
 
 export interface UpdatePositionRequest {
@@ -153,6 +154,7 @@ export interface UpdatePositionRequest {
   minSalary?: number;
   maxSalary?: number;
   departmentId?: number;
+  targetEmployeeCount?: number;
 }
 
 export interface ApiResponse<T> {

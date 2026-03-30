@@ -3,6 +3,8 @@ import { Outlet } from "react-router-dom";
 import { Box } from "@mui/material";
 import { AppSidebar } from "./AppSidebar";
 import { Header } from "./Header";
+import { useSnackbar } from "notistack";
+import { useEffect } from "react";
 
 const DRAWER_WIDTH = 240;
 const COLLAPSED_WIDTH = 64;
@@ -10,6 +12,17 @@ const COLLAPSED_WIDTH = 64;
 export function DashboardLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const sidebarWidth = collapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH;
+  const { closeSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    // Dismiss all snackbars on any click across the entire page
+    const handleGlobalClick = () => {
+      closeSnackbar();
+    };
+
+    window.addEventListener("click", handleGlobalClick);
+    return () => window.removeEventListener("click", handleGlobalClick);
+  }, [closeSnackbar]);
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>

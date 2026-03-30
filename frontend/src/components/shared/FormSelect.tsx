@@ -4,6 +4,7 @@ import { TextField, MenuItem } from "@mui/material";
 interface Option {
   label: string;
   value: string;
+  disabled?: boolean;
 }
 
 interface Props {
@@ -44,7 +45,7 @@ export function FormSelect({
             {placeholder}
           </MenuItem>
           {options.map((opt) => (
-            <MenuItem key={opt.value} value={opt.value}>
+            <MenuItem key={opt.value} value={opt.value} disabled={opt.disabled}>
               {opt.label}
             </MenuItem>
           ))}

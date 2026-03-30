@@ -39,7 +39,8 @@ export function useCreateEmployee() {
   return useMutation({
     mutationFn: (data: CreateEmployeeRequest) => employeeApi.create(data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["employees"] }); // “Refetch employees list”
+      qc.invalidateQueries({ queryKey: ["employees"] });
+      qc.invalidateQueries({ queryKey: ["positions"] });
       enqueueSnackbar("Employee created successfully", { variant: "success" });
     },
     onError: () =>
@@ -54,6 +55,7 @@ export function useUpdateEmployee() {
       employeeApi.update(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["employees"] });
+      qc.invalidateQueries({ queryKey: ["positions"] });
       enqueueSnackbar("Employee updated successfully", { variant: "success" });
     },
     onError: () =>
@@ -67,6 +69,7 @@ export function useDeleteEmployee() {
     mutationFn: (id: number) => employeeApi.delete(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["employees"] });
+      qc.invalidateQueries({ queryKey: ["positions"] });
       enqueueSnackbar("Employee deleted successfully", { variant: "success" });
     },
     onError: () =>

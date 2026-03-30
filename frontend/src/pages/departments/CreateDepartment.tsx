@@ -1,9 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod/v4";
-import { useCreateDepartment } from "@/hooks/useDepartments";
+import { z } from "zod";
+import { useCreateDepartment, useDepartments } from "@/hooks/useDepartments";
+import { useEmployees } from "@/hooks/useEmployees";
 import { FormInput } from "@/components/shared/FormInput";
+import { FormSelect } from "@/components/shared/FormSelect";
+import { handleApiErrors } from "@/utils/handleApiErrors";
+import { useSnackbar } from "notistack";
 import {
   Box,
   Typography,
@@ -21,7 +25,6 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 const schema = z.object({
   departmentName: z.string().min(1, "Department name is required"),
   description: z.string().optional(),
-  email: z.string().email("Valid email is required"),
   managerId: z.coerce.number().optional(),
 });
 
@@ -30,13 +33,15 @@ type FormData = z.infer<typeof schema>;
 export default function CreateDepartment() {
   const navigate = useNavigate();
   const createMutation = useCreateDepartment();
+  const { data: employees } = useEmployees();
+  const { data: departments } = useDepartments();
+  const { enqueueSnackbar } = useSnackbar();
 
   const methods = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       departmentName: "",
       description: "",
-      email: "",
       managerId: undefined,
     },
   });
@@ -46,10 +51,17 @@ export default function CreateDepartment() {
       {
         departmentName: values.departmentName,
         description: values.description,
-        email: values.email,
         managerId: values.managerId || null,
       },
-      { onSuccess: () => navigate("/departments") }
+      {
+        onSuccess: () => {
+          navigate("/departments");
+        },
+        onError: (error) => {
+          const message = handleApiErrors(error, methods);
+          enqueueSnackbar(message, { variant: "error" });
+        },
+      },
     );
   };
 
@@ -87,14 +99,6 @@ export default function CreateDepartment() {
                     placeholder="Engineering"
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormInput
-                    name="email"
-                    label="Department Email"
-                    type="email"
-                    placeholder="engineering@company.com"
-                  />
-                </Grid>
                 <Grid size={{ xs: 12 }}>
                   <FormInput
                     name="description"
@@ -103,11 +107,24 @@ export default function CreateDepartment() {
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormInput
+                  <FormSelect
                     name="managerId"
-                    label="Manager ID (optional)"
-                    type="number"
-                    placeholder="Employee ID of manager"
+                    label="Manager"
+                    options={[
+                      { label: "None", value: "0" },
+                      ...(employees
+                        ?.filter(
+                          (e) =>
+                            !departments?.some(
+                              (d) =>
+                                d.managerId === e.id && d.isActive !== false,
+                            ),
+                        )
+                        .map((e) => ({
+                          label: `${e.firstName} ${e.lastname}`,
+                          value: String(e.id),
+                        })) ?? []),
+                    ]}
                   />
                 </Grid>
               </Grid>

@@ -4,6 +4,8 @@ import { z } from "zod";
 import { useChangePassword } from "@/hooks/useChangePassword";
 import { useAuthStore } from "@/stores/auth";
 import { FormInput } from "@/components/shared/FormInput";
+import { handleApiErrors } from "@/utils/handleApiErrors";
+import { useSnackbar } from "notistack";
 import {
   Box,
   Card,
@@ -42,6 +44,7 @@ type ChangePasswordForm = z.infer<typeof changePasswordSchema>;
 export default function ChangePassword() {
   const mustChangePassword = useAuthStore((s) => s.user?.mustChangePassword);
   const { mutate, isPending } = useChangePassword();
+  const { enqueueSnackbar } = useSnackbar();
 
   const methods = useForm<ChangePasswordForm>({
     resolver: zodResolver(changePasswordSchema),
@@ -56,6 +59,10 @@ export default function ChangePassword() {
     mutate(values, {
       onSuccess: () => {
         methods.reset();
+      },
+      onError: (error) => {
+        const message = handleApiErrors(error, methods);
+        enqueueSnackbar(message, { variant: "error" });
       },
     });
   };

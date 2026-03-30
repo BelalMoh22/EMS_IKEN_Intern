@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,11 +24,15 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useEffect } from "react";
 import { STATUS_ENUM_MAP } from "@/types";
 import type { EmployeeStatus } from "@/types";
+import { handleApiErrors } from "@/utils/handleApiErrors";
+import { useSnackbar } from "notistack";
 
 const schema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastname: z.string().min(1, "Last name is required"),
-  nationalId: z.string().regex(/^\d{14}$/, "National ID must be exactly 14 digits"),
+  nationalId: z
+    .string()
+    .regex(/^\d{14}$/, "National ID must be exactly 14 digits"),
   email: z.string().email("Invalid email"),
   phoneNumber: z.string().min(1, "Phone number is required"),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
@@ -46,6 +51,7 @@ export default function EditEmployee() {
   const { data: employee, isLoading } = useEmployee(numId);
   const updateMutation = useUpdateEmployee();
   const { data: positions } = usePositions();
+  const { enqueueSnackbar } = useSnackbar();
 
   const methods = useForm<FormData>({
     resolver: zodResolver(schema) as any,
@@ -97,7 +103,15 @@ export default function EditEmployee() {
           status: values.status,
         },
       },
-      { onSuccess: () => navigate("/employees") }
+      {
+        onSuccess: () => {
+          navigate("/employees");
+        },
+        onError: (error) => {
+          const message = handleApiErrors(error, methods);
+          enqueueSnackbar(message, { variant: "error" });
+        },
+      },
     );
   };
 
@@ -148,7 +162,11 @@ export default function EditEmployee() {
                   <FormInput name="phoneNumber" label="Phone Number" />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormInput name="dateOfBirth" label="Date of Birth" type="date" />
+                  <FormInput
+                    name="dateOfBirth"
+                    label="Date of Birth"
+                    type="date"
+                  />
                 </Grid>
                 <Grid size={{ xs: 12 }}>
                   <FormInput name="address" label="Address" />
@@ -167,16 +185,50 @@ export default function EditEmployee() {
             <CardContent>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormSelect
-                    name="positionId"
-                    label="Position"
-                    options={
-                      positions?.map((p) => ({
-                        label: p.positionName,
-                        value: String(p.id),
-                      })) ?? []
-                    }
-                  />
+                  {(() => {
+                    const watchedPositionId = Number(
+                      methods.watch("positionId"),
+                    );
+                    const watchedStatus = Number(methods.watch("status"));
+                    const isFull = positions?.find(
+                      (p) => p.id === watchedPositionId,
+                    )?.isFull;
+                    const isEmployeeActive = employee?.status === "Active";
+                    const isPositionChanged =
+                      watchedPositionId !== employee?.positionId;
+                    const isStatusChangingToActive =
+                      !isEmployeeActive && watchedStatus === 1;
+
+                    const showCapacityError =
+                      isFull && (isPositionChanged || isStatusChangingToActive);
+
+                    return (
+                      <>
+                        <FormSelect
+                          name="positionId"
+                          label="Position"
+                          options={
+                            positions?.map((p) => ({
+                              label: `${p.positionName} (${p.currentEmployeeCount}/${p.targetEmployeeCount})`,
+                              value: String(p.id),
+                              disabled:
+                                p.isFull && p.id !== employee?.positionId,
+                            })) ?? []
+                          }
+                        />
+                        {showCapacityError && (
+                          <Typography
+                            variant="caption"
+                            color="error"
+                            sx={{ mt: 1, display: "block" }}
+                          >
+                            Position capacity reached. Please select another
+                            position or status.
+                          </Typography>
+                        )}
+                      </>
+                    );
+                  })()}
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormInput name="salary" label="Salary" type="number" />
@@ -210,10 +262,7 @@ export default function EditEmployee() {
               }}
             >
               {updateMutation.isPending && (
-                <CircularProgress
-                  size={18}
-                  sx={{ mr: 1, color: "inherit" }}
-                />
+                <CircularProgress size={18} sx={{ mr: 1, color: "inherit" }} />
               )}
               Save Changes
             </Button>

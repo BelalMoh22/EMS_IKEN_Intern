@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useParams, useNavigate } from "react-router-dom";
 import { useEmployees, useDeleteEmployee } from "@/hooks/useEmployees";
 import { useAuthStore } from "@/stores/auth";
@@ -6,7 +7,15 @@ import { useDepartments } from "@/hooks/useDepartments";
 import { DetailsPageLayout } from "@/components/shared/DetailsPageLayout";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { ActionButtons } from "@/components/shared/ActionButtons";
-import { Box, Typography, Grid, Chip, Card, CardContent, Divider } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Grid,
+  Chip,
+  Card,
+  CardContent,
+  Divider,
+} from "@mui/material";
 import { useState } from "react";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import EmailIcon from "@mui/icons-material/Email";
@@ -14,6 +23,8 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import HomeIcon from "@mui/icons-material/Home";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import { useSnackbar } from "notistack";
+import { getGeneralErrors } from "@/utils/handleApiErrors";
 
 export default function EmployeeDetails() {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +39,7 @@ export default function EmployeeDetails() {
   const { data: positions, isLoading: loadingPositions } = usePositions();
   const { data: departments, isLoading: loadingDepartments } = useDepartments();
   const deleteMutation = useDeleteEmployee();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -39,7 +51,11 @@ export default function EmployeeDetails() {
 
   if (isLoading) {
     return (
-      <DetailsPageLayout title="Loading..." basePath="/employees" basePathName="Employees">
+      <DetailsPageLayout
+        title="Loading..."
+        basePath="/employees"
+        basePathName="Employees"
+      >
         <Typography>Loading employee details...</Typography>
       </DetailsPageLayout>
     );
@@ -47,7 +63,11 @@ export default function EmployeeDetails() {
 
   if (!employee) {
     return (
-      <DetailsPageLayout title="Not Found" basePath="/employees" basePathName="Employees">
+      <DetailsPageLayout
+        title="Not Found"
+        basePath="/employees"
+        basePathName="Employees"
+      >
         <Typography color="error">Employee not found.</Typography>
       </DetailsPageLayout>
     );
@@ -55,7 +75,20 @@ export default function EmployeeDetails() {
 
   const handleDelete = () => {
     deleteMutation.mutate(employeeId, {
-      onSuccess: () => navigate("/employees"),
+      onSuccess: () => {
+        navigate("/employees");
+      },
+      onError: (error) => {
+        const errors = getGeneralErrors(error);
+        if (errors.length > 0) {
+          errors.forEach((msg) => enqueueSnackbar(msg, { variant: "error" }));
+        } else {
+          const data = (error as any)?.response?.data;
+          enqueueSnackbar(data?.message || "Failed to delete employee", {
+            variant: "error",
+          });
+        }
+      },
     });
   };
 
@@ -91,14 +124,26 @@ export default function EmployeeDetails() {
     >
       <Card elevation={0} sx={{ backgroundColor: "transparent" }}>
         <CardContent sx={{ p: 0 }}>
-          <Box sx={{ mb: 4, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Box
+            sx={{
+              mb: 4,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
             <Box>
               <Typography variant="h4" fontWeight="bold">
                 {employee.firstName} {employee.lastname}
               </Typography>
-              <Typography variant="subtitle1" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
+              <Typography
+                variant="subtitle1"
+                color="text.secondary"
+                sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}
+              >
                 <BusinessCenterIcon fontSize="small" />
-                {position?.positionName ?? "Unknown Position"} • {department?.departmentName ?? "Unknown Department"}
+                {position?.positionName ?? "Unknown Position"} •{" "}
+                {department?.departmentName ?? "Unknown Department"}
               </Typography>
             </Box>
             <Chip
@@ -111,11 +156,26 @@ export default function EmployeeDetails() {
 
           <Divider sx={{ my: 3 }} />
 
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 4 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+              gap: 4,
+            }}
+          >
             <Box>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      mb: 0.5,
+                    }}
+                  >
                     <EmailIcon fontSize="small" /> Email Address
                   </Typography>
                   <Typography variant="body1" fontWeight={500}>
@@ -123,7 +183,16 @@ export default function EmployeeDetails() {
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      mb: 0.5,
+                    }}
+                  >
                     <PhoneIcon fontSize="small" /> Phone Number
                   </Typography>
                   <Typography variant="body1" fontWeight={500}>
@@ -131,7 +200,16 @@ export default function EmployeeDetails() {
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      mb: 0.5,
+                    }}
+                  >
                     <HomeIcon fontSize="small" /> Address
                   </Typography>
                   <Typography variant="body1" fontWeight={500}>
@@ -144,7 +222,16 @@ export default function EmployeeDetails() {
             <Box>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      mb: 0.5,
+                    }}
+                  >
                     <MonetizationOnIcon fontSize="small" /> Salary
                   </Typography>
                   <Typography variant="body1" fontWeight={500}>
@@ -152,19 +239,41 @@ export default function EmployeeDetails() {
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      mb: 0.5,
+                    }}
+                  >
                     <CalendarMonthIcon fontSize="small" /> Hire Date
                   </Typography>
                   <Typography variant="body1" fontWeight={500}>
-                    {employee.hireDate ? new Date(employee.hireDate).toLocaleDateString() : "N/A"}
+                    {employee.hireDate
+                      ? new Date(employee.hireDate).toLocaleDateString()
+                      : "N/A"}
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      mb: 0.5,
+                    }}
+                  >
                     <CalendarMonthIcon fontSize="small" /> Date of Birth
                   </Typography>
                   <Typography variant="body1" fontWeight={500}>
-                    {employee.dateOfBirth ? new Date(employee.dateOfBirth).toLocaleDateString() : "N/A"}
+                    {employee.dateOfBirth
+                      ? new Date(employee.dateOfBirth).toLocaleDateString()
+                      : "N/A"}
                   </Typography>
                 </Box>
               </Box>

@@ -1,4 +1,4 @@
-namespace EmployeeService.Features.Auth.Login
+﻿namespace EmployeeService.Features.Auth.Login
 {
     public class LoginHandler: IRequestHandler<LoginCommand, AuthResponse>
     {
@@ -15,6 +15,11 @@ namespace EmployeeService.Features.Auth.Login
 
         public async Task<AuthResponse> Handle(LoginCommand request,CancellationToken cancellationToken)
         {
+            var errors = ValidationHelper.ValidateModel(request.dto);
+
+            if(errors.Any())
+                throw new Exceptions.ValidationException(errors);
+
             var user = await _userRepository.GetByUsernameAsync(request.dto.Username);
 
             if (user is null || !BCrypt.Net.BCrypt.Verify(request.dto.Password, user.PasswordHash))

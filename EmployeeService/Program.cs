@@ -1,4 +1,3 @@
-using EmployeeService.Infrastructure.Data;
 using System.Text.Json.Serialization;
 
 namespace EmployeeService
@@ -12,14 +11,11 @@ namespace EmployeeService
             builder.Logging.AddConsole();
 
             // Add services to the container(DI).
-            builder.Services.ConfigureHttpJsonOptions(options => {
-                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
+                { // Adds Authorization button in Swagger
                     Name = "Authorization",
                     Type = SecuritySchemeType.Http,
                     Scheme = "bearer",
@@ -29,7 +25,7 @@ namespace EmployeeService
                 });
 
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
+                { // Makes Swagger send token with requests automatically
                     {
                         new OpenApiSecurityScheme
                         {
@@ -69,9 +65,10 @@ namespace EmployeeService
                         ValidIssuer = builder.Configuration["Jwt:Issuer"],
                         ValidAudience = builder.Configuration["Jwt:Audience"],
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-                        ClockSkew = TimeSpan.Zero 
+                        ClockSkew = TimeSpan.Zero  // No extra time after expiration
                     };
                 });
+
             // Use Authorization
             builder.Services.AddAuthorization( builder =>
             {
@@ -95,20 +92,22 @@ namespace EmployeeService
             builder.Services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
-            });
+            }); // Suppress automatic model state validation to return custom error responses
 
             // Inject MediatR into DI Container
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
             var appName = builder.Configuration["ApplicationSettings:ApplicationName"];
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            var AllowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 
             // Cross-Origin Resource Sharing (CORS) for React integration
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("FrontendPolicy", policy =>
                 {
-                    policy.WithOrigins("http://localhost:8080")
+                    policy//.SetIsOriginAllowed(origin => true)
+                          .WithOrigins(AllowedOrigins!)
                           .AllowAnyMethod()
                           .AllowAnyHeader()
                           .AllowCredentials();
@@ -136,11 +135,7 @@ namespace EmployeeService
             app.MapGroup("/api/departments").MapDepartmentEndpoints().RequireAuthorization("FullCRUD");
             app.MapGroup("/api/positions").MapPositionEndpoints().RequireAuthorization("FullCRUD");
 
-            //// Seed Database
-            //await DatabaseSeeder.SeedAsync(app.Services);
-
             app.Run();
-
         }
     }
 }

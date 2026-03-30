@@ -1,6 +1,8 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDepartments, useDeleteDepartment } from "@/hooks/useDepartments";
+import { useEmployees } from "@/hooks/useEmployees";
+import { usePositions } from "@/hooks/usePositions";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -8,11 +10,17 @@ import { Box, Typography, Button, Chip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { ActionButtons } from "@/components/shared/ActionButtons";
 import type { Department } from "@/types";
+import { getGeneralErrors } from "@/utils/handleApiErrors";
+import { useSnackbar } from "notistack";
 
 export default function DepartmentList() {
   const navigate = useNavigate();
-  const { data, isLoading } = useDepartments();
+  const { data, isLoading: departmentsLoading } = useDepartments();
+  const { data: employees, isLoading: employeesLoading } = useEmployees();
+  const { data: positions, isLoading: positionsLoading } = usePositions();
+  const isLoading = departmentsLoading || employeesLoading || positionsLoading;
   const deleteMutation = useDeleteDepartment();
+  const { enqueueSnackbar } = useSnackbar();
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
   const [search, setSearch] = useState("");
 
@@ -23,15 +31,25 @@ export default function DepartmentList() {
     return data.filter(
       (d) =>
         d.departmentName?.toLowerCase().includes(s) ||
-        d.description?.toLowerCase().includes(s) ||
-        d.email?.toLowerCase().includes(s)
+        d.description?.toLowerCase().includes(s)
     );
   }, [data, search]);
 
   const handleDelete = () => {
     if (deleteTarget !== null) {
       deleteMutation.mutate(deleteTarget, {
-        onSuccess: () => setDeleteTarget(null),
+        onSuccess: () => {
+          setDeleteTarget(null);
+        },
+        onError: (error) => {
+          const errors = getGeneralErrors(error);
+          if (errors.length > 0) {
+            errors.forEach((msg) => enqueueSnackbar(msg, { variant: "error" }));
+          } else {
+            const data = (error as any)?.response?.data;
+            enqueueSnackbar(data?.message || "Failed to delete department", { variant: "error" });
+          }
+        },
       });
     }
   };
@@ -45,7 +63,6 @@ export default function DepartmentList() {
         </Typography>
       ),
     },
-    { header: "Email", accessorKey: "email" },
     {
       header: "Description",
       cell: (row) => (
@@ -53,6 +70,31 @@ export default function DepartmentList() {
           {row.description || "—"}
         </Typography>
       ),
+    },
+    {
+      header: "Manager",
+      cell: (row) => {
+        const m = employees?.find((e) => e.id === row.managerId);
+        return m ? `${m.firstName} ${m.lastname}` : "None";
+      },
+    },
+    {
+      header: "Employees",
+      cell: (row) => {
+        const deptPositionIds = positions
+          ?.filter((p) => p.departmentId === row.id)
+          .map((p) => p.id);
+        const count = employees?.filter((e) =>
+          deptPositionIds?.includes(e.positionId)
+        ).length;
+        return (
+          <Chip
+            label={count || 0}
+            size="small"
+            sx={{ fontWeight: "bold", bgcolor: "rgba(59, 130, 246, 0.1)", color: "#2563eb" }}
+          />
+        );
+      },
     },
     {
       header: "Status",

@@ -1,4 +1,5 @@
-import { useNavigate } from "react-router-dom";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useNavigate, useLocation } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -25,17 +26,26 @@ import { useSnackbar } from "notistack";
 import { useState } from "react";
 import { ROLE_ENUM_MAP } from "@/types";
 import type { Role } from "@/types";
+import { handleApiErrors } from "@/utils/handleApiErrors";
 
 const schema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastname: z.string().min(1, "Last name is required"),
-  nationalId: z.string().regex(/^\d{14}$/, "National ID must be exactly 14 digits"),
+  nationalId: z
+    .string()
+    .regex(/^\d{14}$/, "National ID must be exactly 14 digits"),
   email: z.string().email("Invalid email"),
   phoneNumber: z.string().min(1, "Phone number is required"),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
   address: z.string().min(1, "Address is required"),
-  salary: z.preprocess((v) => Number(v), z.number().min(0, "Salary must be positive")),
-  positionId: z.preprocess((v) => Number(v), z.number().min(1, "Position is required")),
+  salary: z.preprocess(
+    (v) => Number(v),
+    z.number().min(0, "Salary must be positive"),
+  ),
+  positionId: z.preprocess(
+    (v) => Number(v),
+    z.number().min(1, "Position is required"),
+  ),
   // User account fields
   username: z.string().min(1, "Username is required"),
   password: z
@@ -43,7 +53,7 @@ const schema = z.object({
     .min(8, "Password must be at least 8 characters")
     .regex(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/,
-      "Password must contain uppercase, lowercase, number, and special character"
+      "Password must contain uppercase, lowercase, number, and special character",
     ),
   role: z.enum(["HR", "Manager", "Employee"]),
 });
@@ -52,6 +62,9 @@ type FormData = z.infer<typeof schema>;
 
 export default function CreateEmployee() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as { positionId?: number };
+
   const createMutation = useCreateEmployee();
   const { data: departments } = useDepartments();
   const { data: positions } = usePositions();
@@ -69,7 +82,7 @@ export default function CreateEmployee() {
       dateOfBirth: "",
       address: "",
       salary: 0,
-      positionId: 0,
+      positionId: state?.positionId ?? 0,
       username: "",
       password: "",
       role: "Employee",
@@ -98,44 +111,18 @@ export default function CreateEmployee() {
         },
         {
           onSuccess: () => {
-            enqueueSnackbar("Employee and user account created successfully!", {
-              variant: "success",
-            });
             navigate("/employees");
           },
           onError: (error) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const err = error as any;
-            const data = err?.response?.data;
-            let msg = data?.message ?? "Failed to create employee record";
-            
-            if (data?.errors) {
-              if (typeof data.errors === "object" && !Array.isArray(data.errors)) {
-                msg = Object.values(data.errors).flat().join(", ");
-              } else if (Array.isArray(data.errors)) {
-                msg = data.errors.join(", ");
-              }
-            }
-            enqueueSnackbar(msg, { variant: "error" });
+            const message = handleApiErrors(error, methods);
+            enqueueSnackbar(message, { variant: "error" });
             setSubmitting(false);
           },
-        }
+        },
       );
     } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const err = error as any;
-      const data = err?.response?.data;
-      let msg = data?.message ?? "Failed to create user account";
-      
-      if (data?.errors) {
-        if (typeof data.errors === "object" && !Array.isArray(data.errors)) {
-          msg = Object.values(data.errors).flat().join(", ");
-        } else if (Array.isArray(data.errors)) {
-          msg = data.errors.join(", ");
-        }
-      }
-
-      enqueueSnackbar(msg, { variant: "error" });
+      const message = handleApiErrors(error, methods);
+      enqueueSnackbar(message, { variant: "error" });
       setSubmitting(false);
     }
   };
@@ -282,11 +269,24 @@ export default function CreateEmployee() {
                     label="Position"
                     options={
                       positions?.map((p) => ({
-                        label: p.positionName,
+                        label: `${p.positionName} (${p.currentEmployeeCount}/${p.targetEmployeeCount})`,
                         value: String(p.id),
+                        disabled: p.isFull,
                       })) ?? []
                     }
                   />
+                  {watchedPositionId > 0 &&
+                    positions?.find((p) => p.id === watchedPositionId)
+                      ?.isFull && (
+                      <Typography
+                        variant="caption"
+                        color="error"
+                        sx={{ mt: 1, display: "block" }}
+                      >
+                        Position capacity reached. Please select another
+                        position.
+                      </Typography>
+                    )}
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormInput
@@ -314,10 +314,7 @@ export default function CreateEmployee() {
               }}
             >
               {submitting && (
-                <CircularProgress
-                  size={18}
-                  sx={{ mr: 1, color: "inherit" }}
-                />
+                <CircularProgress size={18} sx={{ mr: 1, color: "inherit" }} />
               )}
               Create Employee
             </Button>
