@@ -17,8 +17,10 @@ export const attendanceApi = {
    * GET /api/attendance/my
    * Gets the attendance records and summary for the currently logged in employee.
    */
-  getMyAttendance: async () => {
-    const response = await api.get<ApiResponse<MyAttendanceResult>>("/attendance/my");
+  getMyAttendance: async (year?: number, month?: number, day?: number) => {
+    const response = await api.get<ApiResponse<MyAttendanceResult>>("/attendance/my", {
+      params: { year, month, day }
+    });
     return response.data.data!;
   },
 };

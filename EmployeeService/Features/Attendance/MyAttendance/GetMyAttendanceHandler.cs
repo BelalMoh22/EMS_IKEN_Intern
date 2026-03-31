@@ -26,7 +26,8 @@ namespace EmployeeService.Features.Attendance.MyAttendance
             var employee = allEmployees.FirstOrDefault(e => e.UserId == request.UserId)
                 ?? throw new KeyNotFoundException($"No employee found for UserId {request.UserId}.");
 
-            var records = await _attendanceRepo.GetByEmployeeIdAsync(employee.Id);
+            var records = await _attendanceRepo.GetFilteredAttendanceAsync(
+                employee.Id, request.Year, request.Month, request.Day);
 
             var result = new MyAttendanceResultDto();
 
@@ -49,8 +50,8 @@ namespace EmployeeService.Features.Attendance.MyAttendance
             result.TotalWorkingMinutes = result.Records.Sum(r => r.WorkingMinutes);
 
             _logger.LogInformation(
-                "Fetched {Count} attendance records for Employee {EmployeeId}.",
-                result.Records.Count, employee.Id);
+                "Fetched {Count} attendance records for Employee {EmployeeId} (Filters: Y:{Year}, M:{Month}, D:{Day}).",
+                result.Records.Count, employee.Id, request.Year, request.Month, request.Day);
 
             return result;
         }
