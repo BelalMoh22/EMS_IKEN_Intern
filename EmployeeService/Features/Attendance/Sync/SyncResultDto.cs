@@ -1,8 +1,5 @@
 namespace EmployeeService.Features.Attendance.Sync
 {
-    /// <summary>
-    /// Result returned by the sync endpoint.
-    /// </summary>
     public class SyncResultDto
     {
         public int Inserted { get; set; }
