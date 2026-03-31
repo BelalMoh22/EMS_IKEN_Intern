@@ -15,7 +15,7 @@ namespace EmployeeService.Domain.Models
         public EmployeeStatus? Status { get; private set; }
         public int PositionId { get; private set; }
         public int UserId { get; private set; }
-        public int WorkStartHour { get; private set; } = 7; // Default shift start
+        public int WorkStartHour { get; private set; } = 7;
 
         public Position Position { get; private set; }
         public User User { get; private set; }

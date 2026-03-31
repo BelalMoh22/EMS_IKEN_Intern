@@ -1,6 +1,3 @@
-using System.Text;
-using Dapper;
-
 namespace EmployeeService.Infrastructure.Repositories
 {
     public class AttendanceRepository
@@ -14,9 +11,7 @@ namespace EmployeeService.Infrastructure.Repositories
             _logger = logger;
         }
 
-        /// <summary>
         /// Checks whether an attendance record already exists for the given employee on the given date.
-        /// </summary>
         public async Task<bool> ExistsByEmployeeAndDateAsync(int employeeId, DateTime date)
         {
             const string sql = @"
@@ -45,9 +40,7 @@ namespace EmployeeService.Infrastructure.Repositories
             return await connection.QueryFirstOrDefaultAsync<Attendance>(sql, new { EmployeeId = employeeId, Date = date.Date });
         }
 
-        /// <summary>
         /// Gets all attendance records for an employee, ordered by date descending.
-        /// </summary>
         public async Task<IEnumerable<Attendance>> GetByEmployeeIdAsync(int employeeId)
         {
             const string sql = @"
@@ -60,9 +53,7 @@ namespace EmployeeService.Infrastructure.Repositories
             return await connection.QueryAsync<Attendance>(sql, new { EmployeeId = employeeId });
         }
 
-        /// <summary>
         /// Inserts a single attendance record.
-        /// </summary>
         public async Task InsertAsync(Attendance record)
         {
             const string sql = @"
@@ -74,9 +65,7 @@ namespace EmployeeService.Infrastructure.Repositories
             _logger.LogInformation("Inserted attendance record for EmployeeId {EmployeeId} on {Date}.", record.EmployeeId, record.Date);
         }
 
-        /// <summary>
         /// Updates an existing attendance record by Id.
-        /// </summary>
         public async Task UpdateAsync(int id, Attendance record)
         {
             const string sql = @"
@@ -103,9 +92,7 @@ namespace EmployeeService.Infrastructure.Repositories
             _logger.LogInformation("Updated attendance record Id {Id}.", id);
         }
 
-        /// <summary>
         /// Gets attendance records with optional filtering by EmployeeId, Year, Month, and Day.
-        /// </summary>
         public async Task<IEnumerable<Attendance>> GetFilteredAttendanceAsync(int? employeeId, int? year, int? month, int? day)
         {
             var sql = new StringBuilder(@"

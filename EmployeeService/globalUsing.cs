@@ -54,3 +54,5 @@ global using EmployeeService.Features.Auth.Refresh;
 global using EmployeeService.Features.Attendance;
 global using EmployeeService.Features.Attendance.Sync;
 global using EmployeeService.Features.Attendance.MyAttendance;
+global using EmployeeService.Features.Attendance.Details;
+global using EmployeeService.Features.Attendance.MonthlySummary;
