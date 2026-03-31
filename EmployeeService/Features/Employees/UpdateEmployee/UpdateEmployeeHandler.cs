@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Employees.Handlers.Implementations
+namespace EmployeeService.Features.Employees.Handlers.Implementations
 {
     public class UpdateEmployeeHandler
     : IRequestHandler<UpdateEmployeeCommand, int>
@@ -38,7 +38,8 @@
             dto.Salary,
             dto.HireDate,
             dto.Status,
-            dto.PositionId
+            dto.PositionId,
+            dto.WorkStartHour
             );
             return await _repo.UpdateAsync(request.Id, employee);
         }

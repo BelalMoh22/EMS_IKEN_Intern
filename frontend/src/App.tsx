@@ -20,8 +20,9 @@ import EditPosition from "@/pages/positions/EditPosition";
 import PositionDetails from "@/pages/positions/PositionDetails";
 import NotFound from "@/pages/NotFound";
 import ChangePassword from "@/pages/ChangePassword";
-import Attendance from "@/pages/attendance/AttendanceSync";
 import MyAttendance from "@/pages/attendance/MyAttendance";
+import MonthlyAttendance from "@/pages/attendance/MonthlyAttendance";
+import EmployeeAttendanceDetails from "@/pages/attendance/EmployeeAttendanceDetails";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -139,10 +140,18 @@ const App = () => (
 
           {/* Attendance - HR only */}
           <Route
-            path="/attendance/upload"
+            path="/attendance/monthly"
             element={
               <RoleBasedRoute allowedRoles={["HR"]}>
-                <Attendance />
+                <MonthlyAttendance />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/attendance/details/:employeeId"
+            element={
+              <RoleBasedRoute allowedRoles={["HR"]}>
+                <EmployeeAttendanceDetails />
               </RoleBasedRoute>
             }
           />

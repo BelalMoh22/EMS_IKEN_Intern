@@ -26,6 +26,7 @@ namespace EmployeeService.Infrastructure.Repositories
                     Status,
                     PositionId,
                     UserId,
+                    WorkStartHour,
                     IsDeleted
                 )
                 VALUES
@@ -42,6 +43,7 @@ namespace EmployeeService.Infrastructure.Repositories
                     @Status,
                     @PositionId,
                     @UserId,
+                    @WorkStartHour,
                     @IsDeleted
                 );
 
@@ -67,7 +69,8 @@ namespace EmployeeService.Infrastructure.Repositories
                     Salary = @Salary,
                     HireDate = @HireDate,
                     Status = @Status,
-                    PositionId = @PositionId
+                    PositionId = @PositionId,
+                    WorkStartHour = @WorkStartHour
                 WHERE Id = @Id
             ";
 
@@ -85,7 +88,8 @@ namespace EmployeeService.Infrastructure.Repositories
                 employee.Salary,
                 employee.HireDate,
                 employee.Status,
-                employee.PositionId
+                employee.PositionId,
+                employee.WorkStartHour
             });
         }
 

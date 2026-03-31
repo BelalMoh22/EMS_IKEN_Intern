@@ -6,6 +6,8 @@ namespace EmployeeService.Features.Attendance
         {
             Sync.SyncAttendanceEndpoint.MapEndpoint(group);
             MyAttendance.GetMyAttendanceEndpoint.MapEndpoint(group);
+            MonthlySummary.GetMonthlySummaryEndpoint.MapEndpoint(group);
+            Details.GetAttendanceDetailsEndpoint.MapEndpoint(group);
             return group;
         }
     }

@@ -1,4 +1,7 @@
-﻿namespace EmployeeService.Infrastructure.Repositories
+using System.Text;
+using Dapper;
+
+namespace EmployeeService.Infrastructure.Repositories
 {
     public class AttendanceRepository
     {
@@ -101,8 +104,47 @@
         }
 
         /// <summary>
-        /// Bulk-inserts confirmed attendance records inside a single transaction.
+        /// Gets attendance records with optional filtering by EmployeeId, Year, Month, and Day.
         /// </summary>
+        public async Task<IEnumerable<Attendance>> GetFilteredAttendanceAsync(int? employeeId, int? year, int? month, int? day)
+        {
+            var sql = new StringBuilder(@"
+                SELECT Id, EmployeeId, Date, CheckIn, CheckOut, LateMinutes, EarlyLeaveMinutes, WorkingMinutes, Status, CreatedAt
+                FROM Attendance
+                WHERE 1=1 ");
+
+            var parameters = new DynamicParameters();
+
+            if (employeeId.HasValue)
+            {
+                sql.Append(" AND EmployeeId = @EmployeeId ");
+                parameters.Add("EmployeeId", employeeId.Value);
+            }
+
+            if (year.HasValue)
+            {
+                sql.Append(" AND YEAR(Date) = @Year ");
+                parameters.Add("Year", year.Value);
+            }
+
+            if (month.HasValue)
+            {
+                sql.Append(" AND MONTH(Date) = @Month ");
+                parameters.Add("Month", month.Value);
+            }
+
+            if (day.HasValue)
+            {
+                sql.Append(" AND DAY(Date) = @Day ");
+                parameters.Add("Day", day.Value);
+            }
+
+            sql.Append(" ORDER BY Date DESC ");
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryAsync<Attendance>(sql.ToString(), parameters);
+        }
+
         public async Task BulkInsertAsync(IEnumerable<Attendance> records)
         {
             const string sql = @"

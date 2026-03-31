@@ -16,7 +16,7 @@ export function SearchInput({
   const [internal, setInternal] = useState(value);
 
   useEffect(() => {
-    const timer = setTimeout(() => onChange(internal), 300);
+    const timer = setTimeout(() => onChange(internal.trim()), 300);
     return () => clearTimeout(timer);
   }, [internal, onChange]);
 

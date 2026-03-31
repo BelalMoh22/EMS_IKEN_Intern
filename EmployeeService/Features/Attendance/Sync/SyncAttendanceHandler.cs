@@ -29,12 +29,10 @@ namespace EmployeeService.Features.Attendance.Sync
 
                 var result = new SyncResultDto();
 
-                // Static file path (root of the solution/project)
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "attendance_template.xlsx");
                 
                 if (!File.Exists(filePath))
                 {
-                    // Backup check in case we are running from project root
                     if (!File.Exists(filePath))
                     {
                         filePath = Path.Combine(Directory.GetCurrentDirectory(), "attendance_template.xlsx");
@@ -53,7 +51,6 @@ namespace EmployeeService.Features.Attendance.Sync
                 var sheet = package.Workbook.Worksheets.FirstOrDefault()
                     ?? throw new ArgumentException("Excel file contains no worksheets.");
 
-                // ── Resolve header positions ────────────────────────────
                 var headers = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
                 for (int col = 1; col <= sheet.Dimension?.Columns; col++)
                 {
@@ -154,10 +151,10 @@ namespace EmployeeService.Features.Attendance.Sync
                     }
 
                     // ── Business Logic ──────────────────────────────────
+                    var emp = allEmployees[employeeId];
                     var calc = AttendanceService.Calculate(checkIn, checkOut);
 
                     // Add to result records for UI review
-                    var emp = allEmployees[employeeId];
                     result.Records.Add(new AttendanceRecordDto
                     {
                         EmployeeId = employeeId,
@@ -176,11 +173,14 @@ namespace EmployeeService.Features.Attendance.Sync
 
                     if (existing is not null)
                     {
-                        // Update only if CheckIn or CheckOut changed
-                        bool checkInChanged = existing.CheckIn != checkIn;
-                        bool checkOutChanged = existing.CheckOut != checkOut;
+                        // Update if times OR calculated results changed (ensures logic changes are applied)
+                        bool timesChanged = existing.CheckIn != checkIn || existing.CheckOut != checkOut;
+                        bool calcsChanged = existing.LateMinutes != calc.LateMinutes ||
+                                            existing.EarlyLeaveMinutes != calc.EarlyLeaveMinutes ||
+                                            existing.WorkingMinutes != calc.WorkingMinutes ||
+                                            existing.Status != calc.Status;
 
-                        if (checkInChanged || checkOutChanged)
+                        if (timesChanged || calcsChanged)
                         {
                             await _attendanceRepo.UpdateAsync(existing.Id, new Domain.Models.Attendance
                             {

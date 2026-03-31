@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useEffect } from "react";
-import { STATUS_ENUM_MAP } from "@/types";
+import { STATUS_ENUM_MAP, SHIFT_OPTIONS } from "@/types";
 import type { EmployeeStatus } from "@/types";
 import { handleApiErrors } from "@/utils/handleApiErrors";
 import { useSnackbar } from "notistack";
@@ -40,6 +40,7 @@ const schema = z.object({
   salary: z.coerce.number().min(0, "Salary must be positive"),
   positionId: z.coerce.number().min(1, "Position is required"),
   status: z.coerce.number().min(1).max(3),
+  workStartHour: z.coerce.number().min(7).max(10),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -66,6 +67,7 @@ export default function EditEmployee() {
       salary: 0,
       positionId: 0,
       status: 1,
+      workStartHour: 7,
     },
   });
 
@@ -82,6 +84,7 @@ export default function EditEmployee() {
         salary: employee.salary ?? 0,
         positionId: employee.positionId ?? 0,
         status: STATUS_ENUM_MAP[employee.status as EmployeeStatus] ?? 1,
+        workStartHour: employee.workStartHour ?? 9,
       });
     }
   }, [employee, methods]);
@@ -101,6 +104,7 @@ export default function EditEmployee() {
           salary: values.salary,
           positionId: values.positionId,
           status: values.status,
+          workStartHour: values.workStartHour,
         },
       },
       {
@@ -242,6 +246,16 @@ export default function EditEmployee() {
                       { label: "Inactive", value: "2" },
                       { label: "Terminated", value: "3" },
                     ]}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormSelect
+                    name="workStartHour"
+                    label="Work Shift Start"
+                    options={SHIFT_OPTIONS.map((s) => ({
+                      label: s.label,
+                      value: String(s.value),
+                    }))}
                   />
                 </Grid>
               </Grid>

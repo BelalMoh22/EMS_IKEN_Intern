@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Employees.UpdateEmployee
+namespace EmployeeService.Features.Employees.UpdateEmployee
 {
     public class UpdateEmployeeDTO 
     {
@@ -35,5 +35,8 @@
 
         [ForeignKey("Position")]
         public int? PositionId { get; set; }
+
+        [Range(7, 10, ErrorMessage = "Work Start Hour must be between 7 and 10.")]
+        public int? WorkStartHour { get; set; }
     }
 }

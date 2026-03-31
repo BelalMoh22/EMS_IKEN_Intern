@@ -62,6 +62,7 @@ export interface Employee {
   hireDate: string;
   status: EmployeeStatus;
   positionId: number;
+  workStartHour: number;
   position?: Position | null;
   createdAt: string;
   isDeleted: boolean;
@@ -84,6 +85,7 @@ export interface CreateEmployeeRequest {
   hireDate?: string;
   status?: number; // 1=Active, 2=Inactive, 3=Terminated
   positionId: number;
+  workStartHour?: number; // 7, 8, 9, or 10
   username: string;
   password: string;
   role: number;
@@ -101,6 +103,7 @@ export interface UpdateEmployeeRequest {
   hireDate?: string;
   status?: number;
   positionId?: number;
+  workStartHour?: number;
 }
 
 // ─── Department ──────────────────────────────────────────
@@ -201,6 +204,17 @@ export interface MyAttendanceRecord {
   workingMinutes: number;
 }
 
+export interface EmployeeMonthlyAttendanceDto {
+  employeeId: number;
+  employeeName: string;
+  totalLateMinutes: number;
+  totalEarlyMinutes: number;
+  totalExcuseHours: number;
+  deductionHours: number;
+  status: string;
+  totalWorkingHours: number;
+}
+
 export interface MyAttendanceResult {
   records: MyAttendanceRecord[];
   totalLateMinutes: number;
@@ -239,3 +253,10 @@ export const STATUS_FROM_NUMBER: Record<number, EmployeeStatus> = {
   2: "Inactive",
   3: "Terminated",
 };
+
+export const SHIFT_OPTIONS = [
+  { label: "7:00 AM", value: 7 },
+  { label: "8:00 AM", value: 8 },
+  { label: "9:00 AM", value: 9 },
+  { label: "10:00 AM", value: 10 },
+];

@@ -47,7 +47,8 @@ namespace EmployeeService.Features.Employees.CreateEmployee
                 dto.Salary,
                 dto.PositionId,
                 userId,
-                dto.Status
+                dto.Status,
+                dto.WorkStartHour
             );
 
             return await _repo.AddAsync(employee);
