@@ -51,6 +51,7 @@ export default function MonthlyAttendance() {
   const pageSize = 10;
   const [syncLoading, setSyncLoading] = useState(false);
   const [lastSyncResult, setLastSyncResult] = useState<any>(null);
+  const [status, setStatus] = useState<string>("All");
 
   const { data: records, isLoading } = useQuery<EmployeeMonthlyAttendanceDto[]>({
     queryKey: ["attendance", "monthly", month, year],
@@ -64,16 +65,21 @@ export default function MonthlyAttendance() {
     if (!records) return [];
     
     // Sort by ID ascending
-    const sorted = [...records].sort((a, b) => a.employeeId - b.employeeId);
+    let filtered = [...records].sort((a, b) => a.employeeId - b.employeeId);
     
-    if (!search) return sorted;
+    // Status filter
+    if (status !== "All") {
+      filtered = filtered.filter(r => r.status === status);
+    }
+
+    if (!search) return filtered;
     const s = search.toLowerCase();
-    return sorted.filter(
+    return filtered.filter(
       (r) =>
         r.employeeName.toLowerCase().includes(s) ||
         r.employeeId.toString().includes(s)
     );
-  }, [records, search]);
+  }, [records, search, status]);
 
   const totalPages = Math.ceil(filteredRecords.length / pageSize);
   const pageRecords = useMemo(() => {
@@ -84,7 +90,7 @@ export default function MonthlyAttendance() {
   // Reset page when search or filters change
   useMemo(() => {
     setPage(1);
-  }, [search, month, year]);
+  }, [search, month, year, status]);
 
   const handleSync = async () => {
     try {
@@ -165,7 +171,7 @@ export default function MonthlyAttendance() {
       <Card sx={{ mb: 4, borderRadius: 2 }}>
         <CardContent>
           <Grid container spacing={2} alignItems="center">
-            <Grid size={{ xs: 12, sm: 4 }}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <FormControl fullWidth>
                 <InputLabel>Month</InputLabel>
                 <Select
@@ -181,7 +187,7 @@ export default function MonthlyAttendance() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 4 }}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <FormControl fullWidth>
                 <InputLabel>Year</InputLabel>
                 <Select
@@ -197,11 +203,25 @@ export default function MonthlyAttendance() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid size={{ xs: 12, sm: 4 }}>
+            <Grid size={{ xs: 12, sm: 3 }}>
+              <FormControl fullWidth>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={status}
+                  label="Status"
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  <MenuItem value="All">All Statuses</MenuItem>
+                  <MenuItem value="Deduction">Deduction</MenuItem>
+                  <MenuItem value="No Deduction">No Deduction</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <SearchInput
                 value={search}
                 onChange={setSearch}
-                placeholder="Search by name or ID..."
+                placeholder="Search name/ID..."
               />
             </Grid>
           </Grid>
