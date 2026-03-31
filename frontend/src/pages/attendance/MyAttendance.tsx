@@ -16,7 +16,12 @@ import {
   Stack,
   Card,
   CardContent,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
   TablePagination,
+  Grid,
 } from "@mui/material";
 import { attendanceApi } from "@/api/attendanceApi";
 import type { MyAttendanceRecord } from "@/types";
@@ -25,9 +30,18 @@ export default function MyAttendance() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
+  // Filter states
+  const [year, setYear] = useState<number | "">("");
+  const [month, setMonth] = useState<number | "">("");
+  const [day, setDay] = useState<number | "">("");
+
   const { data: result, isLoading, error } = useQuery({
-    queryKey: ["myAttendance"],
-    queryFn: attendanceApi.getMyAttendance,
+    queryKey: ["myAttendance", year, month, day],
+    queryFn: () => attendanceApi.getMyAttendance(
+      year === "" ? undefined : year,
+      month === "" ? undefined : month,
+      day === "" ? undefined : day
+    ),
   });
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -38,6 +52,26 @@ export default function MyAttendance() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+  const handleYearChange = (e: any) => {
+    setYear(e.target.value);
+    setPage(0);
+  };
+
+  const handleMonthChange = (e: any) => {
+    setMonth(e.target.value);
+    setPage(0);
+  };
+
+  const handleDayChange = (e: any) => {
+    setDay(e.target.value);
+    setPage(0);
+  };
+
+  // Helper arrays for filters
+  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
   if (isLoading) {
     return (
@@ -73,7 +107,65 @@ export default function MyAttendance() {
         My Attendance
       </Typography>
 
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={3} mb={4} mt={3}>
+      <Box sx={{ mt: 3, mb: 2 }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid size={{ xs: 12, sm: 4, md: 2 }}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="year-label">Year</InputLabel>
+              <Select
+                labelId="year-label"
+                value={year}
+                label="Year"
+                onChange={handleYearChange}
+                sx={{ bgcolor: "background.paper", borderRadius: 2 }}
+              >
+                <MenuItem value="">All Years</MenuItem>
+                {years.map(y => (
+                  <MenuItem key={y} value={y}>{y}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4, md: 2 }}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="month-label">Month</InputLabel>
+              <Select
+                labelId="month-label"
+                value={month}
+                label="Month"
+                onChange={handleMonthChange}
+                sx={{ bgcolor: "background.paper", borderRadius: 2 }}
+              >
+                <MenuItem value="">All Months</MenuItem>
+                {months.map(m => (
+                  <MenuItem key={m} value={m}>
+                    {new Date(2000, m - 1).toLocaleString('default', { month: 'long' })}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4, md: 2 }}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="day-label">Day</InputLabel>
+              <Select
+                labelId="day-label"
+                value={day}
+                label="Day"
+                onChange={handleDayChange}
+                sx={{ bgcolor: "background.paper", borderRadius: 2 }}
+              >
+                <MenuItem value="">All Days</MenuItem>
+                {days.map(d => (
+                  <MenuItem key={d} value={d}>{d}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={3} mb={4} mt={2}>
         <Card sx={{ flex: 1, borderRadius: 2 }}>
           <CardContent sx={{ textAlign: "center" }}>
             <Typography variant="h6" color="text.secondary">Total Working Hours</Typography>
