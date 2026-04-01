@@ -251,7 +251,7 @@ export default function PositionDetails() {
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         title="Delete Position"
-        description={`Are you sure you want to delete ${position.positionName}? This action cannot be undone.`}
+        description={`Are you sure you want to delete ${position.positionName}? This will also delete all employees assigned to this position. This action cannot be undone.`}
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
       />

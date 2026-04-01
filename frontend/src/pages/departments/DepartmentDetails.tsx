@@ -231,7 +231,7 @@ export default function DepartmentDetails() {
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         title="Delete Department"
-        description={`Are you sure you want to delete ${department.departmentName}? This action cannot be undone.`}
+        description={`Are you sure you want to delete ${department.departmentName}? This will also delete all positions and employees in this department. This action cannot be undone.`}
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
       />

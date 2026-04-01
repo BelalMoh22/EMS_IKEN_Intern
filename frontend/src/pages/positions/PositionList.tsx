@@ -275,7 +275,7 @@ export default function PositionList() {
         open={deleteTarget !== null}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Delete Position"
-        description="Are you sure? This action cannot be undone."
+        description="Are you sure? This will also delete all employees assigned to this position. This action cannot be undone."
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
       />

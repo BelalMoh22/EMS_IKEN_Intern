@@ -184,7 +184,7 @@ export default function DepartmentList() {
         open={deleteTarget !== null}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Delete Department"
-        description="Are you sure? This action cannot be undone."
+        description="Are you sure? This will also delete all positions and employees assigned to this department. This action cannot be undone."
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
       />
