@@ -21,7 +21,7 @@ namespace EmployeeService.Infrastructure.BusinessRules.Employees
             var errors = ValidationHelper.ValidateModel(dto);
 
             var position = await _positionRepository.GetByIdAsync(dto.PositionId);
-            if (position is null)
+            if (position is null || position.IsDeleted)
                 AddError(errors, "positionId", $"Position with Id {dto.PositionId} does not exist.");
 
             if (await _employeeRepository.ExistsAsync(e => e.Email == dto.Email))
@@ -59,7 +59,7 @@ namespace EmployeeService.Infrastructure.BusinessRules.Employees
             var positionId = dto.PositionId ?? existing.PositionId;
 
             var position = await _positionRepository.GetByIdAsync(positionId);
-            if (position is null)
+            if (position is null || position.IsDeleted)
                 AddError(errors, "positionId", $"Position with Id {positionId} does not exist.");
 
             if (await _employeeRepository.ExistsAsync(e => e.Email == email && e.Id != employeeId))
