@@ -9,6 +9,7 @@ namespace EmployeeService.Domain.Models
         public int DepartmentId { get; private set; }
         public int TargetEmployeeCount { get; private set; }
         public int CurrentEmployeeCount { get; private set; }
+        public bool IsFull => CurrentEmployeeCount >= TargetEmployeeCount;
 
         public Position(string positionName, decimal minSalary, decimal maxSalary, int departmentId, int targetEmployeeCount)
         {

@@ -164,7 +164,7 @@ export default function DepartmentDetails() {
               <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
                 <BusinessCenterIcon /> Positions
               </Typography>
-              <DataTable<any>
+               <DataTable<any>
                 columns={[
                   {
                     header: "Position",
@@ -196,7 +196,7 @@ export default function DepartmentDetails() {
               <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
                 <PeopleIcon /> Employees
               </Typography>
-              <DataTable<any>
+               <DataTable<any>
                 columns={[
                   {
                     header: "Name",

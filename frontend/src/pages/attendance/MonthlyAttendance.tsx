@@ -38,7 +38,7 @@ const MONTHS = [
   { value: 12, label: "December" },
 ];
 
-const YEARS = [2025, 2026, 2027];
+const YEARS = [2020, 2021, 2022, 2023, 2024, 2025, 2026];
 
 export default function MonthlyAttendance() {
   const navigate = useNavigate();
@@ -47,8 +47,8 @@ export default function MonthlyAttendance() {
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [syncLoading, setSyncLoading] = useState(false);
   const [lastSyncResult, setLastSyncResult] = useState<any>(null);
   const [status, setStatus] = useState<string>("All");
@@ -63,10 +63,10 @@ export default function MonthlyAttendance() {
 
   const filteredRecords = useMemo(() => {
     if (!records) return [];
-    
+
     // Sort by ID ascending
     let filtered = [...records].sort((a, b) => a.employeeId - b.employeeId);
-    
+
     // Status filter
     if (status !== "All") {
       filtered = filtered.filter(r => r.status === status);
@@ -76,20 +76,19 @@ export default function MonthlyAttendance() {
     const s = search.toLowerCase();
     return filtered.filter(
       (r) =>
-        r.employeeName.toLowerCase().includes(s) ||
-        r.employeeId.toString().includes(s)
+        r.employeeName.toLowerCase().includes(s)
     );
   }, [records, search, status]);
 
-  const totalPages = Math.ceil(filteredRecords.length / pageSize);
+  const totalPages = Math.ceil(filteredRecords.length / rowsPerPage);
   const pageRecords = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return filteredRecords.slice(start, start + pageSize);
-  }, [filteredRecords, page, pageSize]);
+    const start = page * rowsPerPage;
+    return filteredRecords.slice(start, start + rowsPerPage);
+  }, [filteredRecords, page, rowsPerPage]);
 
   // Reset page when search or filters change
   useMemo(() => {
-    setPage(1);
+    setPage(0);
   }, [search, month, year, status]);
 
   const handleSync = async () => {
@@ -109,6 +108,21 @@ export default function MonthlyAttendance() {
     } finally {
       setSyncLoading(false);
     }
+  };
+
+  const formatHoursToHms = (hoursValue: number) => {
+    if (hoursValue === undefined || hoursValue === null) return "0h 0m";
+    const totalMinutes = Math.round(hoursValue * 60);
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    return `${h}h ${m}m`;
+  };
+
+  const formatMinutesToHms = (minutesValue: number) => {
+    if (minutesValue === undefined || minutesValue === null) return "0h 0m";
+    const h = Math.floor(minutesValue / 60);
+    const m = Math.round(minutesValue % 60);
+    return `${h}h ${m}m`;
   };
 
   return (
@@ -221,7 +235,7 @@ export default function MonthlyAttendance() {
               <SearchInput
                 value={search}
                 onChange={setSearch}
-                placeholder="Search name/ID..."
+                placeholder="Search by name..."
               />
             </Grid>
           </Grid>
@@ -239,15 +253,39 @@ export default function MonthlyAttendance() {
               </Box>
             ),
           },
-          { header: "Late (m)", accessorKey: "totalLateMinutes" as any },
-          { header: "Early (m)", accessorKey: "totalEarlyMinutes" as any },
-          { header: "Working (h)", accessorKey: "totalWorkingHours" as any },
-          { header: "Excuse (h)", accessorKey: "totalExcuseHours" as any },
           {
-            header: "Deduction (h)",
+            header: "Late",
             cell: (record) => (
-              <Typography sx={{ color: record.deductionHours > 0 ? "error.main" : "inherit" }}>
-                {record.deductionHours}h
+              <Typography color={record.totalLateMinutes > 0 ? "error.main" : "inherit"}>
+                {formatMinutesToHms(record.totalLateMinutes)}
+              </Typography>
+            )
+          },
+          {
+            header: "Early",
+            cell: (record) => (
+              <Typography color={record.totalEarlyMinutes > 0 ? "warning.main" : "inherit"}>
+                {formatMinutesToHms(record.totalEarlyMinutes)}
+              </Typography>
+            )
+          },
+          {
+            header: "Working",
+            cell: (record) => (
+              <Typography fontWeight={600} color="primary.main">
+                {formatHoursToHms(record.totalWorkingHours)}
+              </Typography>
+            )
+          },
+          {
+            header: "Excuse",
+            cell: (record) => formatHoursToHms(record.totalExcuseHours)
+          },
+          {
+            header: "Deduction",
+            cell: (record) => (
+              <Typography sx={{ color: record.deductionHours > 0 ? "error.main" : "inherit" }} fontWeight={record.deductionHours > 0 ? 600 : 400}>
+                {formatHoursToHms(record.deductionHours)}
               </Typography>
             ),
           },
@@ -266,8 +304,13 @@ export default function MonthlyAttendance() {
         data={pageRecords}
         loading={isLoading}
         page={page}
-        totalPages={totalPages}
+        totalCount={filteredRecords.length}
+        rowsPerPage={rowsPerPage}
         onPageChange={setPage}
+        onRowsPerPageChange={(rows) => {
+          setRowsPerPage(rows);
+          setPage(0);
+        }}
         onRowClick={(record) => navigate(`/attendance/details/${record.employeeId}?month=${month}&year=${year}`)}
       />
     </Box>

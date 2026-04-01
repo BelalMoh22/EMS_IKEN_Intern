@@ -8,6 +8,7 @@ import {
   useDepartments,
 } from "@/hooks/useDepartments";
 import { useEmployees } from "@/hooks/useEmployees";
+import { usePositions } from "@/hooks/usePositions";
 import { FormInput } from "@/components/shared/FormInput";
 import { FormSelect } from "@/components/shared/FormSelect";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
@@ -44,6 +45,7 @@ export default function EditDepartment() {
   const { data: department, isLoading } = useDepartment(numId);
   const { data: employees } = useEmployees();
   const { data: departments } = useDepartments();
+  const { data: positions } = usePositions();
   const updateMutation = useUpdateDepartment();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -136,11 +138,15 @@ export default function EditDepartment() {
                       ...(employees
                         ?.filter(
                           (e) =>
-                            e.id === department?.managerId || // Keep current manager
-                            !departments?.some(
-                              (d) =>
-                                d.managerId === e.id && d.isActive !== false,
-                            ),
+                            e.status === "Active" &&
+                            (e.id === department?.managerId || ( // Keep current manager
+                              !departments?.some(
+                                (d) =>
+                                  d.managerId === e.id && d.isActive !== false,
+                              ) &&
+                              // Filter by department positions
+                              positions?.find(p => p.id === e.positionId)?.departmentId === numId
+                            )),
                         )
                         .map((e) => ({
                           label: `${e.firstName} ${e.lastname}`,

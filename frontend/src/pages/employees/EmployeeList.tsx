@@ -8,14 +8,15 @@ import { useDepartments } from "@/hooks/useDepartments";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { Box, Typography, Button, Chip } from "@mui/material";
+import { Box, Typography, Button, Chip, Select, MenuItem, Grid } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { ActionButtons } from "@/components/shared/ActionButtons";
 import type { Employee } from "@/types";
 import { getGeneralErrors } from "@/utils/handleApiErrors";
 import { useSnackbar } from "notistack";
 
-const PAGE_SIZE = 10;
+// Initial page size
+const INITIAL_PAGE_SIZE = 10;
 
 export default function EmployeeList() {
   const navigate = useNavigate();
@@ -25,7 +26,10 @@ export default function EmployeeList() {
   const canDelete = user?.role === "HR";
 
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
+  const [selectedDeptId, setSelectedDeptId] = useState<number | "all">("all");
+  const [selectedPosId, setSelectedPosId] = useState<number | "all">("all");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(INITIAL_PAGE_SIZE);
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
 
   const { data: employees, isLoading } = useEmployees();
@@ -37,19 +41,44 @@ export default function EmployeeList() {
   // Client-side search & pagination since backend returns full array
   const filtered = useMemo(() => {
     if (!employees) return [];
-    if (!search) return employees;
-    const s = search.toLowerCase();
-    return employees.filter(
-      (e) =>
-        e.firstName?.toLowerCase().includes(s) ||
-        e.lastname?.toLowerCase().includes(s) ||
-        e.email?.toLowerCase().includes(s) ||
-        e.phoneNumber?.toLowerCase().includes(s),
-    );
-  }, [employees, search]);
+    
+    let result = [...employees];
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    // Filter by Search
+    if (search) {
+      const s = search.toLowerCase();
+      result = result.filter((e) => {
+        const fullName = `${e.firstName} ${e.lastname}`.toLowerCase();
+        return (
+          fullName.includes(s) ||
+          e.email?.toLowerCase().includes(s) ||
+          e.phoneNumber?.toLowerCase().includes(s)
+        );
+      });
+    }
+
+    // Filter by Department (Requires checking position's departmentId)
+    if (selectedDeptId !== "all") {
+      result = result.filter(e => {
+        const pos = positions?.find(p => p.id === e.positionId);
+        return pos?.departmentId === selectedDeptId;
+      });
+    }
+
+    // Filter by Position
+    if (selectedPosId !== "all") {
+      result = result.filter(e => e.positionId === selectedPosId);
+    }
+
+    return result;
+  }, [employees, search, selectedDeptId, selectedPosId, positions]);
+
+  // Reset page when filters change
+  useMemo(() => {
+    setPage(0);
+  }, [search, selectedDeptId, selectedPosId]);
+
+  const paged = filtered.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
   const getPositionName = (posId: number) =>
     positions?.find((p) => p.id === posId)?.positionName ?? "—";
@@ -106,6 +135,7 @@ export default function EmployeeList() {
       ),
     },
     { header: "Email", accessorKey: "email" },
+    { header: "Phone No", accessorKey: "phoneNumber" },
     {
       header: "Department",
       cell: (row) => getDepartmentName(row.positionId),
@@ -142,7 +172,7 @@ export default function EmployeeList() {
 
   const handleSearch = useCallback((v: string) => {
     setSearch(v);
-    setPage(1);
+    setPage(0);
   }, []);
 
   return (
@@ -179,21 +209,68 @@ export default function EmployeeList() {
         )}
       </Box>
 
-      <Box sx={{ maxWidth: 360 }}>
-        <SearchInput
-          value={search}
-          onChange={handleSearch}
-          placeholder="Search employees..."
-        />
-      </Box>
+      <Grid container spacing={2} sx={{ mb: 1 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <SearchInput
+            value={search}
+            onChange={handleSearch}
+            placeholder="Search employees..."
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Select
+            fullWidth
+            size="small"
+            value={selectedDeptId}
+            onChange={(e) => {
+              setSelectedDeptId(e.target.value as any);
+              setSelectedPosId("all"); // Reset position when dept changes
+            }}
+            displayEmpty
+            sx={{ bgcolor: "background.paper", borderRadius: 2 }}
+          >
+            <MenuItem value="all">All Departments</MenuItem>
+            {departments?.map((d) => (
+              <MenuItem key={d.id} value={d.id}>
+                {d.departmentName}
+              </MenuItem>
+            ))}
+          </Select>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Select
+            fullWidth
+            size="small"
+            value={selectedPosId}
+            onChange={(e) => setSelectedPosId(e.target.value as any)}
+            displayEmpty
+            sx={{ bgcolor: "background.paper", borderRadius: 2 }}
+          >
+            <MenuItem value="all">All Positions</MenuItem>
+            {(selectedDeptId === "all" 
+              ? positions 
+              : positions?.filter(p => p.departmentId === selectedDeptId)
+            )?.map((p) => (
+              <MenuItem key={p.id} value={p.id}>
+                {p.positionName}
+              </MenuItem>
+            ))}
+          </Select>
+        </Grid>
+      </Grid>
 
       <DataTable
         columns={columns}
         data={paged}
         loading={isLoading}
         page={page}
-        totalPages={totalPages}
+        totalCount={filtered.length}
+        rowsPerPage={rowsPerPage}
         onPageChange={setPage}
+        onRowsPerPageChange={(rows) => {
+          setRowsPerPage(rows);
+          setPage(0);
+        }}
         onRowClick={(row) => navigate(`/employees/${row.id}`)}
       />
 

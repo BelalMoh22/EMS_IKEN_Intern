@@ -43,20 +43,46 @@ function InfoRow({
   loading?: boolean;
 }) {
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 2, py: 1.5 }}>
-      <Box sx={{ color: "text.secondary", display: "flex" }}>{icon}</Box>
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 2,
+        py: 1.5,
+        px: 2,
+        borderRadius: 2,
+        transition: "all 0.2s",
+        "&:hover": {
+          bgcolor: "action.hover",
+          transform: "translateX(4px)",
+        },
+      }}
+    >
+      <Box
+        sx={{
+          color: "primary.main",
+          display: "flex",
+          p: 1,
+          borderRadius: "12px",
+          bgcolor: "primary.main",
+          background: (theme) =>
+            `linear-gradient(135deg, ${theme.palette.primary.main}15 0%, ${theme.palette.primary.main}05 100%)`,
+        }}
+      >
+        {icon}
+      </Box>
       <Box sx={{ flex: 1 }}>
         <Typography
           variant="caption"
           color="text.secondary"
-          sx={{ display: "block" }}
+          sx={{ display: "block", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", mb: 0.2 }}
         >
           {label}
         </Typography>
         {loading ? (
-          <Skeleton width={120} />
+          <Skeleton width="60%" height={24} />
         ) : (
-          <Typography variant="body2" fontWeight={500}>
+          <Typography variant="body1" fontWeight={600} color="text.primary">
             {value || "—"}
           </Typography>
         )}
@@ -86,39 +112,62 @@ export default function Profile() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 3,
-        maxWidth: 900,
+        gap: 4,
+        maxWidth: 1100,
         mx: "auto",
+        pb: 6,
       }}
     >
-      {/* Header Card */}
+      {/* Header Card with Banner */}
       <Card
         sx={{
-          background: `linear-gradient(135deg, ${roleBg}15 0%, ${roleBg}08 100%)`,
-          border: `1px solid ${roleBg}30`,
           overflow: "visible",
           position: "relative",
+          borderRadius: 4,
+          boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
+          border: "none",
         }}
       >
-        <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+        {/* Banner */}
+        <Box
+          sx={{
+            height: 160,
+            background: `linear-gradient(135deg, ${roleBg} 0%, ${roleBg}dd 100%)`,
+            borderTopLeftRadius: "inherit",
+            borderTopRightRadius: "inherit",
+            position: "relative",
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "url('https://www.transparenttextures.com/patterns/cubes.png')",
+              opacity: 0.1,
+            }
+          }}
+        />
+        <CardContent sx={{ pt: 0, px: { xs: 3, md: 5 }, pb: 4 }}>
           <Box
             sx={{
               display: "flex",
               flexDirection: { xs: "column", sm: "row" },
-              alignItems: { xs: "center", sm: "flex-start" },
+              alignItems: { xs: "center", sm: "flex-end" },
               gap: 3,
+              mt: -6,
             }}
           >
             {/* Avatar */}
             <Avatar
               sx={{
-                width: 96,
-                height: 96,
+                width: 130,
+                height: 130,
                 bgcolor: roleBg,
-                fontSize: "2rem",
-                fontWeight: 700,
-                boxShadow: `0 8px 32px ${roleBg}40`,
-                border: "4px solid white",
+                fontSize: "3rem",
+                fontWeight: 800,
+                boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+                border: "6px solid white",
               }}
             >
               {initials}
@@ -129,98 +178,174 @@ export default function Profile() {
               sx={{
                 flex: 1,
                 textAlign: { xs: "center", sm: "left" },
+                mb: 1,
               }}
             >
-              <Typography variant="h4" fontWeight={700} sx={{ mb: 0.5 }}>
+              <Typography variant="h3" fontWeight={800} sx={{ mb: 0.5, letterSpacing: "-0.5px" }}>
                 {myEmployee
                   ? `${myEmployee.firstName} ${myEmployee.lastname}`
                   : (user?.username ?? "User")}
               </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: 1.5 }}
-              >
-                {positionName ?? "Position not assigned"}
-                {departmentName ? ` · ${departmentName}` : ""}
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 1,
-                  justifyContent: { xs: "center", sm: "flex-start" },
-                  flexWrap: "wrap",
-                }}
-              >
-                <Chip
-                  label={user?.role ?? "Employee"}
-                  size="small"
-                  sx={{
-                    bgcolor: roleBg,
-                    color: "#fff",
-                    fontWeight: 600,
-                    fontSize: "0.8rem",
-                    px: 1,
-                  }}
-                />
-                {myEmployee && (
-                  <Chip
-                    label={myEmployee.status ?? "Active"}
-                    size="small"
-                    variant="outlined"
-                    color={
-                      myEmployee.status === "Active" ? "success" : "default"
-                    }
-                    sx={{ fontWeight: 500 }}
-                  />
-                )}
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: { xs: "center", sm: "flex-start" }, gap: 1.5, color: "text.secondary" }}>
+                <WorkIcon sx={{ fontSize: 18 }} />
+                <Typography variant="h6" fontWeight={500} sx={{ opacity: 0.8 }}>
+                  {positionName ?? "Explorer"} {departmentName ? `at ${departmentName}` : ""}
+                </Typography>
               </Box>
+            </Box>
+
+            {/* Quick Actions / Status */}
+            <Box sx={{ display: "flex", gap: 1.5, mb: 1 }}>
+              <Chip
+                label={user?.role ?? "User"}
+                sx={{
+                  bgcolor: `${roleBg}20`,
+                  color: roleBg,
+                  fontWeight: 700,
+                  fontSize: "0.85rem",
+                  px: 1,
+                  border: `1px solid ${roleBg}40`,
+                }}
+              />
             </Box>
           </Box>
         </CardContent>
       </Card>
 
-      {/* Detail Cards */}
-      <Grid container spacing={3}>
-        {/* Personal Info */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ height: "100%" }}>
-            <CardContent>
+      {/* Detail Cards Content */}
+      <Grid container spacing={4}>
+        {/* Main Column */}
+        <Grid size={{ xs: 12, md: 7 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {/* Personal Info */}
+            <Card sx={{ borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.05)" }}>
+              <CardContent sx={{ p: 3 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}
+                >
+                  <Box sx={{ bgcolor: "primary.main", color: "white", p: 1, borderRadius: 2, display: "flex" }}>
+                    <PersonIcon />
+                  </Box>
+                  <Typography variant="h5" fontWeight={700}>Personal Details</Typography>
+                </Box>
+                <Grid container spacing={1}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <InfoRow
+                      icon={<BadgeIcon fontSize="small" />}
+                      label="Full Name"
+                      value={
+                        myEmployee
+                          ? `${myEmployee.firstName} ${myEmployee.lastname}`
+                          : user?.username
+                      }
+                      loading={isLoading}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <InfoRow
+                      icon={<EmailIcon fontSize="small" />}
+                      label="Work Email"
+                      value={myEmployee?.email}
+                      loading={isLoading}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <InfoRow
+                      icon={<PhoneIcon fontSize="small" />}
+                      label="Contact Number"
+                      value={myEmployee?.phoneNumber}
+                      loading={isLoading}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <InfoRow
+                      icon={<CalendarMonthIcon fontSize="small" />}
+                      label="Birth Date"
+                      value={
+                        myEmployee?.dateOfBirth
+                          ? new Date(myEmployee.dateOfBirth).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            },
+                          )
+                          : undefined
+                      }
+                      loading={isLoading}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12 }}>
+                    <InfoRow
+                      icon={<HomeIcon fontSize="small" />}
+                      label="Residential Address"
+                      value={myEmployee?.address}
+                      loading={isLoading}
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+
+            {/* Account Info */}
+            <Card sx={{ borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.05)" }}>
+              <CardContent sx={{ p: 3 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}
+                >
+                  <Box sx={{ bgcolor: "secondary.main", color: "white", p: 1, borderRadius: 2, display: "flex" }}>
+                    <SecurityIcon />
+                  </Box>
+                  <Typography variant="h5" fontWeight={700}>Account Security</Typography>
+                </Box>
+                <Grid container spacing={2}>
+                  <Grid size={{ xs: 12 }}>
+                    <InfoRow
+                      icon={<PersonIcon fontSize="small" />}
+                      label="Username"
+                      value={user?.username}
+                      loading={false}
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Box>
+        </Grid>
+
+        {/* Sidebar Column */}
+        <Grid size={{ xs: 12, md: 5 }}>
+          <Card sx={{ height: "100%", borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.05)", bgcolor: "grey.50" }}>
+            <CardContent sx={{ p: 4 }}>
               <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+                sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 4 }}
               >
-                <PersonIcon color="primary" />
-                <Typography variant="h5">Personal Information</Typography>
+                <Box sx={{ bgcolor: "success.main", color: "white", p: 1, borderRadius: 2, display: "flex" }}>
+                  <WorkIcon />
+                </Box>
+                <Typography variant="h5" fontWeight={700}>Employment</Typography>
               </Box>
-              <Divider sx={{ mb: 1 }} />
-              <InfoRow
-                icon={<BadgeIcon fontSize="small" />}
-                label="Full Name"
-                value={
-                  myEmployee
-                    ? `${myEmployee.firstName} ${myEmployee.lastname}`
-                    : user?.username
-                }
-                loading={isLoading}
-              />
-              <InfoRow
-                icon={<EmailIcon fontSize="small" />}
-                label="Email"
-                value={myEmployee?.email}
-                loading={isLoading}
-              />
-              <InfoRow
-                icon={<PhoneIcon fontSize="small" />}
-                label="Phone Number"
-                value={myEmployee?.phoneNumber}
-                loading={isLoading}
-              />
-              <InfoRow
-                icon={<CalendarMonthIcon fontSize="small" />}
-                label="Date of Birth"
-                value={
-                  myEmployee?.dateOfBirth
-                    ? new Date(myEmployee.dateOfBirth).toLocaleDateString(
+
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                <InfoRow
+                  icon={<WorkIcon fontSize="small" />}
+                  label="Official Position"
+                  value={positionName}
+                  loading={isLoading}
+                />
+                <InfoRow
+                  icon={<BusinessIcon fontSize="small" />}
+                  label="Department"
+                  value={departmentName}
+                  loading={isLoading}
+                />
+                <InfoRow
+                  icon={<CalendarMonthIcon fontSize="small" />}
+                  label="Date Joined"
+                  value={
+                    myEmployee?.hireDate
+                      ? new Date(myEmployee.hireDate).toLocaleDateString(
                         "en-US",
                         {
                           year: "numeric",
@@ -228,117 +353,32 @@ export default function Profile() {
                           day: "numeric",
                         },
                       )
-                    : undefined
-                }
-                loading={isLoading}
-              />
-              <InfoRow
-                icon={<HomeIcon fontSize="small" />}
-                label="Address"
-                value={myEmployee?.address}
-                loading={isLoading}
-              />
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Job Info */}
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ height: "100%" }}>
-            <CardContent>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
-              >
-                <WorkIcon color="primary" />
-                <Typography variant="h5">Job Information</Typography>
+                      : undefined
+                  }
+                  loading={isLoading}
+                />
+                <Divider sx={{ my: 2, borderStyle: "dashed" }} />
+                <Box
+                  sx={{
+                    p: 2,
+                    borderRadius: 3,
+                    bgcolor: "white",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
+                    border: "1px solid rgba(0,0,0,0.05)",
+                    textAlign: "center",
+                    mt: 1
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: "uppercase" }}>
+                    Base Salary
+                  </Typography>
+                  <Typography variant="h4" fontWeight={800} color="primary" sx={{ mt: 1 }}>
+                    {myEmployee?.salary
+                      ? `$${myEmployee.salary.toLocaleString()}`
+                      : "—"}
+                  </Typography>
+                </Box>
               </Box>
-              <Divider sx={{ mb: 1 }} />
-              <InfoRow
-                icon={<WorkIcon fontSize="small" />}
-                label="Position"
-                value={positionName}
-                loading={isLoading}
-              />
-              <InfoRow
-                icon={<BusinessIcon fontSize="small" />}
-                label="Department"
-                value={departmentName}
-                loading={isLoading}
-              />
-              <InfoRow
-                icon={<CalendarMonthIcon fontSize="small" />}
-                label="Hire Date"
-                value={
-                  myEmployee?.hireDate
-                    ? new Date(myEmployee.hireDate).toLocaleDateString(
-                        "en-US",
-                        {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        },
-                      )
-                    : undefined
-                }
-                loading={isLoading}
-              />
-              <InfoRow
-                icon={<AttachMoneyIcon fontSize="small" />}
-                label="Salary"
-                value={
-                  myEmployee?.salary
-                    ? `$${myEmployee.salary.toLocaleString()}`
-                    : undefined
-                }
-                loading={isLoading}
-              />
-              <InfoRow
-                icon={<BadgeIcon fontSize="small" />}
-                label="National ID"
-                value={myEmployee?.nationalId}
-                loading={isLoading}
-              />
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Account Info */}
-        <Grid size={{ xs: 12 }}>
-          <Card>
-            <CardContent>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
-              >
-                <SecurityIcon color="primary" />
-                <Typography variant="h5">Account Information</Typography>
-              </Box>
-              <Divider sx={{ mb: 1 }} />
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <InfoRow
-                    icon={<PersonIcon fontSize="small" />}
-                    label="Username"
-                    value={user?.username}
-                    loading={false}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <InfoRow
-                    icon={<SecurityIcon fontSize="small" />}
-                    label="Role"
-                    value={user?.role}
-                    loading={false}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <InfoRow
-                    icon={<BadgeIcon fontSize="small" />}
-                    label="User ID"
-                    value={user?.id}
-                    loading={false}
-                  />
-                </Grid>
-              </Grid>
             </CardContent>
           </Card>
         </Grid>

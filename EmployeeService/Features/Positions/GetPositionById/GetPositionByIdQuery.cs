@@ -1,5 +1,5 @@
 namespace EmployeeService.Features.Positions.GetPositionById
 {
-    using EmployeeService.Features.Positions;
-    public record GetPositionByIdQuery(int Id) : IRequest<PositionDto?>;
+    using EmployeeService.Domain.Models;
+    public record GetPositionByIdQuery(int Id) : IRequest<Position?>;
 }

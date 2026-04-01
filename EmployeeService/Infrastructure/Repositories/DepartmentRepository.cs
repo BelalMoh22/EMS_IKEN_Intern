@@ -11,9 +11,9 @@ namespace EmployeeService.Infrastructure.Repositories
         {
             var sql = $@"
             INSERT INTO {TableName}
-                (DepartmentName,Description, Email, ManagerId)
+                (DepartmentName, Description, ManagerId)
             VALUES
-                (@DepartmentName , @Description , @Email, @ManagerId);
+                (@DepartmentName , @Description , @ManagerId);
 
             SELECT CAST(SCOPE_IDENTITY() as int)
         ;";
@@ -43,6 +43,13 @@ namespace EmployeeService.Infrastructure.Repositories
                 department.ManagerId,
                 department.IsActive
             });
+        }
+
+        public async Task<IEnumerable<Department>> GetByManagerIdAsync(int managerId)
+        {
+            var sql = $@"SELECT * FROM {TableName} WHERE ManagerId = @ManagerId";
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryAsync<Department>(sql, new { ManagerId = managerId });
         }
     }
 }

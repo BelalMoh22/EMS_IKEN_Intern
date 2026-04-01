@@ -78,17 +78,7 @@ export function Header({ onToggleSidebar }: Props) {
               {user?.username}
             </Typography>
           </Box>
-          <Chip
-            label={user?.role}
-            size="small"
-            sx={{
-              bgcolor: `${roleBg}18`,
-              color: roleBg,
-              fontWeight: 600,
-              fontSize: "0.7rem",
-              height: 24,
-            }}
-          />
+
           <Tooltip title="Logout">
             <IconButton
               size="small"

@@ -24,7 +24,7 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useSnackbar } from "notistack";
 import { useState } from "react";
-import { ROLE_ENUM_MAP, SHIFT_OPTIONS } from "@/types";
+import { ROLE_ENUM_MAP } from "@/types";
 import type { Role } from "@/types";
 import { handleApiErrors } from "@/utils/handleApiErrors";
 
@@ -45,10 +45,6 @@ const schema = z.object({
   positionId: z.preprocess(
     (v) => Number(v),
     z.number().min(1, "Position is required"),
-  ),
-  workStartHour: z.preprocess(
-    (v) => Number(v),
-    z.number().min(7).max(10, "Shift must be between 7 and 10"),
   ),
   // User account fields
   username: z.string().min(1, "Username is required"),
@@ -87,7 +83,6 @@ export default function CreateEmployee() {
       address: "",
       salary: 0,
       positionId: state?.positionId ?? 0,
-      workStartHour: 7,
       username: "",
       password: "",
       role: "Employee",
@@ -109,7 +104,6 @@ export default function CreateEmployee() {
           address: values.address,
           salary: values.salary,
           positionId: values.positionId,
-          workStartHour: values.workStartHour,
           username: values.username,
           password: values.password,
           role: ROLE_ENUM_MAP[values.role as Role],
@@ -300,16 +294,6 @@ export default function CreateEmployee() {
                     label="Salary"
                     type="number"
                     placeholder="50000"
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormSelect
-                    name="workStartHour"
-                    label="Work Shift Start"
-                    options={SHIFT_OPTIONS.map((s) => ({
-                      label: s.label,
-                      value: String(s.value),
-                    }))}
                   />
                 </Grid>
               </Grid>

@@ -1,7 +1,7 @@
 namespace EmployeeService.Features.Positions.GetPositions
 {
-    using EmployeeService.Features.Positions;
-    public class GetPositionsHandler : IRequestHandler<GetPositionsQuery, IEnumerable<PositionDto>>
+    using EmployeeService.Domain.Models;
+    public class GetPositionsHandler : IRequestHandler<GetPositionsQuery, IEnumerable<Position>>
     {
         private readonly IRepository<Position> _repo;
 
@@ -10,19 +10,9 @@ namespace EmployeeService.Features.Positions.GetPositions
             _repo = repo;
         }
 
-        public async Task<IEnumerable<PositionDto>> Handle(GetPositionsQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Position>> Handle(GetPositionsQuery request, CancellationToken cancellationToken)
         {
-            var positions = await _repo.GetAllAsync();
-            return positions.Select(p => new PositionDto
-            {
-                Id = p.Id,
-                PositionName = p.PositionName,
-                MinSalary = p.MinSalary,
-                MaxSalary = p.MaxSalary,
-                DepartmentId = p.DepartmentId,
-                TargetEmployeeCount = p.TargetEmployeeCount,
-                CurrentEmployeeCount = p.CurrentEmployeeCount
-            });
+            return await _repo.GetAllAsync();
         }
     }
 }

@@ -28,11 +28,6 @@ const changePasswordSchema = z
       .regex(/[A-Z]/, "Must contain at least one uppercase letter")
       .regex(/[0-9]/, "Must contain at least one number")
       .regex(/[^a-zA-Z0-9]/, "Must contain at least one special character"),
-    confirmPassword: z.string().min(1, "Please confirm your new password"),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
   })
   .refine((data) => data.newPassword !== data.currentPassword, {
     message: "New password must be different from current password",
@@ -50,8 +45,7 @@ export default function ChangePassword() {
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
       currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
+      newPassword: ""
     },
   });
 
@@ -156,13 +150,6 @@ export default function ChangePassword() {
                 type="password"
                 placeholder="••••••••"
               />
-              <FormInput
-                name="confirmPassword"
-                label="Confirm New Password"
-                type="password"
-                placeholder="••••••••"
-              />
-
               {/* Password Requirements */}
               <Box
                 sx={{

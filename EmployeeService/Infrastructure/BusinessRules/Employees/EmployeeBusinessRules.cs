@@ -5,15 +5,18 @@ namespace EmployeeService.Infrastructure.BusinessRules.Employees
         private readonly IRepository<Employee> _employeeRepository;
         private readonly IRepository<Position> _positionRepository;
         private readonly UserRepository _userRepository;
+        private readonly DepartmentRepository _deptRepository;
 
         public EmployeeBusinessRules(
             IRepository<Employee> employeeRepository,
             IRepository<Position> positionRepository,
-            UserRepository userRepository)
+            UserRepository userRepository,
+            DepartmentRepository deptRepository)
         {
             _employeeRepository = employeeRepository;
             _positionRepository = positionRepository;
             _userRepository = userRepository;
+            _deptRepository = deptRepository;
         }
 
         public async Task ValidateForCreateAsync(CreateEmployeeDTO dto)
@@ -88,6 +91,19 @@ namespace EmployeeService.Infrastructure.BusinessRules.Employees
             }
 
             ThrowIfAny(errors);
+        }
+
+        public async Task<List<string>> HandleManagerRemovalAsync(int employeeId)
+        {
+            var departments = await _deptRepository.GetByManagerIdAsync(employeeId);
+            var deptNames = new List<string>();
+            foreach (var dept in departments)
+            {
+                dept.Update(dept.DepartmentName, dept.Description, null, dept.IsActive);
+                await _deptRepository.UpdateAsync(dept.Id, dept);
+                deptNames.Add(dept.DepartmentName);
+            }
+            return deptNames;
         }
     }
 }

@@ -4,8 +4,7 @@ namespace EmployeeService.Features.Auth.ChangePassword
     {
         public string CurrentPassword { get; set; } = string.Empty;
         public string NewPassword { get; set; } = string.Empty;
-        public string ConfirmPassword { get; set; } = string.Empty;
     }
 
-    public record ChangePasswordCommand(int UserId, string CurrentPassword, string NewPassword, string ConfirmPassword) : IRequest<bool>;
+    public record ChangePasswordCommand(int UserId, string CurrentPassword, string NewPassword) : IRequest<bool>;
 }

@@ -23,17 +23,22 @@ export default function DepartmentList() {
   const { enqueueSnackbar } = useSnackbar();
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const filteredData = useMemo(() => {
     if (!data) return [];
     if (!search) return data;
     const s = search.toLowerCase();
-    return data.filter(
-      (d) =>
-        d.departmentName?.toLowerCase().includes(s) ||
-        d.description?.toLowerCase().includes(s)
-    );
+    return data.filter((d) => d.departmentName?.toLowerCase().includes(s));
   }, [data, search]);
+
+  // Reset page when search changes
+  useMemo(() => {
+    setPage(0);
+  }, [search]);
+
+  const pagedData = filteredData.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
   const handleDelete = () => {
     if (deleteTarget !== null) {
@@ -162,8 +167,16 @@ export default function DepartmentList() {
 
       <DataTable 
         columns={columns} 
-        data={filteredData} 
+        data={pagedData} 
         loading={isLoading} 
+        page={page}
+        totalCount={filteredData.length}
+        rowsPerPage={rowsPerPage}
+        onPageChange={setPage}
+        onRowsPerPageChange={(rows) => {
+          setRowsPerPage(rows);
+          setPage(0);
+        }}
         onRowClick={(row) => navigate(`/departments/${row.id}`)}
       />
 

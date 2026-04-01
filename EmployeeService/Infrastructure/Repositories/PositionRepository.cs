@@ -12,9 +12,9 @@ namespace EmployeeService.Infrastructure.Repositories
         {
             var sql = $@"
             INSERT INTO {TableName}
-                (PositionName, MinSalary, MaxSalary, DepartmentId)
+                (PositionName, MinSalary, MaxSalary, DepartmentId, TargetEmployeeCount)
             VALUES
-                (@PositionName, @MinSalary, @MaxSalary, @DepartmentId);
+                (@PositionName, @MinSalary, @MaxSalary, @DepartmentId, @TargetEmployeeCount);
 
             SELECT CAST(SCOPE_IDENTITY() AS INT);
             ";
@@ -31,7 +31,8 @@ namespace EmployeeService.Infrastructure.Repositories
                 PositionName = @PositionName,
                 MinSalary = @MinSalary,
                 MaxSalary = @MaxSalary,
-                DepartmentId = @DepartmentId
+                DepartmentId = @DepartmentId,
+                TargetEmployeeCount = @TargetEmployeeCount
             WHERE Id = @Id
         ";
 
@@ -42,7 +43,8 @@ namespace EmployeeService.Infrastructure.Repositories
                 position.PositionName,
                 position.MinSalary,
                 position.MaxSalary,
-                position.DepartmentId
+                position.DepartmentId,
+                position.TargetEmployeeCount
             });
         }
     }
