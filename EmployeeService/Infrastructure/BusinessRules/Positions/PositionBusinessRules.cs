@@ -28,7 +28,7 @@ namespace EmployeeService.Infrastructure.BusinessRules.Positions
             if (dto.MaxSalary <= dto.MinSalary)
                 AddError(errors, "maxSalary", "Max salary must be greater than min salary.");
 
-            if (!await _departmentRepository.ExistsAsync(d => d.Id == dto.DepartmentId))
+            if (!await _departmentRepository.ExistsAsync(d => d.Id == dto.DepartmentId && !d.IsDeleted))
                 AddError(errors, "departmentId", "Department does not exist.");
 
             ThrowIfAny(errors);
@@ -36,12 +36,10 @@ namespace EmployeeService.Infrastructure.BusinessRules.Positions
         public async Task ValidateForDeleteAsync(int positionId)
         {
             var errors = new Dictionary<string, List<string>>();
-
-            var isAssigned = await _employeeRepository
-                .ExistsAsync(e => e.PositionId == positionId);
-
-            if (isAssigned)
-                AddError(errors, "general", "Cannot delete position because it is assigned to one or more employees.");
+            
+            var exists = await _positionRepository.ExistsAsync(p => p.Id == positionId && !p.IsDeleted);
+            if (!exists)
+                AddError(errors, "general", "Position does not exist.");
 
             ThrowIfAny(errors);
         }
@@ -61,7 +59,7 @@ namespace EmployeeService.Infrastructure.BusinessRules.Positions
                 AddError(errors, "maxSalary", "Max salary must be greater than min salary.");
 
             var departmentId = dto.DepartmentId ?? existing.DepartmentId;
-            if (!await _departmentRepository.ExistsAsync(d => d.Id == departmentId))
+            if (!await _departmentRepository.ExistsAsync(d => d.Id == departmentId && !d.IsDeleted))
                 AddError(errors, "departmentId", "Department does not exist.");
 
             ThrowIfAny(errors);

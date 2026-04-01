@@ -40,11 +40,9 @@ namespace EmployeeService.Infrastructure.BusinessRules.Departments
         {
             var errors = new Dictionary<string, List<string>>();
 
-            var hasPositions = await _positionRepository
-                .ExistsAsync(p => p.DepartmentId == departmentId);
-
-            if (hasPositions)
-                AddError(errors, "general", "Cannot delete department because it is assigned to one or more positions.");
+            var exists = await _departmentRepository.ExistsAsync(d => d.Id == departmentId && !d.IsDeleted);
+            if (!exists)
+                AddError(errors, "general", "Department does not exist.");
 
             ThrowIfAny(errors);
         }
