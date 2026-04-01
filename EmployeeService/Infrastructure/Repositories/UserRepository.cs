@@ -46,10 +46,28 @@ namespace EmployeeService.Infrastructure.Repositories
 
         public async Task<User?> GetByUsernameAsync(string username)
         {
-            var sql = $"SELECT * FROM {TableName} WHERE Username = @Username AND IsDeleted = 0";
+            var sql = $"SELECT * FROM {TableName} WHERE Username = @Username COLLATE Latin1_General_BIN AND IsDeleted = 0";
 
             using var connection = _connectionFactory.CreateConnection();
             return await connection.QueryFirstOrDefaultAsync<User>(sql , new { Username = username });
+        }
+
+        public async Task UpdateCredentialsAsync(int userId, string username, string passwordHash)
+        {
+            const string sql = @"
+                UPDATE Users
+                SET Username = @Username,
+                    PasswordHash = @PasswordHash,
+                    MustChangePassword = 1
+                WHERE Id = @UserId";
+
+            using var connection = _connectionFactory.CreateConnection();
+            await connection.ExecuteAsync(sql, new
+            {
+                UserId = userId,
+                Username = username,
+                PasswordHash = passwordHash
+            });
         }
     }
 }

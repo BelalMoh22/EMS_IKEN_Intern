@@ -8,6 +8,7 @@ namespace EmployeeService.Features.Auth
             LoginEndpoint.MapEndpoint(group);
             RefreshEndpoint.MapEndpoint(group);
             ChangePasswordEndpoint.MapEndpoint(group);
+            ResetCredentials.ResetCredentialsEndpoint.MapEndpoint(group);
             return group;
         }
     }

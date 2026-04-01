@@ -37,11 +37,18 @@ export const authApi = {
 
   /**
    * PUT /api/auth/change-password (requires JWT)
-   * Body: { currentPassword, newPassword, confirmPassword }
+   * Body: { currentPassword, newPassword }
    * userId is extracted from JWT on the server side
    */
   changePassword: (data: ChangePasswordRequest) =>
+    api.put<ApiResponse<null>>("/auth/change-password", data).then((r) => r.data),
+
+  /**
+   * POST /api/auth/reset-credentials/{userId} (HR-only)
+   * Body: { username, newPassword }
+   */
+  resetCredentials: (userId: number, data: { username: string; newPassword: string }) =>
     api
-      .put<ApiResponse<null>>("/auth/change-password", data)
+      .post<ApiResponse<string>>(`/auth/reset-credentials/${userId}`, data)
       .then((r) => r.data),
 };

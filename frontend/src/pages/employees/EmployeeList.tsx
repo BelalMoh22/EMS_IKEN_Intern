@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useEmployees, useDeleteEmployee } from "@/hooks/useEmployees";
+import { useEmployees, useDeleteEmployee, useResetCredentials } from "@/hooks/useEmployees";
 import { useAuthStore } from "@/stores/auth";
 import { usePositions } from "@/hooks/usePositions";
 import { useDepartments } from "@/hooks/useDepartments";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { ResetCredentialsDialog } from "./ResetCredentialsDialog";
 import { Box, Typography, Button, Chip, Select, MenuItem, Grid } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { ActionButtons } from "@/components/shared/ActionButtons";
@@ -31,11 +32,13 @@ export default function EmployeeList() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(INITIAL_PAGE_SIZE);
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+  const [resetTarget, setResetTarget] = useState<Employee | null>(null);
 
   const { data: employees, isLoading } = useEmployees();
   const { data: positions } = usePositions();
   const { data: departments } = useDepartments();
   const deleteMutation = useDeleteEmployee();
+  const resetMutation = useResetCredentials();
   const { enqueueSnackbar } = useSnackbar();
 
   // Client-side search & pagination since backend returns full array
@@ -165,6 +168,7 @@ export default function EmployeeList() {
           canEdit={canEdit}
           canDelete={canDelete}
           onDelete={(id) => setDeleteTarget(Number(id))}
+          onResetPassword={() => setResetTarget(row)}
         />
       ),
     },
@@ -281,6 +285,20 @@ export default function EmployeeList() {
         description="Are you sure you want to delete this employee? This action cannot be undone."
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
+      />
+
+      <ResetCredentialsDialog
+        open={resetTarget !== null}
+        onClose={() => setResetTarget(null)}
+        employee={resetTarget}
+        loading={resetMutation.isPending}
+        onConfirm={async (userId, username, newPassword) => {
+          await resetMutation.mutateAsync({
+            userId,
+            data: { username, newPassword },
+          });
+          setResetTarget(null);
+        }}
       />
     </Box>
   );

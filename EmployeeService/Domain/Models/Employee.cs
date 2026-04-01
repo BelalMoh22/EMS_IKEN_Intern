@@ -17,7 +17,7 @@ namespace EmployeeService.Domain.Models
         public int UserId { get; private set; }
 
         public Position Position { get; private set; }
-        public User User { get; private set; }
+        public User User { get; set; }
 
         public Employee(
             string firstName,

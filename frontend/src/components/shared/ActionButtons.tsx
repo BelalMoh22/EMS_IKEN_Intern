@@ -2,6 +2,7 @@ import { Box, IconButton, Tooltip } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import KeyIcon from "@mui/icons-material/Key";
 import { useNavigate } from "react-router-dom";
 
 interface ActionButtonsProps {
@@ -10,6 +11,7 @@ interface ActionButtonsProps {
   canEdit?: boolean;
   canDelete?: boolean;
   onDelete?: (id: number | string) => void;
+  onResetPassword?: (id: number | string) => void;
 }
 
 export function ActionButtons({
@@ -18,6 +20,7 @@ export function ActionButtons({
   canEdit = false,
   canDelete = false,
   onDelete,
+  onResetPassword,
 }: ActionButtonsProps) {
   const navigate = useNavigate();
 
@@ -39,6 +42,17 @@ export function ActionButtons({
           <VisibilityIcon fontSize="small" />
         </IconButton>
       </Tooltip>
+      {onResetPassword && (
+        <Tooltip title="Reset Password">
+          <IconButton
+            size="small"
+            onClick={(e) => handleActionClick(e, () => onResetPassword(id))}
+            color="warning"
+          >
+            <KeyIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      )}
       {canEdit && (
         <Tooltip title="Edit">
           <IconButton

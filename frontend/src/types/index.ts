@@ -62,6 +62,7 @@ export interface Employee {
   status: EmployeeStatus;
   positionId: number;
   position?: Position | null;
+  user?: User | null;
   createdAt: string;
   isDeleted: boolean;
 }

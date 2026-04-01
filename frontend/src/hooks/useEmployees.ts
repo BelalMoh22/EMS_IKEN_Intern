@@ -78,3 +78,20 @@ export function useDeleteEmployee() {
       enqueueSnackbar("Failed to delete employee", { variant: "error" }),
   });
 }
+import { authApi } from "@/api/authApi";
+
+export function useResetCredentials() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, data }: { userId: number; data: { username: string; newPassword: string } }) =>
+      authApi.resetCredentials(userId, data),
+    onSuccess: (response) => {
+      qc.invalidateQueries({ queryKey: ["employees"] });
+      enqueueSnackbar(response.message || "Credentials reset successfully", { variant: "success" });
+    },
+    onError: (error: any) => {
+      const msg = error.response?.data?.message || "Failed to reset credentials";
+      enqueueSnackbar(msg, { variant: "error" });
+    },
+  });
+}

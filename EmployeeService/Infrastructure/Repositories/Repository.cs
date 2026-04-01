@@ -14,7 +14,7 @@ namespace EmployeeService.Infrastructure.Repositories
         }
         protected abstract string TableName { get; }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public virtual async Task<IEnumerable<T>> GetAllAsync()
         {
             var sql = $"SELECT * FROM {TableName} WHERE IsDeleted = 0";
 
@@ -24,7 +24,7 @@ namespace EmployeeService.Infrastructure.Repositories
             return await connection.QueryAsync<T>(sql);
         }
 
-        public async Task<T?> GetByIdAsync(int id)
+        public virtual async Task<T?> GetByIdAsync(int id)
         {
             var sql = $"SELECT * FROM {TableName} WHERE Id = @Id";
 

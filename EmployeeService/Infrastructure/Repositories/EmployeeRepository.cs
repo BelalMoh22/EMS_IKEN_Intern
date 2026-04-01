@@ -1,3 +1,6 @@
+using EmployeeService.Domain;
+using EmployeeService.Domain.Models;
+
 namespace EmployeeService.Infrastructure.Repositories
 {
     public class EmployeeRepository : Repository<Employee>
@@ -8,6 +11,22 @@ namespace EmployeeService.Infrastructure.Repositories
         }
 
         protected override string TableName => "Employees";
+
+        public override async Task<IEnumerable<Employee>> GetAllAsync()
+        {
+            var sql = @"
+                SELECT e.*, u.*
+                FROM Employees e
+                LEFT JOIN Users u ON e.UserId = u.Id
+                WHERE e.IsDeleted = 0";
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryAsync<Employee, User, Employee>(sql, (e, u) =>
+            {
+                e.User = u;
+                return e;
+            });
+        }
 
         public override async Task<int> AddAsync(Employee employee)
         {
