@@ -1,4 +1,4 @@
-﻿namespace EmployeeService.Features.Departments.GetDepartments
+namespace EmployeeService.Features.Departments.GetDepartments
 {
-    public record GetDepartmentsQuery() : IRequest<IEnumerable<Department>>;
+    public record GetDepartmentsQuery(int UserId, string UserRole) : IRequest<IEnumerable<Department>>;
 }

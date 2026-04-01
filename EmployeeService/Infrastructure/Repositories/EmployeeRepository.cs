@@ -118,17 +118,22 @@ namespace EmployeeService.Infrastructure.Repositories
         public async Task<IEnumerable<Employee>> GetEmployeesByManagerIdAsync(int managerId)
         {
             var sql = $@"
-                SELECT E.* 
+                SELECT E.*, U.*
                 FROM {TableName} E
                 JOIN Positions P ON E.PositionId = P.Id
                 JOIN Departments D ON P.DepartmentId = D.Id
+                LEFT JOIN Users U ON E.UserId = U.Id
                 WHERE D.ManagerId = @ManagerId 
                   AND E.IsDeleted = 0 
                   AND D.IsDeleted = 0 
                   AND P.IsDeleted = 0";
 
             using var connection = _connectionFactory.CreateConnection();
-            return await connection.QueryAsync<Employee>(sql, new { ManagerId = managerId });
+            return await connection.QueryAsync<Employee, User, Employee>(sql, (e, u) =>
+            {
+                e.User = u;
+                return e;
+            }, new { ManagerId = managerId });
         }
     }
 }

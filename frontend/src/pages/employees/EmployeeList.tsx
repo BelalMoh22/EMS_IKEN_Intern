@@ -168,7 +168,7 @@ export default function EmployeeList() {
           canEdit={canEdit}
           canDelete={canDelete}
           onDelete={(id) => setDeleteTarget(Number(id))}
-          onResetPassword={() => setResetTarget(row)}
+          onResetPassword={user?.role === "HR" ? () => setResetTarget(row) : undefined}
         />
       ),
     },

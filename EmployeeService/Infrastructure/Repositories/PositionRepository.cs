@@ -88,5 +88,16 @@ namespace EmployeeService.Infrastructure.Repositories
                 throw;
             }
         }
+        public async Task<IEnumerable<Position>> GetByManagerIdAsync(int managerId)
+        {
+            var sql = $@"
+                SELECT P.*
+                FROM Positions P
+                JOIN Departments D ON P.DepartmentId = D.Id
+                WHERE D.ManagerId = @ManagerId AND P.IsDeleted = 0 AND D.IsDeleted = 0";
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryAsync<Position>(sql, new { ManagerId = managerId });
+        }
     }
 }
