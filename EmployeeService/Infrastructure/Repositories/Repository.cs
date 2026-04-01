@@ -53,7 +53,7 @@ namespace EmployeeService.Infrastructure.Repositories
             _logger.LogDebug("Executing SOFT DELETE for Id {Id}", id);
             return affected;
         }
-        public async Task<int> DeleteAsync(int id)
+        public virtual async Task<int> DeleteAsync(int id)
         {
             return await SoftDeleteAsync(id);
         }
