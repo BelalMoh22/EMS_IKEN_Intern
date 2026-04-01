@@ -10,7 +10,7 @@ namespace EmployeeService.Features.Departments.DeleteDepartment
                 var result = await mediator.Send(command);
                 var response = ApiResponse<int>.SuccessResponse(result, "Department deleted successfully");
                 return Results.Ok(response);
-            }).WithName("DeleteDepartment").WithTags("Departments");
+            }).WithName("DeleteDepartment").WithTags("Departments").RequireAuthorization("FullCRUD");
 
             return app;
         }

@@ -10,7 +10,7 @@ namespace EmployeeService.Features.Departments.UpdateDepartment
                 var rows = await mediator.Send(command);
                 var response = ApiResponse<int>.SuccessResponse(rows, "Department updated successfully");
                 return Results.Ok(response);
-            }).WithDescription("Updating an existing Department").WithTags("Departments");
+            }).WithDescription("Updating an existing Department").WithTags("Departments").RequireAuthorization("FullCRUD");
 
             return app;
         }

@@ -10,7 +10,7 @@ namespace EmployeeService.Features.Positions.UpdatePosition
                 var rows = await mediator.Send(command);
                 var response = ApiResponse<int>.SuccessResponse(rows, "Position updated successfully");
                 return Results.Ok(response);
-            }).WithDescription("Updating an existing Position").WithTags("Positions");
+            }).WithDescription("Updating an existing Position").WithTags("Positions").RequireAuthorization("FullCRUD");
 
             return app;
         }

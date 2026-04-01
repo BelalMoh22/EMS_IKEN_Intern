@@ -95,5 +95,21 @@ namespace EmployeeService.Infrastructure.Repositories
             using var connection = _connectionFactory.CreateConnection();
             return await connection.QuerySingleOrDefaultAsync<Employee>(sql, new { UserId = userId });
         }
+
+        public async Task<IEnumerable<Employee>> GetEmployeesByManagerIdAsync(int managerId)
+        {
+            var sql = $@"
+                SELECT E.* 
+                FROM {TableName} E
+                JOIN Positions P ON E.PositionId = P.Id
+                JOIN Departments D ON P.DepartmentId = D.Id
+                WHERE D.ManagerId = @ManagerId 
+                  AND E.IsDeleted = 0 
+                  AND D.IsDeleted = 0 
+                  AND P.IsDeleted = 0";
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryAsync<Employee>(sql, new { ManagerId = managerId });
+        }
     }
 }
