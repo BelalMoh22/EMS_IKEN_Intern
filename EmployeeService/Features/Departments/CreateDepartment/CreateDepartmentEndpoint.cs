@@ -12,7 +12,7 @@ namespace EmployeeService.Features.Departments.CreateDepartment
                 var response = ApiResponse<int>.SuccessResponse(id, "Department created successfully");
 
                 return Results.Created($"/departments/{id}", response);
-            }).WithName("CreateDepartment").WithTags("Departments");
+            }).WithName("CreateDepartment").WithTags("Departments").RequireAuthorization("FullCRUD");
 
             return app;
 

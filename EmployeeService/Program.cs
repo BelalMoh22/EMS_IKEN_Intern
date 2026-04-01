@@ -134,8 +134,8 @@ namespace EmployeeService
             app.UseAuthorization();
             app.MapGroup("/api/auth").MapAuthEndpoints();
             app.MapGroup("/api/employees").MapEmployeesEndpoints();
-            app.MapGroup("/api/departments").MapDepartmentEndpoints().RequireAuthorization("FullCRUD");
-            app.MapGroup("/api/positions").MapPositionEndpoints().RequireAuthorization("FullCRUD");
+            app.MapGroup("/api/departments").MapDepartmentEndpoints().RequireAuthorization("EmployeesReadOnly");
+            app.MapGroup("/api/positions").MapPositionEndpoints().RequireAuthorization("EmployeesReadOnly");
             app.MapGroup("/api/attendance").MapAttendanceEndpoints();
 
             app.Run();

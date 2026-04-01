@@ -10,7 +10,7 @@ namespace EmployeeService.Features.Positions.DeletePosition
                 var result = await mediator.Send(command);
                 var response = ApiResponse<int>.SuccessResponse(result, "Position deleted successfully");
                 return Results.Ok(response);
-            }).WithName("DeletePosition").WithTags("Positions");
+            }).WithName("DeletePosition").WithTags("Positions").RequireAuthorization("FullCRUD");
 
             return app;
         }

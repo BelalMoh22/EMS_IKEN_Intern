@@ -12,7 +12,7 @@ namespace EmployeeService.Features.Positions.CreatePosition
                 var response = ApiResponse<int>.SuccessResponse(id, "Position created successfully");
 
                 return Results.Created($"/position/{id}", response);
-            }).WithName("CreatePosition").WithTags("Positions");
+            }).WithName("CreatePosition").WithTags("Positions").RequireAuthorization("FullCRUD");
 
             return app;
         }
