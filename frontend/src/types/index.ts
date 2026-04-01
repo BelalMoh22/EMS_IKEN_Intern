@@ -43,7 +43,6 @@ export interface RegisterResponse {
 export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
-  confirmPassword: string;
 }
 
 // ─── Employee ────────────────────────────────────────────
@@ -62,7 +61,6 @@ export interface Employee {
   hireDate: string;
   status: EmployeeStatus;
   positionId: number;
-  workStartHour: number;
   position?: Position | null;
   createdAt: string;
   isDeleted: boolean;
@@ -85,7 +83,6 @@ export interface CreateEmployeeRequest {
   hireDate?: string;
   status?: number; // 1=Active, 2=Inactive, 3=Terminated
   positionId: number;
-  workStartHour?: number; // 7, 8, 9, or 10
   username: string;
   password: string;
   role: number;
@@ -103,7 +100,6 @@ export interface UpdateEmployeeRequest {
   hireDate?: string;
   status?: number;
   positionId?: number;
-  workStartHour?: number;
 }
 
 // ─── Department ──────────────────────────────────────────

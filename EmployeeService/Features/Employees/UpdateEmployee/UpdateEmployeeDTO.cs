@@ -36,7 +36,5 @@ namespace EmployeeService.Features.Employees.UpdateEmployee
         [ForeignKey("Position")]
         public int? PositionId { get; set; }
 
-        [Range(7, 10, ErrorMessage = "Work Start Hour must be between 7 and 10.")]
-        public int? WorkStartHour { get; set; }
     }
 }

@@ -13,11 +13,7 @@ namespace EmployeeService.Features.Auth.ChangePassword
         public async Task<bool> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
         {
             var errors = new Dictionary<string, List<string>>();
-
-            // Confirm password match
-            if (request.NewPassword != request.ConfirmPassword)
-                AddError(errors, "confirmPassword", "New password and confirm password do not match.");
-
+            
             // Strong password validation
             if (!IsStrongPassword(request.NewPassword))
                 AddError(errors, "newPassword", "Password must be at least 8 characters and contain an uppercase letter, a number, and a special character.");

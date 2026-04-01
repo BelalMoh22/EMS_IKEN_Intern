@@ -16,8 +16,7 @@ namespace EmployeeService.Features.Auth.ChangePassword
                 var command = new ChangePasswordCommand(
                     userId,
                     body.CurrentPassword,
-                    body.NewPassword,
-                    body.ConfirmPassword
+                    body.NewPassword
                 );
 
                 var result = await mediator.Send(command);

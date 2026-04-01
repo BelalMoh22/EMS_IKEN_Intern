@@ -1,5 +1,5 @@
-﻿namespace EmployeeService.Features.Employees.UpdateEmployee
+namespace EmployeeService.Features.Employees.UpdateEmployee
 {
-    public record UpdateEmployeeCommand(int Id, UpdateEmployeeDTO dto) : IRequest<int>;
+    public record UpdateEmployeeCommand(int Id, UpdateEmployeeDTO dto) : IRequest<EmployeeActionResult>;
 
 }

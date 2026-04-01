@@ -20,7 +20,7 @@ namespace EmployeeService.Domain.Models
         {
             DepartmentName = departmentName ?? DepartmentName;
             Description = description ?? Description;
-            ManagerId = managerId ?? ManagerId;
+            ManagerId = managerId;
             IsActive = isActive ?? IsActive;
         }
     }

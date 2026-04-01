@@ -43,8 +43,8 @@ export default function EmployeeAttendanceDetails() {
 
   const [month, setMonth] = useState(Number(searchParams.get("month")) || new Date().getMonth() + 1);
   const [year, setYear] = useState(Number(searchParams.get("year")) || new Date().getFullYear());
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const { data: records, isLoading } = useQuery<AttendanceRecordDto[]>({
     queryKey: ["attendance", "details", employeeId, month, year],
@@ -54,17 +54,26 @@ export default function EmployeeAttendanceDetails() {
     },
   });
 
-  const totalPages = Math.ceil((records?.length ?? 0) / pageSize);
   const pageRecords = useMemo(() => {
     if (!records) return [];
-    const start = (page - 1) * pageSize;
-    return records.slice(start, start + pageSize);
-  }, [records, page, pageSize]);
+    const start = page * rowsPerPage;
+    return records.slice(start, start + rowsPerPage);
+  }, [records, page, rowsPerPage]);
 
   // Reset page when switching month/year
   useMemo(() => {
-    setPage(1);
+    setPage(0);
   }, [month, year]);
+
+  const formatMinutesToHms = (minutes: number) => {
+    if (!minutes || minutes <= 0) return "0m";
+    const h = Math.floor(minutes / 60);
+    const m = Math.round(minutes % 60);
+    if (h > 0) {
+      return m > 0 ? `${h}h ${m}m` : `${h}h`;
+    }
+    return `${m}m`;
+  };
 
   const employeeName = records?.[0]?.employeeName || "Employee";
 
@@ -129,22 +138,29 @@ export default function EmployeeAttendanceDetails() {
           { header: "Check In", cell: (r) => r.checkIn || "—" },
           { header: "Check Out", cell: (r) => r.checkOut || "—" },
           {
-            header: "Late (m)",
+            header: "Late",
             cell: (r) => (
               <Typography color={r.lateMinutes > 0 ? "error.main" : "inherit"}>
-                {r.lateMinutes > 0 ? `${r.lateMinutes}m` : "—"}
+                {formatMinutesToHms(r.lateMinutes)}
               </Typography>
             ),
           },
           {
-            header: "Early (m)",
+            header: "Early",
             cell: (r) => (
               <Typography color={r.earlyLeaveMinutes > 0 ? "warning.main" : "inherit"}>
-                {r.earlyLeaveMinutes > 0 ? `${r.earlyLeaveMinutes}m` : "—"}
+                {formatMinutesToHms(r.earlyLeaveMinutes)}
               </Typography>
             ),
           },
-          { header: "Working (m)", cell: (r) => `${r.workingMinutes}m` },
+          { 
+            header: "Working", 
+            cell: (r) => (
+              <Typography color={r.workingMinutes > 0 ? "primary.main" : "inherit"} fontWeight={r.workingMinutes > 0 ? 600 : 400}>
+                {formatMinutesToHms(r.workingMinutes)}
+              </Typography>
+            ) 
+          },
           {
             header: "Status",
             cell: (r) => (
@@ -168,8 +184,13 @@ export default function EmployeeAttendanceDetails() {
         data={pageRecords}
         loading={isLoading}
         page={page}
-        totalPages={totalPages}
+        totalCount={records?.length || 0}
+        rowsPerPage={rowsPerPage}
         onPageChange={setPage}
+        onRowsPerPageChange={(rows) => {
+          setRowsPerPage(rows);
+          setPage(0);
+        }}
       />
     </Box>
   );

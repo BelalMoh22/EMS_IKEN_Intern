@@ -45,9 +45,6 @@ namespace EmployeeService.Features.Employees.CreateEmployee
         [ForeignKey("Position")]
         public int PositionId { get; set; }
 
-        [Range(7, 10, ErrorMessage = "Work Start Hour must be between 7 and 10.")]
-        public int WorkStartHour { get; set; } = 7;
-
         [Required(ErrorMessage = "Username is required.")]
         [MaxLength(50)]
         public string Username { get; set; }

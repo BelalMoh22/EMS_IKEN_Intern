@@ -42,11 +42,11 @@ export const employeeApi = {
    * PUT /api/employees/{id}
    */
   update: (id: number, data: UpdateEmployeeRequest) =>
-    api.put<ApiResponse<void>>(`/employees/${id}`, data).then((r) => r.data),
+    api.put<ApiResponse<number>>(`/employees/${id}`, data).then((r) => r.data),
 
   /**
    * DELETE /api/employees/{id}
    */
   delete: (id: number) =>
-    api.delete<ApiResponse<void>>(`/employees/${id}`).then((r) => r.data),
+    api.delete<ApiResponse<number>>(`/employees/${id}`).then((r) => r.data),
 };

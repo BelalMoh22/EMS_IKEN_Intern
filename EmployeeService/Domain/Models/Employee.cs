@@ -15,7 +15,6 @@ namespace EmployeeService.Domain.Models
         public EmployeeStatus? Status { get; private set; }
         public int PositionId { get; private set; }
         public int UserId { get; private set; }
-        public int WorkStartHour { get; private set; } = 7;
 
         public Position Position { get; private set; }
         public User User { get; private set; }
@@ -31,8 +30,7 @@ namespace EmployeeService.Domain.Models
             decimal salary,
             int positionId,
             int userId,
-            EmployeeStatus? status,
-            int workStartHour = 7)
+            EmployeeStatus? status)
         {
             FirstName = firstName;
             Lastname = lastname;
@@ -44,10 +42,9 @@ namespace EmployeeService.Domain.Models
             Salary = salary;
             PositionId = positionId;
             UserId = userId;
-            WorkStartHour = workStartHour;
 
             HireDate = DateTime.UtcNow;
-            Status = status == 0 ? EmployeeStatus.Active :status;
+            Status = status ?? EmployeeStatus.Active;
             CreatedAt = DateTime.UtcNow;
         }
 
@@ -62,8 +59,7 @@ namespace EmployeeService.Domain.Models
             decimal? salary,
             DateTime? hireDate,
             EmployeeStatus? status,
-            int? positionId,
-            int? workStartHour)
+            int? positionId)
         {
             FirstName = firstName ?? FirstName;
             Lastname = lastname ?? Lastname;
@@ -76,7 +72,6 @@ namespace EmployeeService.Domain.Models
             HireDate = hireDate ?? HireDate;
             Status = status ?? Status;
             PositionId = positionId ?? PositionId;
-            WorkStartHour = workStartHour ?? WorkStartHour;
         }
     }
 }

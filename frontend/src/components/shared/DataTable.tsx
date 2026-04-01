@@ -14,6 +14,7 @@ import {
 import InboxIcon from "@mui/icons-material/Inbox";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import TablePagination from "@mui/material/TablePagination";
 
 export interface Column<T> {
   header: string;
@@ -24,9 +25,11 @@ export interface Column<T> {
 interface Props<T> {
   columns: Column<T>[];
   data: T[];
-  page?: number;
-  totalPages?: number;
+  page?: number; // 0-based for MUI TablePagination consistency
+  totalCount?: number;
+  rowsPerPage?: number;
   onPageChange?: (page: number) => void;
+  onRowsPerPageChange?: (rowsPerPage: number) => void;
   loading?: boolean;
   onRowClick?: (row: T) => void;
 }
@@ -34,9 +37,11 @@ interface Props<T> {
 export function DataTable<T>({
   columns,
   data,
-  page = 1,
-  totalPages = 1,
+  page = 0,
+  totalCount = 0,
+  rowsPerPage = 10,
   onPageChange,
+  onRowsPerPageChange,
   loading,
   onRowClick,
 }: Props<T>) {
@@ -122,36 +127,27 @@ export function DataTable<T>({
           </TableBody>
         </Table>
       </TableContainer>
-      {totalPages > 1 && onPageChange && (
-        <Box
+      {onPageChange && (
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          component="div"
+          count={totalCount || data.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(_, newPage) => onPageChange(newPage)}
+          onRowsPerPageChange={
+            onRowsPerPageChange
+              ? (e) => onRowsPerPageChange(parseInt(e.target.value, 10))
+              : undefined
+          }
           sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
+            borderTop: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.paper",
+            borderBottomLeftRadius: 8,
+            borderBottomRightRadius: 8,
           }}
-        >
-          <Typography variant="body2" color="text.secondary">
-            Page {page} of {totalPages}
-          </Typography>
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Button
-              variant="outlined"
-              size="small"
-              disabled={page <= 1}
-              onClick={() => onPageChange(page - 1)}
-            >
-              <ChevronLeftIcon fontSize="small" />
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              disabled={page >= totalPages}
-              onClick={() => onPageChange(page + 1)}
-            >
-              <ChevronRightIcon fontSize="small" />
-            </Button>
-          </Box>
-        </Box>
+        />
       )}
     </Box>
   );

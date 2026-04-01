@@ -1,7 +1,7 @@
 namespace EmployeeService.Features.Positions.GetPositionById
 {
-    using EmployeeService.Features.Positions;
-    public class GetPositionByIdHandler : IRequestHandler<GetPositionByIdQuery, PositionDto?>
+    using EmployeeService.Domain.Models;
+    public class GetPositionByIdHandler : IRequestHandler<GetPositionByIdQuery, Position?>
     {
         private readonly IRepository<Position> _repo;
 
@@ -10,7 +10,7 @@ namespace EmployeeService.Features.Positions.GetPositionById
             _repo = repo;
         }
 
-        public async Task<PositionDto?> Handle(GetPositionByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Position?> Handle(GetPositionByIdQuery request, CancellationToken cancellationToken)
         {
             if(request.Id <= 0)
             {
@@ -26,16 +26,7 @@ namespace EmployeeService.Features.Positions.GetPositionById
                 throw new NotFoundException($"Position with Id {request.Id} not found.");
             }
 
-            return new PositionDto
-            {
-                Id = position.Id,
-                PositionName = position.PositionName,
-                MinSalary = position.MinSalary,
-                MaxSalary = position.MaxSalary,
-                DepartmentId = position.DepartmentId,
-                TargetEmployeeCount = position.TargetEmployeeCount,
-                CurrentEmployeeCount = position.CurrentEmployeeCount
-            };
+            return position;
         }
     }
 }

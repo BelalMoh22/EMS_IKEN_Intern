@@ -26,7 +26,6 @@ import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { useSnackbar } from "notistack";
 import { getGeneralErrors } from "@/utils/handleApiErrors";
-import { SHIFT_OPTIONS } from "@/types";
 
 export default function EmployeeDetails() {
   const { id } = useParams<{ id: string }>();
@@ -274,23 +273,6 @@ export default function EmployeeDetails() {
                     {employee.dateOfBirth
                       ? new Date(employee.dateOfBirth).toLocaleDateString()
                       : "N/A"}
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 0.5,
-                      mb: 0.5,
-                    }}
-                  >
-                    <AccessTimeIcon fontSize="small" /> Work Shift Start
-                  </Typography>
-                  <Typography variant="body1" fontWeight={500}>
-                    {SHIFT_OPTIONS.find((s) => s.value === employee.workStartHour)?.label ?? `${employee.workStartHour ?? 7}:00 AM`}
                   </Typography>
                 </Box>
               </Box>

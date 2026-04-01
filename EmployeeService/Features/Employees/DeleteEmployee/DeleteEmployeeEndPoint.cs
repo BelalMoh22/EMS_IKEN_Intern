@@ -8,7 +8,7 @@ namespace EmployeeService.Features.Employees.DeleteEmployee
             {
                 var command = new DeleteEmployeeCommand(id);
                 var result = await mediator.Send(command);
-                var response = ApiResponse<int>.SuccessResponse(result, "Employee deleted successfully");
+                var response = ApiResponse<int>.SuccessResponse(result.RowsAffected, result.Message);
                 return Results.Ok(response);
             }).WithName("DeleteEmployee").WithTags("Employees").RequireAuthorization("FullCRUD");
 

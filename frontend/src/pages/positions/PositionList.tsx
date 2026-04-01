@@ -5,7 +5,7 @@ import { useDepartments } from "@/hooks/useDepartments";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { Box, Typography, Button, Chip, LinearProgress } from "@mui/material";
+import { Box, Typography, Button, Chip, LinearProgress, Select, MenuItem, Grid } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { ActionButtons } from "@/components/shared/ActionButtons";
 import type { Position } from "@/types";
@@ -23,6 +23,9 @@ export default function PositionList() {
   const { enqueueSnackbar } = useSnackbar();
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
   const [search, setSearch] = useState("");
+  const [selectedDeptId, setSelectedDeptId] = useState<number | "all">("all");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const getDeptName = useCallback(
     (deptId: number) =>
@@ -32,14 +35,31 @@ export default function PositionList() {
 
   const filteredData = useMemo(() => {
     if (!data) return [];
-    if (!search) return data;
-    const s = search.toLowerCase();
-    return data.filter(
-      (p) =>
-        p.positionName?.toLowerCase().includes(s) ||
-        getDeptName(p.departmentId)?.toLowerCase().includes(s),
-    );
-  }, [data, search, departments, getDeptName]);
+    
+    let filtered = [...data];
+    
+    // Filter by Search (Position Name only)
+    if (search) {
+      const s = search.toLowerCase();
+      filtered = filtered.filter(p => 
+        p.positionName?.toLowerCase().includes(s)
+      );
+    }
+    
+    // Filter by Department Select
+    if (selectedDeptId !== "all") {
+      filtered = filtered.filter(p => p.departmentId === selectedDeptId);
+    }
+    
+    return filtered;
+  }, [data, search, selectedDeptId]);
+
+  // Reset page when filters change
+  useMemo(() => {
+    setPage(0);
+  }, [search, selectedDeptId]);
+
+  const pagedData = filteredData.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
   const handleDelete = () => {
     if (deleteTarget !== null) {
@@ -207,18 +227,47 @@ export default function PositionList() {
         </Button>
       </Box>
 
-      <Box sx={{ maxWidth: 360 }}>
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Search positions..."
-        />
-      </Box>
+      <Grid container spacing={2} sx={{ mb: 1 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search position name..."
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Box sx={{ minWidth: 200 }}>
+            <Select
+              fullWidth
+              size="small"
+              value={selectedDeptId}
+              onChange={(e) => setSelectedDeptId(e.target.value as any)}
+              displayEmpty
+              sx={{ bgcolor: "background.paper", borderRadius: 2 }}
+            >
+              <MenuItem value="all">All Departments</MenuItem>
+              {departments?.map((d) => (
+                <MenuItem key={d.id} value={d.id}>
+                  {d.departmentName}
+                </MenuItem>
+              ))}
+            </Select>
+          </Box>
+        </Grid>
+      </Grid>
 
       <DataTable
         columns={columns}
-        data={filteredData}
+        data={pagedData}
         loading={isLoading}
+        page={page}
+        totalCount={filteredData.length}
+        rowsPerPage={rowsPerPage}
+        onPageChange={setPage}
+        onRowsPerPageChange={(rows) => {
+          setRowsPerPage(rows);
+          setPage(0);
+        }}
         onRowClick={(row) => navigate(`/positions/${row.id}`)}
       />
 

@@ -44,6 +44,7 @@ namespace EmployeeService
             builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             builder.Services.AddScoped<IRepository<Employee>, EmployeeRepository>();
             builder.Services.AddScoped<IRepository<Department>, DepartmentRepository>();
+            builder.Services.AddScoped<DepartmentRepository>();
             builder.Services.AddScoped<IRepository<Position>, PositionRepository>();
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();

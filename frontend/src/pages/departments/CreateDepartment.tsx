@@ -25,7 +25,6 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 const schema = z.object({
   departmentName: z.string().min(1, "Department name is required"),
   description: z.string().optional(),
-  managerId: z.coerce.number().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -42,16 +41,14 @@ export default function CreateDepartment() {
     defaultValues: {
       departmentName: "",
       description: "",
-      managerId: undefined,
     },
-  });
+});
 
   const onSubmit = (values: FormData) => {
     createMutation.mutate(
       {
         departmentName: values.departmentName,
         description: values.description,
-        managerId: values.managerId || null,
       },
       {
         onSuccess: () => {
@@ -104,27 +101,6 @@ export default function CreateDepartment() {
                     name="description"
                     label="Description"
                     placeholder="Department description..."
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormSelect
-                    name="managerId"
-                    label="Manager"
-                    options={[
-                      { label: "None", value: "0" },
-                      ...(employees
-                        ?.filter(
-                          (e) =>
-                            !departments?.some(
-                              (d) =>
-                                d.managerId === e.id && d.isActive !== false,
-                            ),
-                        )
-                        .map((e) => ({
-                          label: `${e.firstName} ${e.lastname}`,
-                          value: String(e.id),
-                        })) ?? []),
-                    ]}
                   />
                 </Grid>
               </Grid>

@@ -53,10 +53,11 @@ export function useUpdateEmployee() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateEmployeeRequest }) =>
       employeeApi.update(id, data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       qc.invalidateQueries({ queryKey: ["employees"] });
       qc.invalidateQueries({ queryKey: ["positions"] });
-      enqueueSnackbar("Employee updated successfully", { variant: "success" });
+      qc.invalidateQueries({ queryKey: ["departments"] });
+      enqueueSnackbar(response.message || "Employee updated successfully", { variant: "success" });
     },
     onError: () =>
       enqueueSnackbar("Failed to update employee", { variant: "error" }),
@@ -67,10 +68,11 @@ export function useDeleteEmployee() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => employeeApi.delete(id),
-    onSuccess: () => {
+    onSuccess: (response) => {
       qc.invalidateQueries({ queryKey: ["employees"] });
       qc.invalidateQueries({ queryKey: ["positions"] });
-      enqueueSnackbar("Employee deleted successfully", { variant: "success" });
+      qc.invalidateQueries({ queryKey: ["departments"] });
+      enqueueSnackbar(response.message || "Employee deleted successfully", { variant: "success" });
     },
     onError: () =>
       enqueueSnackbar("Failed to delete employee", { variant: "error" }),

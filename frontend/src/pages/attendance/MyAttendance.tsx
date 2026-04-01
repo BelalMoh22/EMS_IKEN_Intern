@@ -254,7 +254,7 @@ export default function MyAttendance() {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[10, 25, 50]}
+          rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
           count={records.length}
           rowsPerPage={rowsPerPage}

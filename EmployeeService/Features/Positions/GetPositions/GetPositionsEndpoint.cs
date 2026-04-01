@@ -1,5 +1,6 @@
 namespace EmployeeService.Features.Positions.GetPositions
 {
+    using EmployeeService.Domain.Models;
     public static class GetPositionsEndpoint
     {
         public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
@@ -8,7 +9,7 @@ namespace EmployeeService.Features.Positions.GetPositions
             {
                 var command = new GetPositionsQuery();
                 var result = await mediator.Send(command);
-                return Results.Ok(ApiResponse<IEnumerable<PositionDto>>.SuccessResponse(result, "Positions retrieved successfully"));
+                return Results.Ok(ApiResponse<IEnumerable<Position>>.SuccessResponse(result, "Positions retrieved successfully"));
             }).WithName("GetPositions").WithTags("Positions");
 
             return app;
