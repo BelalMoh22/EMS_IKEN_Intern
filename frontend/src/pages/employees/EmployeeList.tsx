@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEmployees, useDeleteEmployee, useResetCredentials } from "@/hooks/useEmployees";
 import { useAuthStore } from "@/stores/auth";
@@ -12,7 +11,8 @@ import { ResetCredentialsDialog } from "./ResetCredentialsDialog";
 import { Box, Typography, Button, Chip, Select, MenuItem, Grid } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { ActionButtons } from "@/components/shared/ActionButtons";
-import type { Employee } from "@/types";
+import type { Employee, ApiResponse } from "@/types";
+import { AxiosError } from "axios";
 import { getGeneralErrors } from "@/utils/handleApiErrors";
 import { useSnackbar } from "notistack";
 
@@ -35,8 +35,8 @@ export default function EmployeeList() {
   const [resetTarget, setResetTarget] = useState<Employee | null>(null);
 
   const { data: employees, isLoading } = useEmployees();
-  const { data: positions } = usePositions();
-  const { data: departments } = useDepartments();
+  const { data: positions } = usePositions({ enabled: user?.role === "HR" });
+  const { data: departments } = useDepartments({ enabled: user?.role === "HR" });
   const deleteMutation = useDeleteEmployee();
   const resetMutation = useResetCredentials();
   const { enqueueSnackbar } = useSnackbar();
@@ -77,7 +77,7 @@ export default function EmployeeList() {
   }, [employees, search, selectedDeptId, selectedPosId, positions]);
 
   // Reset page when filters change
-  useMemo(() => {
+  useEffect(() => {
     setPage(0);
   }, [search, selectedDeptId, selectedPosId]);
 
@@ -105,7 +105,7 @@ export default function EmployeeList() {
           if (errors.length > 0) {
             errors.forEach((msg) => enqueueSnackbar(msg, { variant: "error" }));
           } else {
-            const data = (error as any)?.response?.data;
+            const data = (error as AxiosError<ApiResponse<unknown>>)?.response?.data;
             enqueueSnackbar(data?.message || "Failed to delete employee", {
               variant: "error",
             });
@@ -221,46 +221,50 @@ export default function EmployeeList() {
             placeholder="Search employees..."
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Select
-            fullWidth
-            size="small"
-            value={selectedDeptId}
-            onChange={(e) => {
-              setSelectedDeptId(e.target.value as any);
-              setSelectedPosId("all"); // Reset position when dept changes
-            }}
-            displayEmpty
-            sx={{ bgcolor: "background.paper", borderRadius: 2 }}
-          >
-            <MenuItem value="all">All Departments</MenuItem>
-            {departments?.map((d) => (
-              <MenuItem key={d.id} value={d.id}>
-                {d.departmentName}
-              </MenuItem>
-            ))}
-          </Select>
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Select
-            fullWidth
-            size="small"
-            value={selectedPosId}
-            onChange={(e) => setSelectedPosId(e.target.value as any)}
-            displayEmpty
-            sx={{ bgcolor: "background.paper", borderRadius: 2 }}
-          >
-            <MenuItem value="all">All Positions</MenuItem>
-            {(selectedDeptId === "all" 
-              ? positions 
-              : positions?.filter(p => p.departmentId === selectedDeptId)
-            )?.map((p) => (
-              <MenuItem key={p.id} value={p.id}>
-                {p.positionName}
-              </MenuItem>
-            ))}
-          </Select>
-        </Grid>
+        {user?.role === "HR" && (
+          <>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Select
+                fullWidth
+                size="small"
+                value={selectedDeptId}
+                onChange={(e) => {
+                  setSelectedDeptId(e.target.value as any);
+                  setSelectedPosId("all"); // Reset position when dept changes
+                }}
+                displayEmpty
+                sx={{ bgcolor: "background.paper", borderRadius: 2 }}
+              >
+                <MenuItem value="all">All Departments</MenuItem>
+                {departments?.map((d) => (
+                  <MenuItem key={d.id} value={d.id}>
+                    {d.departmentName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Select
+                fullWidth
+                size="small"
+                value={selectedPosId}
+                onChange={(e) => setSelectedPosId(e.target.value as any)}
+                displayEmpty
+                sx={{ bgcolor: "background.paper", borderRadius: 2 }}
+              >
+                <MenuItem value="all">All Positions</MenuItem>
+                {(selectedDeptId === "all"
+                  ? positions
+                  : positions?.filter((p) => p.departmentId === selectedDeptId)
+                )?.map((p) => (
+                  <MenuItem key={p.id} value={p.id}>
+                    {p.positionName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Grid>
+          </>
+        )}
       </Grid>
 
       <DataTable

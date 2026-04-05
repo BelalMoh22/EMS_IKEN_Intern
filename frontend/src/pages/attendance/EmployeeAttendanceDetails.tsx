@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Box,
   Card,
@@ -61,7 +61,7 @@ export default function EmployeeAttendanceDetails() {
   }, [records, page, rowsPerPage]);
 
   // Reset page when switching month/year
-  useMemo(() => {
+  useEffect(() => {
     setPage(0);
   }, [month, year]);
 
@@ -134,7 +134,7 @@ export default function EmployeeAttendanceDetails() {
 
       <DataTable
         columns={[
-          { header: "Date", accessorKey: "date" as any },
+          { header: "Date", accessorKey: "date" },
           { header: "Check In", cell: (r) => r.checkIn || "—" },
           { header: "Check Out", cell: (r) => r.checkOut || "—" },
           {

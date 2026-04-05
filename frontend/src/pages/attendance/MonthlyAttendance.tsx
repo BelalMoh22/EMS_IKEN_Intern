@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Box,
   Card,
@@ -17,7 +17,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import api from "@/api/axios";
 import { attendanceApi } from "@/api/attendanceApi";
-import { EmployeeMonthlyAttendanceDto, ApiResponse } from "@/types";
+import { EmployeeMonthlyAttendanceDto, ApiResponse, SyncResult } from "@/types";
 import { useSnackbar } from "notistack";
 import SyncIcon from "@mui/icons-material/Sync";
 import { SearchInput } from "@/components/shared/SearchInput";
@@ -50,7 +50,7 @@ export default function MonthlyAttendance() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [syncLoading, setSyncLoading] = useState(false);
-  const [lastSyncResult, setLastSyncResult] = useState<any>(null);
+  const [lastSyncResult, setLastSyncResult] = useState<SyncResult | null>(null);
   const [status, setStatus] = useState<string>("All");
 
   const { data: records, isLoading } = useQuery<EmployeeMonthlyAttendanceDto[]>({
@@ -87,7 +87,7 @@ export default function MonthlyAttendance() {
   }, [filteredRecords, page, rowsPerPage]);
 
   // Reset page when search or filters change
-  useMemo(() => {
+  useEffect(() => {
     setPage(0);
   }, [search, month, year, status]);
 
@@ -103,8 +103,9 @@ export default function MonthlyAttendance() {
       } else {
         enqueueSnackbar(res.message || "Sync failed", { variant: "error" });
       }
-    } catch (err: any) {
-      enqueueSnackbar(err.message || "Sync Error", { variant: "error" });
+    } catch (err: unknown) {
+      const message = (err as Error)?.message || "Sync Error";
+      enqueueSnackbar(message, { variant: "error" });
     } finally {
       setSyncLoading(false);
     }

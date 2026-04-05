@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDepartments, useDeleteDepartment } from "@/hooks/useDepartments";
 import { useEmployees } from "@/hooks/useEmployees";
@@ -12,6 +12,8 @@ import { ActionButtons } from "@/components/shared/ActionButtons";
 import type { Department } from "@/types";
 import { getGeneralErrors } from "@/utils/handleApiErrors";
 import { useSnackbar } from "notistack";
+import { AxiosError } from "axios";
+import { ApiResponse } from "@/types";
 
 export default function DepartmentList() {
   const navigate = useNavigate();
@@ -34,7 +36,7 @@ export default function DepartmentList() {
   }, [data, search]);
 
   // Reset page when search changes
-  useMemo(() => {
+  useEffect(() => {
     setPage(0);
   }, [search]);
 
@@ -51,7 +53,7 @@ export default function DepartmentList() {
           if (errors.length > 0) {
             errors.forEach((msg) => enqueueSnackbar(msg, { variant: "error" }));
           } else {
-            const data = (error as any)?.response?.data;
+            const data = (error as AxiosError<ApiResponse<any>>)?.response?.data;
             enqueueSnackbar(data?.message || "Failed to delete department", { variant: "error" });
           }
         },

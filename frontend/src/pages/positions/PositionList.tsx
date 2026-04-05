@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePositions, useDeletePosition } from "@/hooks/usePositions";
 import { useDepartments } from "@/hooks/useDepartments";
@@ -11,6 +11,8 @@ import { ActionButtons } from "@/components/shared/ActionButtons";
 import type { Position } from "@/types";
 import { getGeneralErrors } from "@/utils/handleApiErrors";
 import { useSnackbar } from "notistack";
+import { AxiosError } from "axios";
+import { ApiResponse } from "@/types";
 import BusinessIcon from "@mui/icons-material/Business";
 import PeopleIcon from "@mui/icons-material/People";
 
@@ -55,7 +57,7 @@ export default function PositionList() {
   }, [data, search, selectedDeptId]);
 
   // Reset page when filters change
-  useMemo(() => {
+  useEffect(() => {
     setPage(0);
   }, [search, selectedDeptId]);
 
@@ -72,7 +74,7 @@ export default function PositionList() {
           if (errors.length > 0) {
             errors.forEach((msg) => enqueueSnackbar(msg, { variant: "error" }));
           } else {
-            const data = (error as any)?.response?.data;
+            const data = (error as AxiosError<ApiResponse<any>>)?.response?.data;
             enqueueSnackbar(data?.message || "Failed to delete position", {
               variant: "error",
             });
@@ -241,7 +243,7 @@ export default function PositionList() {
               fullWidth
               size="small"
               value={selectedDeptId}
-              onChange={(e) => setSelectedDeptId(e.target.value as any)}
+              onChange={(e) => setSelectedDeptId(e.target.value as number | "all")}
               displayEmpty
               sx={{ bgcolor: "background.paper", borderRadius: 2 }}
             >

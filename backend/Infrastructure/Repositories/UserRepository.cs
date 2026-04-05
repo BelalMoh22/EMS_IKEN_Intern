@@ -1,0 +1,73 @@
+namespace backend.Infrastructure.Repositories
+{
+    public class UserRepository : Repository<User>
+    {
+        protected override string TableName => "Users";
+
+        public UserRepository(IDbConnectionFactory connectionFactory,ILogger<Repository<User>> logger)
+        : base(connectionFactory, logger)
+        {
+        }
+
+        public override async Task<int> AddAsync(User entity)
+        {
+            var sql = $@"
+            INSERT INTO {TableName}
+            (Username, PasswordHash, Role, MustChangePassword)
+            VALUES
+            (@Username, @PasswordHash, @Role, @MustChangePassword);
+
+            SELECT CAST(SCOPE_IDENTITY() as int);";
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.ExecuteScalarAsync<int>(sql, entity);
+        }
+
+        public override async Task<int> UpdateAsync(int id, User entity)
+        {
+            var sql = $@"
+            UPDATE {TableName}
+            SET Username = @Username,
+                PasswordHash = @PasswordHash,
+                Role = @Role,
+                MustChangePassword = @MustChangePassword
+            WHERE Id = @Id";
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.ExecuteAsync(sql, new
+            {
+                Id = id,
+                entity.Username,
+                entity.PasswordHash,
+                entity.Role,
+                entity.MustChangePassword
+            });
+        }
+
+        public async Task<User?> GetByUsernameAsync(string username)
+        {
+            var sql = $"SELECT * FROM {TableName} WHERE Username = @Username COLLATE Latin1_General_BIN AND IsDeleted = 0"; // COLLATE Latin1_General_BIN : Forces the comparison to be case-sensitive and binary
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryFirstOrDefaultAsync<User>(sql , new { Username = username });
+        }
+
+        public async Task UpdateCredentialsAsync(int userId, string username, string passwordHash)
+        {
+            const string sql = @"
+                UPDATE Users
+                SET Username = @Username,
+                    PasswordHash = @PasswordHash,
+                    MustChangePassword = 1
+                WHERE Id = @UserId";
+
+            using var connection = _connectionFactory.CreateConnection();
+            await connection.ExecuteAsync(sql, new
+            {
+                UserId = userId,
+                Username = username,
+                PasswordHash = passwordHash
+            });
+        }
+    }
+}

@@ -1,12 +1,13 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import { departmentApi } from "@/api/departmentApi";
-import type { CreateDepartmentRequest, UpdateDepartmentRequest } from "@/types";
+import type { Department, CreateDepartmentRequest, UpdateDepartmentRequest } from "@/types";
 import { enqueueSnackbar } from "notistack";
 
-export function useDepartments() {
-  return useQuery({
+export function useDepartments(options?: Partial<UseQueryOptions<Department[]>>) {
+  return useQuery<Department[]>({
     queryKey: ["departments"],
     queryFn: departmentApi.getAll,
+    ...options,
   });
 }
 

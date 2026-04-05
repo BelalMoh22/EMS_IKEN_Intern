@@ -222,8 +222,10 @@ export interface MyAttendanceResult {
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
+  Message?: string; // Fallback
   data?: T;
-  errors?: string[];
+  errors?: string[] | Record<string, string[]>;
+  Errors?: string[] | Record<string, string[]>; // Fallback
 }
 
 // ─── Role enum mapping helper ────────────────────────────

@@ -1,12 +1,13 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import { positionApi } from "@/api/positionApi";
-import type { CreatePositionRequest, UpdatePositionRequest } from "@/types";
+import type { Position, CreatePositionRequest, UpdatePositionRequest } from "@/types";
 import { enqueueSnackbar } from "notistack";
 
-export function usePositions() {
-  return useQuery({
+export function usePositions(options?: Partial<UseQueryOptions<Position[]>>) {
+  return useQuery<Position[]>({
     queryKey: ["positions"],
     queryFn: positionApi.getAll,
+    ...options,
   });
 }
 

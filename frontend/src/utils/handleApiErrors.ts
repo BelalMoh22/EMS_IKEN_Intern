@@ -1,10 +1,13 @@
 import { UseFormReturn, FieldValues, Path } from "react-hook-form";
+import { AxiosError } from "axios";
+import { ApiResponse } from "@/types";
 
 export function handleApiErrors<T extends FieldValues>(
-  error: any,
-  methods: UseFormReturn<T, any, any>
+  error: unknown,
+  methods: UseFormReturn<T>
 ) {
-  const data = error?.response?.data;
+  const axiosError = error as AxiosError<ApiResponse<any>>;
+  const data = axiosError?.response?.data;
   
   // Normalize response keys (handle both camelCase and PascalCase)
   const errors = data?.errors || data?.Errors;
@@ -54,8 +57,9 @@ export function handleApiErrors<T extends FieldValues>(
   return finalMessage;
 }
 
-export function getGeneralErrors(error: any): string[] {
-  const data = error?.response?.data;
+export function getGeneralErrors(error: unknown): string[] {
+  const axiosError = error as AxiosError<ApiResponse<any>>;
+  const data = axiosError?.response?.data;
   const errors = data?.errors || data?.Errors;
-  return errors?.general || errors?.General || [];
+  return (errors as any)?.general || (errors as any)?.General || [];
 }
