@@ -1,3 +1,4 @@
+using backend.Infrastructure.Services.CurrentUserService;
 using System.Text.Json.Serialization;
 
 namespace backend
@@ -53,6 +54,8 @@ namespace backend
             builder.Services.AddScoped<IEmployeeBusinessRules, EmployeeBusinessRules>();
             builder.Services.AddScoped<IPositionBusinessRules, PositionBusinessRules>();
             builder.Services.AddScoped<IDepartmentBusinessRules, DepartmentBusinessRules>();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             // Use Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -83,6 +86,11 @@ namespace backend
                 builder.AddPolicy("ReadResource", context =>
                 {
                     context.RequireRole(Roles.HR.ToString(), Roles.Manager.ToString());
+                });
+
+                builder.AddPolicy("ManagerTimeTrack", context =>
+                {
+                    context.RequireRole(Roles.Manager.ToString());
                 });
             });
 

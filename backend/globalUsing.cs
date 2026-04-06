@@ -60,3 +60,6 @@ global using System.Linq.Expressions;
 global using System.Security.Cryptography;
 global using backend.Features.Auth.ResetCredentials;
 global using OfficeOpenXml;
+global using backend.Infrastructure.BusinessRules.Projects;
+global using backend.Features.TimeTrack.Projects.CreateProject;
+global using backend.Features.TimeTrack.Projects.GetFilteredProjects;
