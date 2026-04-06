@@ -1,4 +1,5 @@
-﻿using backend.Infrastructure.Services.CurrentUserService;
+﻿using backend.Domain.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace backend.Features.TimeTrack.Projects.CreateProject
 {
@@ -23,17 +24,7 @@ namespace backend.Features.TimeTrack.Projects.CreateProject
 
             var loggedInUserId = _currentUser.UserId;
 
-            var project = new Project
-            {
-                Name = dto.Name,
-                Description = dto.Description,
-                DepartmentId = dto.DepartmentId,
-                Month = dto.Month,
-                Year = dto.Year,
-
-                Status = ProjectStatus.Active,
-                CreatedBy = loggedInUserId
-            };
+            var project = new Project(dto.Name, dto.Description, dto.DepartmentId, dto.Month, dto.Year, loggedInUserId);
 
             var id = await _projectRepository.CreateAsync(project);
 

@@ -1,6 +1,3 @@
-using backend.Infrastructure.Services.CurrentUserService;
-using System.Text.Json.Serialization;
-
 namespace backend
 {
     public class Program
@@ -146,7 +143,7 @@ namespace backend
             app.MapGroup("/api/departments").MapDepartmentEndpoints();
             app.MapGroup("/api/positions").MapPositionEndpoints();
             app.MapGroup("/api/attendance").MapAttendanceEndpoints();
-
+            app.MapGroup("/api/projects").MapProjectsEndpoints();
             app.Run();
         }
     }

@@ -14,7 +14,7 @@
                 {
                     Message = "Project closed successfully"
                 });
-            }).WithName("CloseProject").WithTags("Projects").RequireAuthorization("ManagerTimeTrack");
+            }).WithName("CloseProject").WithTags("Projects");
 
             return group;
         }

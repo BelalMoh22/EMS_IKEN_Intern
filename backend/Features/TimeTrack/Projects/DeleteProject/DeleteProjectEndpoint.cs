@@ -18,8 +18,7 @@
 
                 return Results.Ok(response);
 
-            }).WithName("DeleteProject")
-              .WithTags("Projects");
+            }).WithName("DeleteProject").WithTags("Projects");
         }
     }
 }

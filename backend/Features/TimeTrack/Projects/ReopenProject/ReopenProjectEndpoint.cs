@@ -18,8 +18,7 @@
 
                 return Results.Ok(response);
 
-            }).WithName("ReopenProject")
-              .WithTags("Projects");
+            }).WithName("ReopenProject").WithTags("Projects");
         }
     }
 }

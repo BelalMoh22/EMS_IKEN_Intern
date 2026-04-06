@@ -15,7 +15,7 @@
                     Id = id,
                     Message = "Project created successfully"
                 });
-            }).WithName("CreateProject").WithTags("Projects").RequireAuthorization("ManagerTimeTrack");
+            }).WithName("CreateProject").WithTags("Projects");
 
             return group;
         }

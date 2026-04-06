@@ -9,7 +9,7 @@
                 var query = new GetProjectsQuery(departmentId, month, year, status);
                 var projects = await mediator.Send(query);
                 return Results.Ok(projects);
-            }).WithName("GetFilteredProjects").WithTags("Projects").RequireAuthorization();
+            }).WithName("GetFilteredProjects").WithTags("Projects");
 
             return group;
         }

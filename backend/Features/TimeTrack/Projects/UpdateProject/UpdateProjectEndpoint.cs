@@ -17,8 +17,7 @@
 
                 return Results.Ok(response);
 
-            }).WithDescription("Updating an existing Project")
-              .WithTags("Projects");
+            }).WithDescription("Updating an existing Project").WithTags("Projects");
         }
     }
 }
