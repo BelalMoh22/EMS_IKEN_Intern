@@ -1,4 +1,6 @@
-﻿namespace backend.Infrastructure.BusinessRules.Projects
+﻿using backend.Features.TimeTrack.Projects.GetFilteredProjects;
+
+namespace backend.Infrastructure.BusinessRules.Projects
 {
     public class ProjectBusinessRules : BaseBusinessRules, IProjectBusinessRules
     {
@@ -11,6 +13,24 @@
         {
             _projectRepository = projectRepository;
             _departmentRepository = departmentRepository;
+        }
+
+        // ========================
+        // Filter Validation
+        //==========================
+        public Task ValidateFilterAsync(GetProjectsQuery query)
+        {
+            var errors = new Dictionary<string, List<string>>();
+
+            if (query.month.HasValue && (query.month < 1 || query.month > 12))
+                AddError(errors, "month", "Month must be between 1 and 12.");
+
+            if (query.year.HasValue && query.year < 2000)
+                AddError(errors, "year", "Invalid year.");
+
+            ThrowIfAny(errors);
+
+            return Task.CompletedTask;
         }
 
         // =========================
@@ -31,11 +51,10 @@
         //    if (dto.Month < 1 || dto.Month > 12)
         //        AddError(errors, "month", "Month must be between 1 and 12.");
 
-        //    if (dto.Year < 2000)
-        //        AddError(errors, "year", "Invalid year.");
+            var currentYear = DateTime.UtcNow.Year;
 
-        //    if (dto.Status != ProjectStatus.Active)
-        //        AddError(errors, "status", "Project must start as Active.");
+            if (dto.Year < 2000 || dto.Year > currentYear)
+                AddError(errors, "year", $"Year must be between 2000 and {currentYear}.");
 
         //    ThrowIfAny(errors);
         //}
@@ -43,22 +62,22 @@
         // =========================
         // UPDATE
         // =========================
-        public async Task ValidateForUpdateAsync(int projectId, UpdateProjectDTO dto, Project existing)
-        {
-            var errors = ValidationHelper.ValidateModel(dto);
+        //public async Task ValidateForUpdateAsync(int projectId, UpdateProjectDTO dto, Project existing)
+        //{
+        //    var errors = ValidationHelper.ValidateModel(dto);
 
-            if (existing.IsDeleted)
-                AddError(errors, "project", "Project is deleted.");
+        //    if (existing.IsDeleted)
+        //        AddError(errors, "project", "Project is deleted.");
 
-            if (existing.Status != ProjectStatus.Active)
-                AddError(errors, "status", "Only active projects can be updated.");
+        //    if (existing.Status != ProjectStatus.Active)
+        //        AddError(errors, "status", "Only active projects can be updated.");
 
-            if (dto.Month.HasValue && (dto.Month < 1 || dto.Month > 12))
-                AddError(errors, "month", "Month must be between 1 and 12.");
+        //    if (dto.Month.HasValue && (dto.Month < 1 || dto.Month > 12))
+        //        AddError(errors, "month", "Month must be between 1 and 12.");
 
-            if (!string.IsNullOrWhiteSpace(dto.Name))
-            {
-                var projects = await _projectRepository.GetAsync(existing.DepartmentId, null, null, null);
+        //    if (!string.IsNullOrWhiteSpace(dto.Name))
+        //    {
+        //        var projects = await _projectRepository.GetAsync(existing.DepartmentId, null, null, null);
 
                 if (projects.Any(p => p.Id != projectId &&
                                       p.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase)))
@@ -67,8 +86,8 @@
                 }
             }
 
-            ThrowIfAny(errors);
-        }
+        //    ThrowIfAny(errors);
+        //}
 
         // =========================
         // DELETE
