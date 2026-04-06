@@ -2,7 +2,7 @@
 {
     public interface IProjectBusinessRules
     {
-        Task ValidateForCreateAsync(CreateProjectDTO dto);
+        // Task ValidateForCreateAsync(CreateProjectDTO dto);
 
         Task ValidateForUpdateAsync(int projectId, UpdateProjectDTO dto, Project existing);
 

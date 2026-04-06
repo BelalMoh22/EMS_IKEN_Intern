@@ -16,29 +16,29 @@
         // =========================
         // CREATE
         // =========================
-        public async Task ValidateForCreateAsync(CreateProjectDTO dto)
-        {
-            var errors = ValidationHelper.ValidateModel(dto);
+        //public async Task ValidateForCreateAsync(CreateProjectDTO dto)
+        //{
+        //    var errors = ValidationHelper.ValidateModel(dto);
 
-            var department = await _departmentRepository.GetByIdAsync(dto.DepartmentId);
-            if (department == null || department.IsDeleted)
-                AddError(errors, "departmentId", "Department does not exist.");
+        //    var department = await _departmentRepository.GetByIdAsync(dto.DepartmentId);
+        //    if (department == null || department.IsDeleted)
+        //        AddError(errors, "departmentId", "Department does not exist.");
 
-            var projects = await _projectRepository.GetAsync(dto.DepartmentId, null, null, null);
-            if (projects.Any(p => p.Name.ToLower() == dto.Name.ToLower()))
-                AddError(errors, "name", "Project name already exists in this department.");
+        //    var projects = await _projectRepository.GetAsync(dto.DepartmentId, null, null, null);
+        //    if (projects.Any(p => p.Name.ToLower() == dto.Name.ToLower()))
+        //        AddError(errors, "name", "Project name already exists in this department.");
 
-            if (dto.Month < 1 || dto.Month > 12)
-                AddError(errors, "month", "Month must be between 1 and 12.");
+        //    if (dto.Month < 1 || dto.Month > 12)
+        //        AddError(errors, "month", "Month must be between 1 and 12.");
 
-            if (dto.Year < 2000)
-                AddError(errors, "year", "Invalid year.");
+        //    if (dto.Year < 2000)
+        //        AddError(errors, "year", "Invalid year.");
 
-            if (dto.Status != ProjectStatus.Active)
-                AddError(errors, "status", "Project must start as Active.");
+        //    if (dto.Status != ProjectStatus.Active)
+        //        AddError(errors, "status", "Project must start as Active.");
 
-            ThrowIfAny(errors);
-        }
+        //    ThrowIfAny(errors);
+        //}
 
         // =========================
         // UPDATE
@@ -61,7 +61,7 @@
                 var projects = await _projectRepository.GetAsync(existing.DepartmentId, null, null, null);
 
                 if (projects.Any(p => p.Id != projectId &&
-                                      p.Name.ToLower() == dto.Name.ToLower()))
+                                      p.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase)))
                 {
                     AddError(errors, "name", "Project name already exists in this department.");
                 }
