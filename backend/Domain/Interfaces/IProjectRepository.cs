@@ -1,0 +1,30 @@
+﻿namespace backend.Domain.Interfaces
+{
+    public interface IProjectRepository
+    {
+        Task<Project?> GetByIdAsync(int id);
+
+        Task<IEnumerable<Project>> GetAsync(
+            int? departmentId,
+            int? month,
+            int? year,
+            ProjectStatus? status);
+
+        Task<int> CreateAsync(Project project);
+
+        Task UpdateAsync(Project project);
+
+        Task SoftDeleteAsync(int id);
+
+        Task CloseAsync(int id);
+
+        Task ReopenAsync(int id);
+
+        // Analytics
+        Task<decimal> GetTotalHoursAsync(int projectId);
+
+        //Task<IEnumerable<EmployeeContributionDto>> GetEmployeesContributionAsync(int projectId);
+
+        //Task<IEnumerable<DailyLogDto>> GetDailyLogsAsync(int projectId);
+    }
+}
