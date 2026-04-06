@@ -2,9 +2,9 @@ namespace backend.Features.Employees.GetEmployees
 {
     public static class GetEmployeesEndpoint
     {
-        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
+        public static RouteHandlerBuilder MapEndpoint(this RouteGroupBuilder app)
         {
-            app.MapGet("/", async (HttpContext httpContext, [FromServices] IMediator mediator) =>
+            return app.MapGet("/", async (HttpContext httpContext, [FromServices] IMediator mediator) =>
             {
                 var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                     ?? httpContext.User.FindFirst("sub")?.Value;
@@ -18,8 +18,7 @@ namespace backend.Features.Employees.GetEmployees
                 var result = await mediator.Send(command);
                 return Results.Ok(ApiResponse<IEnumerable<Employee>>.SuccessResponse(result, "Employees retrieved successfully"));
             }).WithName("GetEmployees").WithTags("Employees");
-
-            return app;
         }
     }
 }
+

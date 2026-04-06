@@ -2,21 +2,20 @@ namespace backend.Features.Attendance.Details
 {
     public static class GetAttendanceDetailsEndpoint
     {
-        public static RouteGroupBuilder MapEndpoint(RouteGroupBuilder group)
+        public static RouteHandlerBuilder MapEndpoint(RouteGroupBuilder group)
         {
-            group.MapGet("/details", async (
+            return group.MapGet("/details", async (
                 int? employeeId,
                 int? year,
                 int? month,
                 int? day,
-                IMediator mediator) =>
+                [FromServices] IMediator mediator) =>
             {
                 var command = new GetAttendanceDetailsQuery(employeeId, year, month, day);
                 var results = await mediator.Send(command);
                 return Results.Ok(ApiResponse<List<AttendanceRecordDto>>.SuccessResponse(results));
             }).WithName("GetAttendanceDetails").WithTags("Attendance");
-
-            return group;
         }
     }
 }
+

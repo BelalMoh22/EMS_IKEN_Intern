@@ -2,9 +2,9 @@ namespace backend.Features.Attendance.MyAttendance
 {
     public static class GetMyAttendanceEndpoint
     {
-        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder group)
+        public static RouteHandlerBuilder MapEndpoint(this RouteGroupBuilder group)
         {
-            group.MapGet("/my", async (HttpContext httpContext, [FromQuery] int? year, [FromQuery] int? month, [FromQuery] int? day,
+            return group.MapGet("/my", async (HttpContext httpContext, [FromQuery] int? year, [FromQuery] int? month, [FromQuery] int? day,
             [FromServices] IMediator mediator) =>
             {
                 var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? httpContext.User.FindFirst("sub")?.Value;
@@ -17,8 +17,7 @@ namespace backend.Features.Attendance.MyAttendance
 
                 return Results.Ok(ApiResponse<MyAttendanceResultDto>.SuccessResponse(result, "Attendance records fetched successfully."));
             }).WithName("GetMyAttendance").WithTags("Attendance");
-
-            return group;
         }
     }
 }
+

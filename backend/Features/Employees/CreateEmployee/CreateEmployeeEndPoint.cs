@@ -2,9 +2,9 @@ namespace backend.Features.Employees.CreateEmployee
 {
     public static class CreateEmployeeEndPoint
     {
-        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
+        public static RouteHandlerBuilder MapEndpoint(this RouteGroupBuilder app)
         {
-            app.MapPost("/", async ([FromBody]CreateEmployeeDTO dto, [FromServices] IMediator mediator) =>
+            return app.MapPost("/", async ([FromBody]CreateEmployeeDTO dto, [FromServices] IMediator mediator) =>
             {
                 var command = new CreateEmployeeCommand(dto);
                 var id = await mediator.Send(command);
@@ -13,8 +13,7 @@ namespace backend.Features.Employees.CreateEmployee
                 return Results.Created($"/employees/{id}", response);
 
             }).WithName("CreateEmployee").WithTags("Employees");
-
-            return app;
         }
     }
 }
+

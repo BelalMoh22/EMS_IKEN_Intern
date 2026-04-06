@@ -22,7 +22,7 @@ namespace backend.Infrastructure.Repositories
             using var connection = _connectionFactory.CreateConnection();
             return await connection.QueryAsync<Employee, User, Employee>(sql, (e, u) => // Multiple mapping: Employee and User (QueryAsync<TFirst, TSecond, TReturn>)
             {
-                e.User = u; // “Attach the User object to the Employee”
+                e.User = u; // ï¿½Attach the User object to the Employeeï¿½
                 return e;
             }, splitOn: "Id"); // splitOn: "Id" tells Dapper to split the result set on the Id column to map Employee and User correctly
         }
@@ -117,7 +117,7 @@ namespace backend.Infrastructure.Repositories
         public async Task<IEnumerable<Employee>> GetEmployeesByManagerIdAsync(int managerId)
         {
             var sql = $@"
-                SELECT E.*, U.*
+                SELECT E.*, U.*, P.PositionName, D.DepartmentName
                 FROM {TableName} E
                 JOIN Positions P ON E.PositionId = P.Id
                 JOIN Departments D ON P.DepartmentId = D.Id

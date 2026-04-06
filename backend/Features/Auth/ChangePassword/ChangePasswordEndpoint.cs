@@ -2,9 +2,9 @@ namespace backend.Features.Auth.ChangePassword
 {
     public static class ChangePasswordEndpoint
     {
-        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
+        public static RouteHandlerBuilder MapEndpoint(this RouteGroupBuilder app)
         {
-            app.MapPut("/change-password", async ([FromServices] IMediator mediator,[FromBody] ChangePasswordRequestDto body,HttpContext httpContext) =>
+            return app.MapPut("/change-password", async ([FromServices] IMediator mediator,[FromBody] ChangePasswordRequestDto body,HttpContext httpContext) =>
             {
                 var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -29,8 +29,7 @@ namespace backend.Features.Auth.ChangePassword
                     }));
 
             }).RequireAuthorization().WithName("ChangePassword").WithTags("Auth");
-
-            return app;
         }
     }
 }
+

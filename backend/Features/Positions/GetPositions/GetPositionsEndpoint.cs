@@ -3,16 +3,15 @@ namespace backend.Features.Positions.GetPositions
     using backend.Domain.Models;
     public static class GetPositionsEndpoint
     {
-        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder app)
+        public static RouteHandlerBuilder MapEndpoint(this RouteGroupBuilder app)
         {
-            app.MapGet("/", async ([FromServices] IMediator mediator) =>
+            return app.MapGet("/", async ([FromServices] IMediator mediator) =>
             {
                 var command = new GetPositionsQuery();
                 var result = await mediator.Send(command);
                 return Results.Ok(ApiResponse<IEnumerable<Position>>.SuccessResponse(result, "Positions retrieved successfully"));
             }).WithName("GetPositions").WithTags("Positions");
-
-            return app;
         }
     }
 }
+

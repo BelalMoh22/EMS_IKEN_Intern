@@ -35,8 +35,8 @@ export default function EmployeeList() {
   const [resetTarget, setResetTarget] = useState<Employee | null>(null);
 
   const { data: employees, isLoading } = useEmployees();
-  const { data: positions } = usePositions({ enabled: user?.role === "HR" });
-  const { data: departments } = useDepartments({ enabled: user?.role === "HR" });
+  const { data: positions } = usePositions({ enabled: user?.role === "HR" || user?.role === "Manager" });
+  const { data: departments } = useDepartments({ enabled: user?.role === "HR" || user?.role === "Manager" });
   const deleteMutation = useDeleteEmployee();
   const resetMutation = useResetCredentials();
   const { enqueueSnackbar } = useSnackbar();

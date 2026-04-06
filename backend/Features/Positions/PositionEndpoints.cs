@@ -4,11 +4,11 @@ namespace backend.Features.Positions
     {
         public static RouteGroupBuilder MapPositionEndpoints(this RouteGroupBuilder group)
         {
-            GetPositionsEndpoint.MapEndpoint(group);
-            GetPositionByIdEndpoint.MapEndpoint(group);
-            CreatePositionEndpoint.MapEndpoint(group);
-            UpdatePositionEndpoint.MapEndpoint(group);
-            DeletePositionEndpoint.MapEndpoint(group);
+            GetPositionsEndpoint.MapEndpoint(group).RequireAuthorization("ReadResource");
+            GetPositionByIdEndpoint.MapEndpoint(group).RequireAuthorization("ReadResource");
+            CreatePositionEndpoint.MapEndpoint(group).RequireAuthorization("FullCRUD");
+            UpdatePositionEndpoint.MapEndpoint(group).RequireAuthorization("FullCRUD");
+            DeletePositionEndpoint.MapEndpoint(group).RequireAuthorization("FullCRUD");
 
             return group;
         }

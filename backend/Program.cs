@@ -44,14 +44,15 @@ namespace backend
             builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             builder.Services.AddScoped<IRepository<Employee>, EmployeeRepository>();
             builder.Services.AddScoped<IRepository<Department>, DepartmentRepository>();
-            builder.Services.AddScoped<DepartmentRepository>();
             builder.Services.AddScoped<IRepository<Position>, PositionRepository>();
             builder.Services.AddScoped<UserRepository>();
+            builder.Services.AddScoped<AttendanceRepository>();
+            builder.Services.AddScoped<EmployeeRepository>();
+            builder.Services.AddScoped<DepartmentRepository>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<IEmployeeBusinessRules, EmployeeBusinessRules>();
             builder.Services.AddScoped<IPositionBusinessRules, PositionBusinessRules>();
             builder.Services.AddScoped<IDepartmentBusinessRules, DepartmentBusinessRules>();
-            builder.Services.AddScoped<AttendanceRepository>();
 
             // Use Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -134,8 +135,8 @@ namespace backend
             app.UseAuthorization();
             app.MapGroup("/api/auth").MapAuthEndpoints();
             app.MapGroup("/api/employees").MapEmployeesEndpoints();
-            app.MapGroup("/api/departments").MapDepartmentEndpoints().RequireAuthorization("FullCRUD");
-            app.MapGroup("/api/positions").MapPositionEndpoints().RequireAuthorization("FullCRUD");
+            app.MapGroup("/api/departments").MapDepartmentEndpoints();
+            app.MapGroup("/api/positions").MapPositionEndpoints();
             app.MapGroup("/api/attendance").MapAttendanceEndpoints();
 
             app.Run();
