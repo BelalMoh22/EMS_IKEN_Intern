@@ -7,10 +7,10 @@ namespace backend.Domain.Models
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
         public int DepartmentId { get; set; }
-        public ProjectStatus Status { get; set; } = ProjectStatus.Active;
+        public ProjectStatus Status { get; set; } = ProjectStatus.Open;
         public int CreatedBy { get; set; }
         public DateTime? ClosedAt { get; set; }
-
+        
         public Project(
             string name,
             string description,
@@ -18,11 +18,11 @@ namespace backend.Domain.Models
             int createdBy)
         {
             Name = name;
-            Description = description;
+            Description = description ?? string.Empty;
             DepartmentId = departmentId;
             CreatedBy = createdBy;
 
-            Status = ProjectStatus.Active;
+            Status = ProjectStatus.Open;
             CreatedAt = DateTime.UtcNow;
             IsDeleted = false;
         }
@@ -30,13 +30,23 @@ namespace backend.Domain.Models
 
         public void Update(
             string? name,
-            string? description)
+            string? description,
+            ProjectStatus? status = null)
         {
-            if (!string.IsNullOrWhiteSpace(name))
-                Name = name;
-
-            if (!string.IsNullOrWhiteSpace(description))
-                Description = description;
+            Name = name ?? Name;
+            Description = description ?? Description;
+            if (status.HasValue)
+            {
+                Status = status.Value;
+                if (status.Value == ProjectStatus.Closed)
+                {
+                    ClosedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    ClosedAt = null;
+                }
+            }
         }
 
         public void Close()
@@ -48,8 +58,8 @@ namespace backend.Domain.Models
 
         public void Reopen()
         {
-            if (Status == ProjectStatus.Active) return;
-            Status = ProjectStatus.Active;
+            if (Status == ProjectStatus.Open) return;
+            Status = ProjectStatus.Open;
             ClosedAt = null;
         }
     }

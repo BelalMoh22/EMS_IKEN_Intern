@@ -7,5 +7,7 @@ namespace backend.Features.TimeTrack.Projects.UpdateProject
 
         [MaxLength(500)]
         public string? Description { get; set; }
+
+        public Domain.Enums.ProjectStatus? Status { get; set; }
     }
 }

@@ -1,8 +1,8 @@
-﻿namespace backend.Domain.Enums
+namespace backend.Domain.Enums
 {
     public enum ProjectStatus
     {
-        Active = 1,
+        Open = 1,
         Closed = 2,
     }
 }

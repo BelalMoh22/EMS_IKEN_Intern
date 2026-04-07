@@ -4,10 +4,7 @@
     {
         public static RouteHandlerBuilder MapEndpoint(this RouteGroupBuilder app)
         {
-            return app.MapPut("/{id:int}", async (
-                [FromRoute] int id,
-                [FromBody] UpdateProjectDTO dto,
-                [FromServices] IMediator mediator) =>
+            return app.MapPut("/{id:int}", async ([FromRoute] int id,[FromBody] UpdateProjectDTO dto,[FromServices] IMediator mediator) =>
             {
                 var command = new UpdateProjectCommand(id, dto);
 

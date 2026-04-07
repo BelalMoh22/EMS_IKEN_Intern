@@ -48,7 +48,7 @@ namespace backend.Infrastructure.Repositories
 
         public async Task<Department?> GetByManagerIdAsync(int managerId)
         {
-            var sql = $@"SELECT * FROM {TableName} WHERE ManagerId = @ManagerId";
+            var sql = $@"SELECT * FROM {TableName} WHERE ManagerId = @ManagerId AND IsDeleted = 0";
             using var connection = _connectionFactory.CreateConnection();
             var department = await connection.QuerySingleOrDefaultAsync<Department>(sql, new { ManagerId = managerId });
             return department;

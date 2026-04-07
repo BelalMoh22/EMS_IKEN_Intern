@@ -1,5 +1,3 @@
-using backend.Features.TimeTrack.Projects.GetFilteredProjects;
-
 namespace backend.Infrastructure.BusinessRules.Projects
 {
     public class ProjectBusinessRules : BaseBusinessRules, IProjectBusinessRules
@@ -28,7 +26,7 @@ namespace backend.Infrastructure.BusinessRules.Projects
             if (query.month.HasValue && (query.month < 1 || query.month > 12))
                 AddError(errors, "month", "Month must be between 1 and 12.");
 
-            if (query.year.HasValue && query.year < 2000)
+            if (query.year.HasValue && (query.year < 2000 || query.year > DateTime.UtcNow.Year))
                 AddError(errors, "year", "Invalid year.");
 
             ThrowIfAny(errors);
@@ -59,15 +57,14 @@ namespace backend.Infrastructure.BusinessRules.Projects
             if (existing.IsDeleted)
                 AddError(errors, "project", "Project is deleted.");
 
-            if (existing.Status != ProjectStatus.Active)
+            if (existing.Status != ProjectStatus.Open)
                 AddError(errors, "status", "Only active projects can be updated.");
 
             if (!string.IsNullOrWhiteSpace(dto.Name))
             {
                 var projects = await _projectRepository.GetAsync(existing.DepartmentId, null, null, null);
 
-                if (projects.Any(p => p.Id != projectId &&
-                                      p.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase)))
+                if (projects.Any(p => p.Id != projectId && p.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase)))
                 {
                     AddError(errors, "name", "Project name already exists in this department.");
                 }
@@ -104,7 +101,7 @@ namespace backend.Infrastructure.BusinessRules.Projects
             if (project.IsDeleted)
                 AddError(errors, "project", "Project is deleted.");
 
-            if (project.Status != ProjectStatus.Active)
+            if (project.Status != ProjectStatus.Open)
                 AddError(errors, "status", "Only active projects can be closed.");
 
             var totalHours = await _projectRepository.GetTotalHoursAsync(project.Id);

@@ -1,22 +1,17 @@
 namespace backend.Features.TimeTrack.Projects.ReopenProject
 {
-    public class ReopenProjectHandler
-        : IRequestHandler<ReopenProjectCommand, ProjectActionResult>
+    public class ReopenProjectHandler: IRequestHandler<ReopenProjectCommand, ProjectActionResult>
     {
         private readonly IProjectRepository _repo;
         private readonly IProjectBusinessRules _rules;
 
-        public ReopenProjectHandler(
-            IProjectRepository repo,
-            IProjectBusinessRules rules)
+        public ReopenProjectHandler(IProjectRepository repo,IProjectBusinessRules rules)
         {
             _repo = repo;
             _rules = rules;
         }
 
-        public async Task<ProjectActionResult> Handle(
-            ReopenProjectCommand request,
-            CancellationToken cancellationToken)
+        public async Task<ProjectActionResult> Handle(ReopenProjectCommand request,CancellationToken cancellationToken)
         {
             var project = await _rules.CheckProjectExistsAsync(request.Id);
 

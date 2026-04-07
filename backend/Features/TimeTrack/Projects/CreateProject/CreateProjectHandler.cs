@@ -10,17 +10,15 @@ namespace backend.Features.TimeTrack.Projects.CreateProject
         private readonly IProjectBusinessRules _rules;
         private readonly ICurrentUserService _currentUser;
         private readonly DepartmentRepository _departmentRepository;
+        private readonly EmployeeRepository _employeeRepository;
 
-        public CreateProjectHandler(
-            IProjectRepository projectRepository, 
-            IProjectBusinessRules rules, 
-            ICurrentUserService currentUser, 
-            DepartmentRepository departmentRepository)
+        public CreateProjectHandler(IProjectRepository projectRepository, IProjectBusinessRules rules, ICurrentUserService currentUser, DepartmentRepository departmentRepository , EmployeeRepository employeeRepository)
         {
             _projectRepository = projectRepository;
             _rules = rules;
             _currentUser = currentUser;
             _departmentRepository = departmentRepository;
+            _employeeRepository = employeeRepository;
         }
 
         public async Task<int> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
@@ -29,14 +27,19 @@ namespace backend.Features.TimeTrack.Projects.CreateProject
 
             var loggedInUserId = _currentUser.UserId;
 
-            var department = await _departmentRepository.GetByManagerIdAsync(loggedInUserId);
+            var employee = await _employeeRepository.GetByUserIdAsync(loggedInUserId);
+
+            if (employee == null)
+                throw new NotFoundException("Employee not found for current user.");
+
+            var department = await _departmentRepository.GetByManagerIdAsync(employee.Id);
 
             if (department == null)
                 throw new NotFoundException("Manager is not assigned to any department.");
 
             await _rules.ValidateForCreateAsync(department.Id, dto);
 
-            var project = new Project(dto.Name, dto.Description, department.Id, loggedInUserId);
+            var project = new Project(dto.Name, dto.Description, department.Id, employee.Id);
 
             var id = await _projectRepository.CreateAsync(project);
 

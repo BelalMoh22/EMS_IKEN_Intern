@@ -64,7 +64,7 @@ public class ProjectRepository : IProjectRepository
     // =========================
     // UPDATE
     // =========================
-    public async Task UpdateAsync(Project project)
+    public async Task<int> UpdateAsync(Project project)
     {
         var sql = @"UPDATE Projects
                     SET Name = @Name,
@@ -74,7 +74,8 @@ public class ProjectRepository : IProjectRepository
                     WHERE Id = @Id AND IsDeleted = 0";
 
         using var conn = _db.CreateConnection();
-        await conn.ExecuteAsync(sql, project);
+        var rows = await conn.ExecuteAsync(sql, project);
+        return rows;
     }
 
     // =========================

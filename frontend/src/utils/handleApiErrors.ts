@@ -63,3 +63,18 @@ export function getGeneralErrors(error: unknown): string[] {
   const errors = data?.errors || data?.Errors;
   return (errors as any)?.general || (errors as any)?.General || [];
 }
+export function extractErrorMessage(error: any, defaultMsg = "Something went wrong"): string {
+  const data = error?.response?.data;
+  if (!data) return defaultMsg;
+
+  const errors = data.errors || data.Errors;
+  const message = data.message || data.Message;
+
+  if (errors && typeof errors === "object") {
+    // If there are many errors, take the first one
+    const firstError = Object.values(errors).flat()[0];
+    if (firstError) return String(firstError);
+  }
+
+  return message || defaultMsg;
+}

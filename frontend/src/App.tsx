@@ -23,6 +23,8 @@ import ChangePassword from "@/pages/ChangePassword";
 import MyAttendance from "@/pages/attendance/MyAttendance";
 import MonthlyAttendance from "@/pages/attendance/MonthlyAttendance";
 import EmployeeAttendanceDetails from "@/pages/attendance/EmployeeAttendanceDetails";
+import ProjectsDashboard from "@/pages/projects/ProjectsDashboard";
+import ProjectDetails from "@/pages/projects/ProjectDetails";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -162,6 +164,24 @@ const App = () => (
             element={
               <RoleBasedRoute allowedRoles={["Employee", "HR", "Manager"]}>
                 <MyAttendance />
+              </RoleBasedRoute>
+            }
+          />
+
+          {/* Projects – Manager only */}
+          <Route
+            path="/projects"
+            element={
+              <RoleBasedRoute allowedRoles={["Manager"]}>
+                <ProjectsDashboard />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/projects/:id"
+            element={
+              <RoleBasedRoute allowedRoles={["Manager"]}>
+                <ProjectDetails />
               </RoleBasedRoute>
             }
           />
