@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { projectApi } from "@/api/projectApi";
 import type { CreateProjectRequest, UpdateProjectRequest } from "@/types/project";
@@ -15,7 +16,7 @@ export function useProject(id: number) {
   return useQuery({
     queryKey: ["projects", id],
     queryFn: () => projectApi.getById(id),
-    enabled: !!id,
+    enabled: !!id, //Prevents query from running if id = 0 or undefined
   });
 }
 
@@ -24,7 +25,7 @@ export function useCreateProject() {
   return useMutation({
     mutationFn: (data: CreateProjectRequest) => projectApi.create(data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["projects"] });
+      qc.invalidateQueries({ queryKey: ["projects"] }); // "Projects list is outdated → refetch it"
       enqueueSnackbar("Project created successfully", { variant: "success" });
     },
     onError: (error: any) => {
@@ -36,8 +37,7 @@ export function useCreateProject() {
 export function useUpdateProject() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateProjectRequest }) =>
-      projectApi.update(id, data),
+    mutationFn: ({ id, data }: { id: number; data: UpdateProjectRequest }) => projectApi.update(id, data),
     onSuccess: (response) => {
       qc.invalidateQueries({ queryKey: ["projects"] });
       enqueueSnackbar(response.message || "Project updated successfully", {

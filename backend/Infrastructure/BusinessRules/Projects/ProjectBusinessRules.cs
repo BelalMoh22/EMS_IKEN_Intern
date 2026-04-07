@@ -106,8 +106,8 @@ namespace backend.Infrastructure.BusinessRules.Projects
 
             var totalHours = await _projectRepository.GetTotalHoursAsync(project.Id);
 
-            if (totalHours == 0)
-                AddError(errors, "project", "Cannot close project without work logs.");
+            // if (totalHours == 0)
+            //     AddError(errors, "project", "Cannot close project without work logs.");
 
             ThrowIfAny(errors);
         }

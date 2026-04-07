@@ -25,9 +25,9 @@ export interface UpdateProjectRequest {
 export const PROJECT_STATUS_ENUM_MAP: Record<ProjectStatus, number> = {
   Open: 1,
   Closed: 2,
-};
+} as const;  // Converts Frontend(string) → Backend(Enum) -> Sending Data
 
 export const PROJECT_STATUS_FROM_NUMBER: Record<number, ProjectStatus> = {
   1: "Open",
   2: "Closed",
-};
+}; // Converts Backend(Enum) → Frontend(string) -> Displaying Data

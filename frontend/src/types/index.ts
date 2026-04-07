@@ -1,8 +1,3 @@
-/**
- * Barrel re-export — all types are still importable via "@/types"
- * Each domain has its own dedicated file under src/types/
- */
-
 export * from "./auth";
 export * from "./employee";
 export * from "./department";

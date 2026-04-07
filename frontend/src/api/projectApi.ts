@@ -7,13 +7,14 @@ import type {
 } from "@/types/project";
 
 export const projectApi = {
-  /**
-   * GET /api/projects → returns Project[] for the authenticated manager's department
-   */
   getAll: (filters?: { month?: number; year?: number; status?: string }) => {
-    const params = new URLSearchParams();
-    if (filters?.month) params.append("month", filters.month.toString());
-    if (filters?.year) params.append("year", filters.year.toString());
+    const params = new URLSearchParams(); // Creates a query string builder , Helps generate URLs like: ?param1=value1&param2=value2
+    if (filters?.month) // filter?.month is a nullish coalescing operator : Prevents crash if filters is undefined
+      params.append("month", filters.month.toString());
+
+    if (filters?.year) 
+      params.append("year", filters.year.toString());
+
     if (filters?.status && filters.status !== "All")
       params.append("status", filters.status);
 
@@ -22,49 +23,21 @@ export const projectApi = {
       .then((r) => r.data.data!);
   },
 
-  /**
-   * GET /api/projects/{id}
-   */
   getById: (id: number) =>
-    api
-      .get<ApiResponse<Project>>(`/projects/${id}`)
-      .then((r) => r.data.data!),
+    api.get<ApiResponse<Project>>(`/projects/${id}`).then((r) => r.data.data!),
 
-  /**
-   * POST /api/projects → creates project (department auto-assigned server-side)
-   */
   create: (data: CreateProjectRequest) =>
-    api
-      .post<ApiResponse<number>>("/projects", data)
-      .then((r) => r.data.data!),
+    api.post<ApiResponse<number>>("/projects", data).then((r) => r.data.data!), // Extracts the actual project
 
-  /**
-   * PUT /api/projects/{id}
-   */
   update: (id: number, data: UpdateProjectRequest) =>
-    api
-      .put<ApiResponse<void>>(`/projects/${id}`, data)
-      .then((r) => r.data),
+    api.put<ApiResponse<void>>(`/projects/${id}`, data).then((r) => r.data), // Returns full response (not just data) : Because no actual data is returned (void)
 
-  /**
-   * DELETE /api/projects/{id}
-   */
   delete: (id: number) =>
     api.delete<ApiResponse<void>>(`/projects/${id}`).then((r) => r.data),
 
-  /**
-   * PUT /api/projects/{id}/reopen
-   */
   reopen: (id: number) =>
-    api
-      .put<ApiResponse<void>>(`/projects/${id}/reopen`)
-      .then((r) => r.data),
+    api.put<ApiResponse<void>>(`/projects/${id}/reopen`).then((r) => r.data),
 
-  /**
-   * PUT /api/projects/{id}/close
-   */
   close: (id: number) =>
-    api
-      .put<ApiResponse<void>>(`/projects/${id}/close`)
-      .then((r) => r.data),
+    api.put<ApiResponse<void>>(`/projects/${id}/close`).then((r) => r.data),
 };

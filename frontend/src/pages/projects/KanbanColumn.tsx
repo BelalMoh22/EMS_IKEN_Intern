@@ -1,12 +1,15 @@
-import { Box, Chip, Paper, Typography } from "@mui/material";
+import { useState, useMemo, useEffect } from "react";
+import { Box, Chip, Pagination, Paper, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import { ProjectCard } from "./ProjectCard";
-import { STATUS_META } from "./utils";
+import { STATUS_META } from "./utils/projectUtils";
 import type { Project, ProjectStatus } from "@/types/project";
+
+// ─── Constants ────────────────────────────────────────────
+const ITEMS_PER_COLUMN = 5;
 
 // ─── Column icons ─────────────────────────────────────────
 const COLUMN_ICON: Record<ProjectStatus, React.ReactNode> = {
@@ -18,24 +21,24 @@ const COLUMN_ICON: Record<ProjectStatus, React.ReactNode> = {
 interface Props {
   status: ProjectStatus;
   projects: Project[];
-  onEdit: (project: Project) => void;
-  onDelete: (project: Project) => void;
-  onReopen: (project: Project) => void;
-  onClose: (project: Project) => void;
-  onCardClick: (project: Project) => void;
 }
 
-export function KanbanColumn({
-  status,
-  projects,
-  onEdit,
-  onDelete,
-  onReopen,
-  onClose,
-  onCardClick,
-}: Props) {
+export function KanbanColumn({ status, projects }: Props) {
   const theme = useTheme();
   const meta = STATUS_META[status];
+
+  const [page, setPage] = useState(1);
+
+  // Reset page when the project list changes (e.g. filters applied)
+  useEffect(() => {
+    setPage(1);
+  }, [projects.length]);
+
+  const totalPages = Math.ceil(projects.length / ITEMS_PER_COLUMN);
+  const paginatedProjects = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_COLUMN;
+    return projects.slice(start, start + ITEMS_PER_COLUMN);
+  }, [projects, page]);
 
   const headerColors: Record<ProjectStatus, string> = {
     Open: theme.palette.info?.main ?? theme.palette.primary.main,
@@ -108,19 +111,49 @@ export function KanbanColumn({
             </Typography>
           </Box>
         ) : (
-          projects.map((project) => (
+          paginatedProjects.map((project) => (
             <ProjectCard
               key={project.id}
               project={project}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onReopen={onReopen}
-              onClose={onClose}
-              onClick={onCardClick}
             />
           ))
         )}
       </Box>
+
+      {/* Per-Column Pagination */}
+      {totalPages > 1 && (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 0.5,
+            px: 2,
+            py: 1.5,
+            borderTop: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.paper",
+          }}
+        >
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ fontSize: "0.7rem" }}
+          >
+            {(page - 1) * ITEMS_PER_COLUMN + 1}–
+            {Math.min(page * ITEMS_PER_COLUMN, projects.length)} of{" "}
+            {projects.length}
+          </Typography>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(_, value) => setPage(value)}
+            color="primary"
+            shape="rounded"
+            size="small"
+          />
+        </Box>
+      )}
     </Paper>
   );
 }

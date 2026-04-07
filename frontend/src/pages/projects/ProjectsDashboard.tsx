@@ -14,7 +14,6 @@ import {
   InputAdornment,
   InputLabel,
   MenuItem,
-  Pagination,
   Select,
   TextField,
   Typography,
@@ -32,12 +31,12 @@ import type { Project, ProjectStatus } from "@/types/project";
 import { SummaryCard } from "./SummaryCard";
 import { KanbanColumn } from "./KanbanColumn";
 import { ProjectFormDialog } from "./ProjectFormDialog";
-import { STATUS_META } from "./utils";
+import { ProjectActionsProvider } from "./context/ProjectActionsContext";
+import { STATUS_META } from "./utils/projectUtils";
 
 // ─── Constants ───────────────────────────────────────────
 const ALL_COLUMNS: ProjectStatus[] = ["Open", "Closed"];
 type SortOption = "newest" | "oldest" | "name_asc" | "name_desc";
-const ITEMS_PER_PAGE = 6;
 
 // ─── Page ────────────────────────────────────────────────
 export default function ProjectsDashboard() {
@@ -50,7 +49,6 @@ export default function ProjectsDashboard() {
   const [monthFilter, setMonthFilter] = useState<number | "All">("All");
   const [yearFilter, setYearFilter] = useState<number | "All">("All");
   const [sort, setSort] = useState<SortOption>("newest");
-  const [page, setPage] = useState(1);
 
   // ── Queries ──
   const { data: projects = [], isLoading } = useProjects({
@@ -118,35 +116,26 @@ export default function ProjectsDashboard() {
     return list;
   }, [projects, search, statusFilter, sort]);
 
-  // ── Pagination ──
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginatedList = useMemo(() => {
-    const start = (page - 1) * ITEMS_PER_PAGE;
-    return filtered.slice(start, start + ITEMS_PER_PAGE);
-  }, [filtered, page]);
-
-  // ── Group by status (paginated) ──
+  // ── Group by status ──
   const grouped = useMemo(
     () =>
       ALL_COLUMNS.reduce<Record<ProjectStatus, Project[]>>(
         (acc, status) => {
-          acc[status] = paginatedList.filter((p) => p.status === status);
+          acc[status] = filtered.filter((p) => p.status === status);
           return acc;
         },
         { Open: [], Closed: [] }
       ),
-    [paginatedList]
+    [filtered]
   );
 
   // Reset to page 1 when filters change
   const handleStatusFilterChange = (value: ProjectStatus | "All") => {
     setStatusFilter(value);
-    setPage(1);
   };
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setPage(1);
   };
 
   // ── Handlers ──
@@ -268,7 +257,7 @@ export default function ProjectsDashboard() {
             id="month-filter"
             label="Month"
             value={monthFilter}
-            onChange={(e) => { setMonthFilter(e.target.value as number | "All"); setPage(1); }}
+            onChange={(e) => setMonthFilter(e.target.value as number | "All")}
           >
             <MenuItem value="All">All Months</MenuItem>
             {[
@@ -287,7 +276,7 @@ export default function ProjectsDashboard() {
             id="year-filter"
             label="Year"
             value={yearFilter}
-            onChange={(e) => { setYearFilter(e.target.value as number | "All"); setPage(1); }}
+            onChange={(e) => setYearFilter(e.target.value as number | "All")}
           >
             <MenuItem value="All">All Years</MenuItem>
             {[2024, 2025, 2026].map((y) => (
@@ -319,39 +308,29 @@ export default function ProjectsDashboard() {
           <CircularProgress />
         </Box>
       ) : (
-        <Grid container spacing={2}>
-          {visibleColumns.map((status) => (
-            <Grid key={status} size={{ xs: 12, md: visibleColumns.length === 1 ? 12 : 6 }}>
-              <KanbanColumn
-                status={status}
-                projects={grouped[status]}
-                onEdit={handleOpenEdit}
-                onDelete={(p) => setDeleteTarget(p)}
-                onReopen={(p) => setReopenTarget(p)}
-                onClose={(p) => setCloseTarget(p)}
-                onCardClick={(p) => navigate(`/projects/${p.id}`)}
-              />
-            </Grid>
-          ))}
-        </Grid>
+        <ProjectActionsProvider
+          value={{
+            onEdit: handleOpenEdit,
+            onDelete: (p) => setDeleteTarget(p),
+            onReopen: (p) => setReopenTarget(p),
+            onClose: (p) => setCloseTarget(p),
+            onCardClick: (p) => navigate(`/projects/${p.id}`),
+          }}
+        >
+          <Grid container spacing={2}>
+            {visibleColumns.map((status) => (
+              <Grid key={status} size={{ xs: 12, md: visibleColumns.length === 1 ? 12 : 6 }}>
+                <KanbanColumn
+                  status={status}
+                  projects={grouped[status]}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </ProjectActionsProvider>
       )}
 
-      {/* ── Pagination ── */}
-      {totalPages > 1 && (
-        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 2, pt: 1 }}>
-          <Typography variant="caption" color="text.secondary">
-            Showing {((page - 1) * ITEMS_PER_PAGE) + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length}
-          </Typography>
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={(_, value) => setPage(value)}
-            color="primary"
-            shape="rounded"
-            size="medium"
-          />
-        </Box>
-      )}
+
 
       {/* ── FAB ── */}
       <Fab

@@ -15,27 +15,23 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import RestoreIcon from "@mui/icons-material/Restore";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import type { Project } from "@/types/project";
-import { STATUS_META, formatDate } from "./utils";
-
-
+import { STATUS_META, formatDate } from "./utils/projectUtils";
+import { useProjectActions } from "./context/ProjectActionsContext";
 
 // ─── Props ───────────────────────────────────────────────
 interface Props {
   project: Project;
-  onEdit: (project: Project) => void;
-  onDelete: (project: Project) => void;
-  onReopen: (project: Project) => void;
-  onClose: (project: Project) => void;
-  onClick: (project: Project) => void;
 }
 
-export function ProjectCard({ project, onEdit, onDelete, onReopen, onClose, onClick }: Props) {
+export function ProjectCard({ project }: Props) {
   const theme = useTheme();
+  const { onEdit, onDelete, onReopen, onClose, onCardClick } =
+    useProjectActions();
   const meta = STATUS_META[project.status];
 
   return (
     <Card
-      onClick={() => onClick(project)}
+      onClick={() => onCardClick(project)}
       sx={{
         mb: 1.5,
         cursor: "pointer",
@@ -103,9 +99,13 @@ export function ProjectCard({ project, onEdit, onDelete, onReopen, onClose, onCl
             alignItems: "center",
             justifyContent: "space-between",
           }}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()} // Prevent parent click when action button is clicked
         >
-          <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ fontSize: "0.7rem" }}
+          >
             {formatDate(project.createdAt)}
           </Typography>
           <Stack direction="row" spacing={0.25}>

@@ -23,7 +23,7 @@ import EventNoteIcon from "@mui/icons-material/EventNote";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 import { useProject, useDeleteProject, useReopenProject, useCloseProject } from "@/hooks/useProjects";
-import { STATUS_META, formatDate } from "./utils";
+import { STATUS_META, formatDate } from "./utils/projectUtils";
 import { useState } from "react";
 import { ProjectFormDialog } from "./ProjectFormDialog";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
