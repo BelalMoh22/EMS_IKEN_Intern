@@ -1,4 +1,4 @@
-﻿public class ProjectRepository : IProjectRepository
+public class ProjectRepository : IProjectRepository
 {
     private readonly IDbConnectionFactory _db;
 
@@ -31,8 +31,8 @@
         var sql = @"SELECT * FROM Projects
                     WHERE IsDeleted = 0
                     AND (@DepartmentId IS NULL OR DepartmentId = @DepartmentId)
-                    AND (@Month IS NULL OR Month = @Month)
-                    AND (@Year IS NULL OR Year = @Year)
+                    AND (@Month IS NULL OR MONTH(CreatedAt) = @Month)
+                    AND (@Year IS NULL OR YEAR(CreatedAt) = @Year)
                     AND (@Status IS NULL OR Status = @Status)
                     ORDER BY Id DESC";
 
@@ -52,8 +52,8 @@
     public async Task<int> CreateAsync(Project project)
     {
         var sql = @"INSERT INTO Projects
-                    (Name, Description, DepartmentId, Month, Year, Status, CreatedBy)
-                    VALUES (@Name, @Description, @DepartmentId, @Month, @Year, @Status, @CreatedBy);
+                    (Name, Description, DepartmentId, Status, CreatedBy)
+                    VALUES (@Name, @Description, @DepartmentId, @Status, @CreatedBy);
 
                     SELECT CAST(SCOPE_IDENTITY() as int);";
 
@@ -69,8 +69,8 @@
         var sql = @"UPDATE Projects
                     SET Name = @Name,
                         Description = @Description,
-                        Month = @Month,
-                        Year = @Year
+                        Status = @Status,
+                        ClosedAt = @ClosedAt
                     WHERE Id = @Id AND IsDeleted = 0";
 
         using var conn = _db.CreateConnection();
@@ -90,47 +90,8 @@
         await conn.ExecuteAsync(sql, new { Id = id });
     }
 
-    public async Task DeleteAsync(int id)
-    { 
-        await SoftDeleteAsync(id);
-    }
+
    
-    // =========================
-    // CLOSE PROJECT
-    // =========================
-    public async Task CloseAsync(int id)
-    {
-        var sql = @"UPDATE Projects
-                    SET Status = @ClosedStatus,
-                        ClosedAt = GETDATE()
-                    WHERE Id = @Id AND IsDeleted = 0";
-
-        using var conn = _db.CreateConnection();
-        await conn.ExecuteAsync(sql, new
-        {
-            Id = id,
-            ClosedStatus = ProjectStatus.Closed
-        });
-    }
-
-    // =========================
-    // REOPEN PROJECT
-    // =========================
-    public async Task ReopenAsync(int id)
-    {
-        var sql = @"UPDATE Projects
-                    SET Status = @ActiveStatus,
-                        ClosedAt = NULL
-                    WHERE Id = @Id AND IsDeleted = 0";
-
-        using var conn = _db.CreateConnection();
-        await conn.ExecuteAsync(sql, new
-        {
-            Id = id,
-            ActiveStatus = ProjectStatus.Active
-        });
-    }
-
     // =========================
     // TOTAL HOURS
     // =========================
@@ -175,3 +136,4 @@
     //    return await conn.QueryAsync<DailyLogDto>(sql, new { ProjectId = projectId });
     //}
 }
+

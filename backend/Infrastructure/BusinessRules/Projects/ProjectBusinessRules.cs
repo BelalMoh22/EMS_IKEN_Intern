@@ -1,4 +1,4 @@
-﻿using backend.Features.TimeTrack.Projects.GetFilteredProjects;
+using backend.Features.TimeTrack.Projects.GetFilteredProjects;
 
 namespace backend.Infrastructure.BusinessRules.Projects
 {
@@ -6,13 +6,16 @@ namespace backend.Infrastructure.BusinessRules.Projects
     {
         private readonly IProjectRepository _projectRepository;
         private readonly DepartmentRepository _departmentRepository;
+        private readonly ICurrentUserService _currentUser;
 
         public ProjectBusinessRules(
             IProjectRepository projectRepository,
-            DepartmentRepository departmentRepository)
+            DepartmentRepository departmentRepository,
+            ICurrentUserService currentUser)
         {
             _projectRepository = projectRepository;
             _departmentRepository = departmentRepository;
+            _currentUser = currentUser;
         }
 
         // ========================
@@ -36,25 +39,12 @@ namespace backend.Infrastructure.BusinessRules.Projects
         // =========================
         // CREATE
         // =========================
-        public async Task ValidateForCreateAsync(CreateProjectDTO dto)
+        public async Task ValidateForCreateAsync(int departmentId, CreateProjectDTO dto)
         {
             var errors = ValidationHelper.ValidateModel(dto);
-
-            var department = await _departmentRepository.GetByIdAsync(dto.DepartmentId);
-            if (department == null || department.IsDeleted)
-                AddError(errors, "departmentId", "Department does not exist.");
-
-            var projects = await _projectRepository.GetAsync(dto.DepartmentId, null, null, null);
+            var projects = await _projectRepository.GetAsync(departmentId, null, null, null);
             if (projects.Any(p => p.Name.ToLower() == dto.Name.ToLower()))
                 AddError(errors, "name", "Project name already exists in this department.");
-
-            if (dto.Month < 1 || dto.Month > 12)
-                AddError(errors, "month", "Month must be between 1 and 12.");
-
-            var currentYear = DateTime.UtcNow.Year;
-
-            if (dto.Year < 2000 || dto.Year > currentYear)
-                AddError(errors, "year", $"Year must be between 2000 and {currentYear}.");
 
             ThrowIfAny(errors);
         }
@@ -71,9 +61,6 @@ namespace backend.Infrastructure.BusinessRules.Projects
 
             if (existing.Status != ProjectStatus.Active)
                 AddError(errors, "status", "Only active projects can be updated.");
-
-            if (dto.Month.HasValue && (dto.Month < 1 || dto.Month > 12))
-                AddError(errors, "month", "Month must be between 1 and 12.");
 
             if (!string.IsNullOrWhiteSpace(dto.Name))
             {
@@ -149,12 +136,35 @@ namespace backend.Infrastructure.BusinessRules.Projects
         // =========================
         public async Task<Project> CheckProjectExistsAsync(int projectId)
         {
+            if (projectId <= 0)
+            {
+                throw new Exceptions.ValidationException(
+                    new Dictionary<string, List<string>>
+                    {
+                        { "id", new List<string> { "Id must be a positive integer." } }
+                    });
+            }
+
             var project = await _projectRepository.GetByIdAsync(projectId);
 
             if (project == null)
-                throw new Exception("Project not found.");
+                throw new NotFoundException($"Project with Id {projectId} not found.");
 
             return project;
+        }
+
+        // =========================
+        // OWNERSHIP & SECURITY
+        // =========================
+        public async Task ValidateOwnershipAndWriteAccessAsync(Project existingProject)
+        {
+            var loggedInUserId = _currentUser.UserId;
+            var department = await _departmentRepository.GetByManagerIdAsync(loggedInUserId);
+
+            if (department == null || existingProject.DepartmentId != department.Id)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to modify projects outside your department scope.");
+            }
         }
     }
 }

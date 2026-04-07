@@ -1,6 +1,6 @@
-﻿namespace backend.Features.TimeTrack.Projects.CreateProject
+namespace backend.Features.TimeTrack.Projects.CreateProject
 {
-    public static  class CreateProjectEndpoint
+    public static class CreateProjectEndpoint
     {
         public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder group)
         {

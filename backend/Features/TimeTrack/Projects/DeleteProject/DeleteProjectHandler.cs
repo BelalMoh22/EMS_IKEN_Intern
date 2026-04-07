@@ -1,4 +1,4 @@
-﻿using backend.Infrastructure.BusinessRules.Projects;
+using backend.Infrastructure.BusinessRules.Projects;
 
 namespace backend.Features.TimeTrack.Projects.DeleteProject
 {
@@ -20,26 +20,15 @@ namespace backend.Features.TimeTrack.Projects.DeleteProject
             DeleteProjectCommand request,
             CancellationToken cancellationToken)
         {
-            // 🔴 1. Validate Id
-            if (request.Id <= 0)
-            {
-                throw new Exceptions.ValidationException(
-                    new Dictionary<string, List<string>>
-                    {
-                        { "id", new List<string> { "Id must be a positive integer." } }
-                    });
-            }
+            var project = await _rules.CheckProjectExistsAsync(request.Id);
 
-            // 🔴 2. Get Project
-            var project = await _repo.GetByIdAsync(request.Id);
+            // 🔴 1. Authorize Ownership
+            await _rules.ValidateOwnershipAndWriteAccessAsync(project);
 
-            if (project is null)
-                throw new NotFoundException($"Project with Id {request.Id} not found.");
-
-            // 🔴 3. Business Rules
+            // 🔴 2. Business Rules
             await _rules.ValidateForDeleteAsync(project);
 
-            // 🔴 4. Delete (Soft Delete)
+            // 🔴 3. Delete (Soft Delete)
             await _repo.SoftDeleteAsync(request.Id);
 
             var message = "Project deleted successfully.";

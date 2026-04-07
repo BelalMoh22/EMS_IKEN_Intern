@@ -1,4 +1,4 @@
-﻿namespace backend.Features.TimeTrack.Projects.CreateProject
+namespace backend.Features.TimeTrack.Projects.CreateProject
 {
     public class CreateProjectDTO
     {
@@ -8,15 +8,5 @@
 
         [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
         public string? Description { get; set; }
-
-        [Required(ErrorMessage = "Department is required.")]
-        public int DepartmentId { get; set; }
-
-        [Required(ErrorMessage = "Month is required.")]
-        [Range(1, 12, ErrorMessage = "Month must be between 1 and 12.")]
-        public int Month { get; set; }
-
-        [Required(ErrorMessage = "Year is required.")]
-        public int Year { get; set; }
     }
 }

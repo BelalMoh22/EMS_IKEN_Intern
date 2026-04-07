@@ -1,4 +1,4 @@
-﻿namespace backend.Domain.Interfaces
+namespace backend.Domain.Interfaces
 {
     public interface IProjectRepository
     {
@@ -16,10 +16,6 @@
 
         Task SoftDeleteAsync(int id);
 
-        Task CloseAsync(int id);
-
-        Task ReopenAsync(int id);
-
         // Analytics
         Task<decimal> GetTotalHoursAsync(int projectId);
 
@@ -27,4 +23,4 @@
 
         //Task<IEnumerable<DailyLogDto>> GetDailyLogsAsync(int projectId);
     }
-}
+}

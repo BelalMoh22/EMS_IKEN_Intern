@@ -1,4 +1,4 @@
-﻿namespace backend.Features.TimeTrack.Projects.GetFilteredProjects
+namespace backend.Features.TimeTrack.Projects.GetFilteredProjects
 {
     public static class GetProjectsEndPoint
     {

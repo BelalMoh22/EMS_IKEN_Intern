@@ -1,4 +1,4 @@
-﻿using backend.Infrastructure.BusinessRules.Projects;
+using backend.Infrastructure.BusinessRules.Projects;
 
 namespace backend.Features.TimeTrack.Projects.UpdateProject
 {
@@ -20,35 +20,22 @@ namespace backend.Features.TimeTrack.Projects.UpdateProject
             UpdateProjectCommand request,
             CancellationToken cancellationToken)
         {
-            // 🔴 1. Validate Id
-            if (request.Id <= 0)
-            {
-                throw new Exceptions.ValidationException(new Dictionary<string, List<string>>
-            {
-                { "id", new List<string> { "Id must be a positive integer." } }
-            });
-            }
+            var project = await _rules.CheckProjectExistsAsync(request.Id);
 
-            // 🔴 2. Get Project
-            var project = await _repo.GetByIdAsync(request.Id);
+            // 🔴 1. Authorize Ownership
+            await _rules.ValidateOwnershipAndWriteAccessAsync(project);
 
-            if (project is null)
-                throw new NotFoundException($"Project with Id {request.Id} not found.");
-
+            // 🔴 2. Business Rules Validation
             var dto = request.dto;
-
-            // 🔴 3. Business Rules Validation
             await _rules.ValidateForUpdateAsync(request.Id, dto, project);
 
-            // 🔴 4. Update Entity (Domain Method)
+            // 🔴 3. Update Entity (Domain Method)
             project.Update(
                 dto.Name,
-                dto.Description,
-                dto.Month,
-                dto.Year
+                dto.Description
             );
 
-            // 🔴 5. Save
+            // 🔴 4. Save Universally
             await _repo.UpdateAsync(project);
 
             var message = "Project updated successfully.";

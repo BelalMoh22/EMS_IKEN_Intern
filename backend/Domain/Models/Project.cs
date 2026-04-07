@@ -1,4 +1,4 @@
-﻿namespace backend.Domain.Models
+namespace backend.Domain.Models
 {
     public class Project : BaseEntity
     {
@@ -7,8 +7,6 @@
         public string Name { get; set; } = null!;
         public string? Description { get; set; }
         public int DepartmentId { get; set; }
-        public int Month { get; set; }
-        public int Year { get; set; }
         public ProjectStatus Status { get; set; } = ProjectStatus.Active;
         public int CreatedBy { get; set; }
         public DateTime? ClosedAt { get; set; }
@@ -17,15 +15,11 @@
             string name,
             string description,
             int departmentId,
-            int month,
-            int year,
             int createdBy)
         {
             Name = name;
             Description = description;
             DepartmentId = departmentId;
-            Month = month;
-            Year = year;
             CreatedBy = createdBy;
 
             Status = ProjectStatus.Active;
@@ -36,21 +30,27 @@
 
         public void Update(
             string? name,
-            string? description,
-            int? month,
-            int? year)
+            string? description)
         {
             if (!string.IsNullOrWhiteSpace(name))
                 Name = name;
 
             if (!string.IsNullOrWhiteSpace(description))
                 Description = description;
+        }
 
-            if (month.HasValue)
-                Month = month.Value;
+        public void Close()
+        {
+            if (Status == ProjectStatus.Closed) return;
+            Status = ProjectStatus.Closed;
+            ClosedAt = DateTime.UtcNow;
+        }
 
-            if (year.HasValue)
-                Year = year.Value;
+        public void Reopen()
+        {
+            if (Status == ProjectStatus.Active) return;
+            Status = ProjectStatus.Active;
+            ClosedAt = null;
         }
     }
 }

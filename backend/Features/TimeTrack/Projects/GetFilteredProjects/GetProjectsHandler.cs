@@ -1,4 +1,4 @@
-﻿namespace backend.Features.TimeTrack.Projects.GetFilteredProjects
+namespace backend.Features.TimeTrack.Projects.GetFilteredProjects
 {
     public class GetProjectsHandler : IRequestHandler<GetProjectsQuery, IEnumerable<ProjectListDto>>
     {
@@ -25,8 +25,6 @@
                 Id = p.Id,
                 Name = p.Name,
                 Description = p.Description,
-                Month = p.Month,
-                Year = p.Year,
                 Status = p.Status
             });
 

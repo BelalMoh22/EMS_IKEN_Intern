@@ -47,8 +47,10 @@ namespace backend
             builder.Services.AddScoped<AttendanceRepository>();
             builder.Services.AddScoped<EmployeeRepository>();
             builder.Services.AddScoped<DepartmentRepository>();
+            builder.Services.AddScoped<IProjectRepository , ProjectRepository>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<IEmployeeBusinessRules, EmployeeBusinessRules>();
+            builder.Services.AddScoped<IProjectBusinessRules, ProjectBusinessRules>();
             builder.Services.AddScoped<IPositionBusinessRules, PositionBusinessRules>();
             builder.Services.AddScoped<IDepartmentBusinessRules, DepartmentBusinessRules>();
             builder.Services.AddHttpContextAccessor();

@@ -1,10 +1,10 @@
-﻿namespace backend.Infrastructure.BusinessRules.Projects
+namespace backend.Infrastructure.BusinessRules.Projects
 {
     public interface IProjectBusinessRules
     {
         Task ValidateFilterAsync(GetProjectsQuery query);
 
-        Task ValidateForCreateAsync(CreateProjectDTO dto);
+        Task ValidateForCreateAsync(int departmentId, CreateProjectDTO dto);
 
         Task ValidateForUpdateAsync(int projectId, UpdateProjectDTO dto, Project existing);
 
@@ -15,6 +15,8 @@
         Task ValidateForReopenAsync(Project project);
 
         Task<Project> CheckProjectExistsAsync(int projectId);
+
+        Task ValidateOwnershipAndWriteAccessAsync(Project existingProject);
 
     }
 }

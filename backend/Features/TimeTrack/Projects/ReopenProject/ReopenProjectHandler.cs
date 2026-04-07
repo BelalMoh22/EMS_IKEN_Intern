@@ -1,5 +1,3 @@
-﻿using backend.Infrastructure.BusinessRules.Projects;
-
 namespace backend.Features.TimeTrack.Projects.ReopenProject
 {
     public class ReopenProjectHandler
@@ -20,27 +18,14 @@ namespace backend.Features.TimeTrack.Projects.ReopenProject
             ReopenProjectCommand request,
             CancellationToken cancellationToken)
         {
-            // 🔴 1. Validate Id
-            if (request.Id <= 0)
-            {
-                throw new Exceptions.ValidationException(
-                    new Dictionary<string, List<string>>
-                    {
-                        { "id", new List<string> { "Id must be a positive integer." } }
-                    });
-            }
+            var project = await _rules.CheckProjectExistsAsync(request.Id);
 
-            // 🔴 2. Get Project
-            var project = await _repo.GetByIdAsync(request.Id);
+            await _rules.ValidateOwnershipAndWriteAccessAsync(project);
 
-            if (project is null)
-                throw new NotFoundException($"Project with Id {request.Id} not found.");
-
-            // 🔴 3. Business Rules
             await _rules.ValidateForReopenAsync(project);
 
-            // 🔴 4. Reopen
-            await _repo.ReopenAsync(request.Id);
+            project.Reopen();
+            await _repo.UpdateAsync(project);
 
             var message = "Project reopened successfully.";
 

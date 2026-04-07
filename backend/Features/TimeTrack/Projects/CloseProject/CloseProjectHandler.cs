@@ -1,4 +1,4 @@
-﻿namespace backend.Features.TimeTrack.Projects.CloseProject
+namespace backend.Features.TimeTrack.Projects.CloseProject
 {
     public class CloseProjectHandler : IRequestHandler<CloseProjectCommand, Unit>
     {
@@ -12,14 +12,14 @@
         }
         public async Task<Unit> Handle(CloseProjectCommand request, CancellationToken cancellationToken)
         {
-            var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+            var project = await _rules.CheckProjectExistsAsync(request.ProjectId);
 
-            if (project == null)
-                throw new Exception("Project not found.");
+            await _rules.ValidateOwnershipAndWriteAccessAsync(project);
 
             await _rules.ValidateForCloseAsync(project);
 
-            await _projectRepository.CloseAsync(project.Id);
+            project.Close();
+            await _projectRepository.UpdateAsync(project);
 
             return Unit.Value;
         }
