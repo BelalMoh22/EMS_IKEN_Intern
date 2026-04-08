@@ -21,10 +21,12 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
         // =========================
         Task<WorkLog> CheckWorkLogExistsAsync(int workLogId);
 
-        // These are now private or have different signatures in implementation
-        // If they are needed publicly, they should match implementation:
-        // void ValidateOwnership(int employeeId, WorkLog existing, Dictionary<string, List<string>> errors);
-        // Task ValidateProjectAsync(int projectId, Dictionary<string, List<string>> errors);
-        // Task ValidateDailyHoursLimitAsync(int employeeId, DateTime date, decimal newHours, Dictionary<string, List<string>> errors, int? excludeLogId = null);
+        void ValidateOwnership(int employeeId, WorkLog existing, Dictionary<string, List<string>> errors);
+
+        Task ValidateProjectAsync(int projectId, Dictionary<string, List<string>> errors);
+
+        Task ValidateDailyHoursLimitAsync(int employeeId, DateTime date, decimal newHours, Dictionary<string, List<string>> errors, int? excludeLogId = null);
+
+        void ValidateStatus(WorkStatus status, Dictionary<string, List<string>> errors);
     }
 }
