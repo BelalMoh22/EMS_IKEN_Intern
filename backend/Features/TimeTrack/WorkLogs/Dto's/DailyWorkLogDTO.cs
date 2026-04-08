@@ -1,4 +1,4 @@
-﻿namespace backend.Features.TimeTrack.WorkLogs.Dto_s
+namespace backend.Features.TimeTrack.WorkLogs.Dto_s
 {
     public class DailyWorkLogDTO
     {
@@ -7,3 +7,4 @@
         public int ProjectsCount { get; set; }
     }
 }
+// Table row in UI

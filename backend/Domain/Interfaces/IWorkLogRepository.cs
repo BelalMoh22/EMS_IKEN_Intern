@@ -7,7 +7,7 @@
         // =========================
         Task<IEnumerable<DailyWorkLogDTO>> GetDailyLogsAsync(int employeeId);
 
-        Task<IEnumerable<WorkLog>> GetByEmployeeAndDateAsync(int employeeId, DateTime date);
+        Task<IEnumerable<WorkLog>> GetDailyWorkLogForEmployee(int employeeId, DateTime date);
 
         Task ReplaceDayAsync(int employeeId, DateTime date, IEnumerable<WorkLog> logs);
 

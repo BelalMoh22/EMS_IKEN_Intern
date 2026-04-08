@@ -1,4 +1,4 @@
-﻿namespace backend.Infrastructure.Repositories
+namespace backend.Infrastructure.Repositories
 {
     public class WorkLogRepository : IWorkLogRepository
     {
@@ -19,11 +19,11 @@
                     WorkDate AS Date,
                     SUM(Hours) AS TotalHours,
                     COUNT(DISTINCT ProjectId) AS ProjectsCount
-                FROM WorkLogs
-                WHERE EmployeeId = @EmployeeId
-                AND IsDeleted = 0
-                GROUP BY WorkDate
-                ORDER BY WorkDate DESC";
+                    FROM WorkLogs
+                    WHERE EmployeeId = @EmployeeId
+                    AND IsDeleted = 0
+                    GROUP BY WorkDate
+                    ORDER BY WorkDate DESC";
 
             using var conn = _db.CreateConnection();
             return await conn.QueryAsync<DailyWorkLogDTO>(sql, new { EmployeeId = employeeId });
@@ -32,20 +32,37 @@
         // =========================
         // Get Logs for a Day
         // =========================
-        public async Task<IEnumerable<WorkLog>> GetByEmployeeAndDateAsync(int employeeId, DateTime date)
+        public async Task<IEnumerable<WorkLog>> GetDailyWorkLogForEmployee(int employeeId, DateTime date)
         {
             var sql = @"
-                SELECT * FROM WorkLogs
+                SELECT Id, ProjectId, EmployeeId, Hours, WorkDate, Notes
+                FROM WorkLogs
                 WHERE EmployeeId = @EmployeeId
-                AND CAST(WorkDate AS DATE) = @Date
+                AND WorkDate >= @StartDate
+                AND WorkDate < @EndDate
                 AND IsDeleted = 0";
 
             using var conn = _db.CreateConnection();
             return await conn.QueryAsync<WorkLog>(sql, new
             {
                 EmployeeId = employeeId,
-                Date = date.Date
+                StartDate = date.Date,
+                EndDate = date.Date.AddDays(1)
             });
+        }
+
+        // =========================
+        // Get By Id
+        // =========================
+        public async Task<WorkLog?> GetByIdAsync(int id)
+        {
+            var sql = @"
+                SELECT * FROM WorkLogs
+                WHERE Id = @Id
+                AND IsDeleted = 0";
+
+            using var conn = _db.CreateConnection();
+            return await conn.QueryFirstOrDefaultAsync<WorkLog>(sql, new { Id = id });
         }
 
         // =========================
@@ -57,12 +74,13 @@
                 UPDATE WorkLogs
                 SET IsDeleted = 1
                 WHERE EmployeeId = @EmployeeId
-                AND CAST(WorkDate AS DATE) = @Date";
+                AND WorkDate >= @StartDate
+                AND WorkDate < @EndDate";
 
             var insertSql = @"
                 INSERT INTO WorkLogs
-                (ProjectId, EmployeeId, Hours, WorkDate, Notes, CreatedAt)
-                VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes, GETDATE())";
+                (ProjectId, EmployeeId, Hours, WorkDate, Notes)
+                VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes)";
 
             using var conn = _db.CreateConnection();
             conn.Open();
@@ -75,11 +93,15 @@
                 await conn.ExecuteAsync(deleteSql, new
                 {
                     EmployeeId = employeeId,
-                    Date = date.Date
+                    StartDate = date.Date,
+                    EndDate = date.Date.AddDays(1)
                 }, transaction);
 
                 // Step 2: Insert new logs
-                await conn.ExecuteAsync(insertSql, logs, transaction);
+                if (logs != null && logs.Any())
+                {
+                    await conn.ExecuteAsync(insertSql, logs, transaction);
+                }
 
                 transaction.Commit();
             }
@@ -97,8 +119,8 @@
         {
             var sql = @"
                 INSERT INTO WorkLogs
-                (ProjectId, EmployeeId, Hours, WorkDate, Notes, CreatedAt)
-                VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes, GETDATE());
+                (ProjectId, EmployeeId, Hours, WorkDate, Notes)
+                VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes);
 
                 SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
@@ -124,20 +146,6 @@
         }
 
         // =========================
-        // Get By Id
-        // =========================
-        public async Task<WorkLog?> GetByIdAsync(int id)
-        {
-            var sql = @"
-                SELECT * FROM WorkLogs
-                WHERE Id = @Id
-                AND IsDeleted = 0";
-
-            using var conn = _db.CreateConnection();
-            return await conn.QueryFirstOrDefaultAsync<WorkLog>(sql, new { Id = id });
-        }
-
-        // =========================
         // Delete Single Log
         // =========================
         public async Task<int> SoftDeleteLogAsync(int logId)
@@ -151,10 +159,13 @@
             var rows = await conn.ExecuteAsync(sql, new { Id = logId });
             return rows;
         }
+//===================================================================
 
-        // =========================
-        // Manager - Projects Summary
-        // =========================
+        // Manager
+
+        //=======================
+        // Projects Summary
+        //=======================
         public async Task<IEnumerable<ProjectSummaryDTO>> GetProjectsSummaryAsync()
         {
             var sql = @"
@@ -172,7 +183,7 @@
         }
 
         // =========================
-        // Manager - Employees per Project
+        //  Employees per Project
         // =========================
         public async Task<IEnumerable<EmployeeContributionDTO>> GetProjectEmployeesAsync(int projectId)
         {
@@ -192,7 +203,7 @@
         }
 
         // =========================
-        // Manager - Employee Daily Report
+        //  Employee Daily Report
         // =========================
         public async Task<IEnumerable<EmployeeDailyReportDTO>> GetEmployeeProjectReportAsync(int projectId, int employeeId)
         {

@@ -1,6 +1,6 @@
-﻿namespace backend.Features.TimeTrack.WorkLogs.Dto_s
+namespace backend.Features.TimeTrack.WorkLogs.Dto_s
 {
-    public class WorkLogItemDTO
+    public class WorkLogResponseItemDTO
     {
         public int Id { get; set; }
         public int ProjectId { get; set; }
@@ -10,3 +10,4 @@
         public string? Notes { get; set; }
     }
 }
+// One row inside day details UI

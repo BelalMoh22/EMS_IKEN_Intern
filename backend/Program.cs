@@ -1,3 +1,5 @@
+using backend.Infrastructure.BusinessRules.WorkLogs;
+
 namespace backend
 {
     public class Program
@@ -43,6 +45,7 @@ namespace backend
             builder.Services.AddScoped<IRepository<Employee>, EmployeeRepository>();
             builder.Services.AddScoped<IRepository<Department>, DepartmentRepository>();
             builder.Services.AddScoped<IRepository<Position>, PositionRepository>();
+            builder.Services.AddScoped<IWorkLogRepository, WorkLogRepository>();
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<AttendanceRepository>();
             builder.Services.AddScoped<EmployeeRepository>();
@@ -53,8 +56,9 @@ namespace backend
             builder.Services.AddScoped<IProjectBusinessRules, ProjectBusinessRules>();
             builder.Services.AddScoped<IPositionBusinessRules, PositionBusinessRules>();
             builder.Services.AddScoped<IDepartmentBusinessRules, DepartmentBusinessRules>();
-            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<IWorkLogBusinessRules, WorkLogBusinessRules>();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+            builder.Services.AddHttpContextAccessor();
 
             // Use Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
