@@ -35,7 +35,7 @@ namespace backend.Infrastructure.Repositories
         public async Task<IEnumerable<WorkLog>> GetDailyWorkLogForEmployee(int employeeId, DateTime date)
         {
             var sql = @"
-                SELECT Id, ProjectId, EmployeeId, Hours, WorkDate, Notes
+                SELECT Id, ProjectId, EmployeeId, Hours, WorkDate, Notes, Status
                 FROM WorkLogs
                 WHERE EmployeeId = @EmployeeId
                 AND WorkDate >= @StartDate
@@ -79,8 +79,8 @@ namespace backend.Infrastructure.Repositories
 
             var insertSql = @"
                 INSERT INTO WorkLogs
-                (ProjectId, EmployeeId, Hours, WorkDate, Notes)
-                VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes)";
+                (ProjectId, EmployeeId, Hours, WorkDate, Notes, Status)
+                VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes, @Status)";
 
             using var conn = _db.CreateConnection();
             conn.Open();
@@ -119,8 +119,8 @@ namespace backend.Infrastructure.Repositories
         {
             var sql = @"
                 INSERT INTO WorkLogs
-                (ProjectId, EmployeeId, Hours, WorkDate, Notes)
-                VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes);
+                (ProjectId, EmployeeId, Hours, WorkDate, Notes, Status)
+                VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes, @Status);
 
                 SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
@@ -136,7 +136,9 @@ namespace backend.Infrastructure.Repositories
             var sql = @"
                 UPDATE WorkLogs
                 SET Hours = @Hours,
-                    Notes = @Notes
+                    Notes = @Notes,
+                    Status = @Status,
+                    UpdatedAt = GETDATE()
                 WHERE Id = @Id
                 AND IsDeleted = 0";
 

@@ -37,6 +37,8 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
 
                 totalHours += log.Hours;
 
+                ValidateStatus(log.Status, errors);
+
                 await ValidateProjectAsync(log.ProjectId, errors);
             }
 
@@ -55,6 +57,8 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
 
             if (dto.Hours <= 0 || dto.Hours > 24)
                 AddError(errors, "hours", "Hours must be between 0 and 24.");
+
+            ValidateStatus(dto.Status, errors);
 
             await ValidateProjectAsync(dto.ProjectId, errors);
 
@@ -79,6 +83,9 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
 
             if (newHours <= 0 || newHours > 24)
                 AddError(errors, "hours", "Hours must be between 0 and 24.");
+
+            if (dto.Status.HasValue)
+                ValidateStatus(dto.Status.Value, errors);
 
             await ValidateDailyHoursLimitAsync(employeeId, existing.WorkDate, newHours, errors, existing.Id);
 
@@ -116,7 +123,7 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
         // =========================
         // OWNERSHIP
         // =========================
-        private void ValidateOwnership(int employeeId, WorkLog existing, Dictionary<string, List<string>> errors)
+        public void ValidateOwnership(int employeeId, WorkLog existing, Dictionary<string, List<string>> errors)
         {
             if (existing.EmployeeId != employeeId)
                 AddError(errors, "ownership", "You are not allowed to modify this work log.");
@@ -125,7 +132,7 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
         // =========================
         // PROJECT VALIDATION
         // =========================
-        private async Task ValidateProjectAsync(int projectId, Dictionary<string, List<string>> errors)
+        public async Task ValidateProjectAsync(int projectId, Dictionary<string, List<string>> errors)
         {
             var project = await _projectRepo.GetByIdAsync(projectId);
 
@@ -142,7 +149,7 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
         // =========================
         // DAILY HOURS LIMIT
         // =========================
-        private async Task ValidateDailyHoursLimitAsync(int employeeId, DateTime date, decimal newHours, Dictionary<string, List<string>> errors, int? excludeLogId = null)
+        public async Task ValidateDailyHoursLimitAsync(int employeeId, DateTime date, decimal newHours, Dictionary<string, List<string>> errors, int? excludeLogId = null)
         {
             var logs = await _repo.GetDailyWorkLogForEmployee(employeeId, date);
 
@@ -152,6 +159,12 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
 
             if (total + newHours > 24)
                 AddError(errors, "totalHours", $"Total daily hours cannot exceed 24. (Currently: {total}, Attempted: {newHours})");
+        }
+
+        public void ValidateStatus(WorkStatus status, Dictionary<string, List<string>> errors)
+        {
+            if (!Enum.IsDefined(typeof(WorkStatus), status))
+                AddError(errors, "status", "Invalid work status value.");
         }
     }
 }
