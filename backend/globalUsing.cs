@@ -70,3 +70,4 @@ global using backend.Features.TimeTrack.Projects.ReopenProject;
 global using backend.Features.TimeTrack.Projects;
 global using backend.Infrastructure.Services.CurrentUserService;
 global using System.Text.Json.Serialization;
+global using backend.Features.TimeTrack.WorkLogs.Dto_s;
