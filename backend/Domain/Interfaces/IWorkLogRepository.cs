@@ -11,7 +11,6 @@
 
         Task ReplaceDayAsync(int employeeId, DateTime date, IEnumerable<WorkLog> logs);
 
-
         // =========================
         // Incremental Mode
         // =========================

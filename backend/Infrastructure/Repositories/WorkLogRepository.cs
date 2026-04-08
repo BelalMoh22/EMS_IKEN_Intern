@@ -164,7 +164,6 @@ namespace backend.Infrastructure.Repositories
 //===================================================================
 
         // Manager
-
         //=======================
         // Projects Summary
         //=======================
