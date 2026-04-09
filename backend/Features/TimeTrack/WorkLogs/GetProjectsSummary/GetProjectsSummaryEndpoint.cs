@@ -1,4 +1,4 @@
-﻿namespace backend.Features.TimeTrack.WorkLogs.GetProjectsSummary
+namespace backend.Features.TimeTrack.WorkLogs.GetProjectsSummary
 {
     public static class GetProjectsSummaryEndpoint
     {
@@ -15,7 +15,7 @@
                         .SuccessResponse(result, "Projects summary retrieved successfully")
                 );
             })
-            .WithName("GetProjectsSummary").WithTags("WorkLogs");
+            .WithName("GetProjectsSummary").WithTags("WorkLogs").RequireAuthorization("ManagerTimeTrack");
         }
     }
 }

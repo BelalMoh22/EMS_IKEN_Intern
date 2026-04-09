@@ -4,7 +4,7 @@ namespace backend.Features.TimeTrack.WorkLogs.GetDailyLogs
     {
         public static RouteHandlerBuilder MapEndpoint(this RouteGroupBuilder app)
         {
-            return app.MapGet("/daily", async ([FromServices] IMediator mediator) =>
+            return app.MapGet("/", async ([FromServices] IMediator mediator) =>
             {
                 var query = new GetDailyLogsQuery();
                 var result = await mediator.Send(query);

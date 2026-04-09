@@ -83,11 +83,6 @@ namespace backend.Infrastructure.BusinessRules.Projects
             if (project.IsDeleted)
                 AddError(errors, "project", "Project already deleted.");
 
-            var totalHours = await _projectRepository.GetTotalHoursAsync(project.Id);
-
-            if (totalHours > 0)
-                AddError(errors, "project", "Cannot delete project with work logs.");
-
             ThrowIfAny(errors);
         }
 

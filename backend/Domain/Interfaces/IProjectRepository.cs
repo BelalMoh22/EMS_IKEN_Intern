@@ -11,12 +11,7 @@ namespace backend.Domain.Interfaces
         Task<int> UpdateAsync(Project project);
 
         Task SoftDeleteAsync(int id);
-
         // Analytics
         Task<decimal> GetTotalHoursAsync(int projectId);
-
-        //Task<IEnumerable<EmployeeContributionDto>> GetEmployeesContributionAsync(int projectId);
-
-        //Task<IEnumerable<DailyLogDto>> GetDailyLogsAsync(int projectId);
     }
 }

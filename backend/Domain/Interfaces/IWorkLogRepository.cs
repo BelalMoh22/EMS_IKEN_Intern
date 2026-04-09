@@ -1,4 +1,4 @@
-﻿namespace backend.Domain.Interfaces
+namespace backend.Domain.Interfaces
 {
     public interface IWorkLogRepository
     {
@@ -21,6 +21,8 @@
         Task<WorkLog?> GetByIdAsync(int id);
 
         Task<int> SoftDeleteLogAsync(int logId);
+
+        Task<int> DeleteProjectLogsAsync(int employeeId, int projectId);
 
         // =========================
         // Manager

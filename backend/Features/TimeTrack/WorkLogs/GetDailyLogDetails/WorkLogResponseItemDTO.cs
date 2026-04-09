@@ -1,4 +1,4 @@
-namespace backend.Features.TimeTrack.WorkLogs.Dto_s
+namespace backend.Features.TimeTrack.WorkLogs.GetDailyLogDetails
 {
     public class WorkLogResponseItemDTO
     {

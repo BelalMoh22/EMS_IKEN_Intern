@@ -147,9 +147,6 @@ namespace backend.Infrastructure.Repositories
             return rows;
         }
 
-        // =========================
-        // Delete Single Log
-        // =========================
         public async Task<int> SoftDeleteLogAsync(int logId)
         {
             var sql = @"
@@ -159,6 +156,24 @@ namespace backend.Infrastructure.Repositories
 
             using var conn = _db.CreateConnection();
             var rows = await conn.ExecuteAsync(sql, new { Id = logId });
+            return rows;
+        }
+
+        public async Task<int> DeleteProjectLogsAsync(int employeeId, int projectId)
+        {
+            var sql = @"
+                UPDATE WorkLogs
+                SET IsDeleted = 1
+                WHERE EmployeeId = @EmployeeId
+                AND ProjectId = @ProjectId
+                AND IsDeleted = 0";
+
+            using var conn = _db.CreateConnection();
+            var rows = await conn.ExecuteAsync(sql, new
+            {
+                EmployeeId = employeeId,
+                ProjectId = projectId
+            });
             return rows;
         }
 //===================================================================
@@ -191,13 +206,13 @@ namespace backend.Infrastructure.Repositories
             var sql = @"
                 SELECT 
                     e.Id AS EmployeeId,
-                    e.FullName AS EmployeeName,
+                    (e.FirstName + ' ' + e.Lastname) AS EmployeeName,
                     SUM(w.Hours) AS TotalHours
                 FROM WorkLogs w
                 JOIN Employees e ON e.Id = w.EmployeeId
                 WHERE w.ProjectId = @ProjectId
                 AND w.IsDeleted = 0
-                GROUP BY e.Id, e.FullName";
+                GROUP BY e.Id, e.FirstName, e.Lastname";
 
             using var conn = _db.CreateConnection();
             return await conn.QueryAsync<EmployeeContributionDTO>(sql, new { ProjectId = projectId });

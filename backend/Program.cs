@@ -1,5 +1,3 @@
-using backend.Infrastructure.BusinessRules.WorkLogs;
-
 namespace backend
 {
     public class Program
@@ -150,6 +148,7 @@ namespace backend
             app.MapGroup("/api/positions").MapPositionEndpoints();
             app.MapGroup("/api/attendance").MapAttendanceEndpoints();
             app.MapGroup("/api/projects").MapProjectsEndpoints();
+            app.MapGroup("/api/worklogs").MapWorkLogsEndpoints();
             app.Run();
         }
     }

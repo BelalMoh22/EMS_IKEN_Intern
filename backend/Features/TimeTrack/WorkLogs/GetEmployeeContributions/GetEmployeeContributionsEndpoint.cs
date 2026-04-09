@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 
 namespace backend.Features.TimeTrack.WorkLogs.GetEmployeeContributions
 {
@@ -15,7 +15,7 @@ namespace backend.Features.TimeTrack.WorkLogs.GetEmployeeContributions
                 return Results.Ok(
                     ApiResponse<IEnumerable<EmployeeContributionDTO>>
                     .SuccessResponse(result, "Employee contributions retrieved successfully"));
-            }).WithName("GetEmployeeContributions").WithTags("Manager");
+            }).WithName("GetEmployeeContributions").WithTags("Manager").RequireAuthorization("ManagerTimeTrack");
         }
     }
 }

@@ -4,7 +4,7 @@ namespace backend.Features.TimeTrack.WorkLogs.SaveDailyWorkLogs
     {
         public static RouteHandlerBuilder MapEndpoint(this RouteGroupBuilder app)
         {
-            return app.MapPost("/daily", async ([FromServices] IMediator mediator, [FromBody] CreateUpdateDailyWorkLogsDTO dto) =>
+            return app.MapPost("/", async ([FromServices] IMediator mediator, [FromBody] CreateUpdateDailyWorkLogsDTO dto) =>
             {
                 var command = new SaveDailyWorkLogsCommand(dto);
                 await mediator.Send(command);
