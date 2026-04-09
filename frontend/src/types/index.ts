@@ -4,6 +4,7 @@ export * from "./department";
 export * from "./position";
 export * from "./attendance";
 export * from "./project";
+export * from "./worklog";
 
 // ─── Shared API wrapper ──────────────────────────────────
 export interface ApiResponse<T> {
