@@ -9,7 +9,7 @@ namespace backend.Domain.Interfaces
 
         Task<IEnumerable<WorkLog>> GetDailyWorkLogForEmployee(int employeeId, DateTime date);
 
-        Task ReplaceDayAsync(int employeeId, DateTime date, IEnumerable<WorkLog> logs);
+        Task SaveDailyWorkLogsAsync(int employeeId, DateTime date, IEnumerable<WorkLog> logs);
 
         // =========================
         // Incremental Mode
@@ -24,7 +24,7 @@ namespace backend.Domain.Interfaces
 
         Task<int> DeleteProjectLogsAsync(int employeeId, int projectId);
         Task<bool> ExistsEmployeeProjectLogsAsync(int employeeId, int projectId);
-
+        Task<bool> ExistsLogsForDayAsync(int employeeId, DateTime date);
 
         // =========================
         // Manager

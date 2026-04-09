@@ -108,6 +108,17 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
         }
 
         // =========================
+        // SAVE
+        // =========================
+        public async Task EnsureNoLogsExistForDayAsync(int employeeId, DateTime date)
+        {
+            var exists = await _repo.ExistsLogsForDayAsync(employeeId, date);
+
+            if (exists)
+                throw new Exception("You have already submitted work logs for this day.");
+        }
+
+        // =========================
         // EXISTS
         // =========================
         public async Task<WorkLog> CheckWorkLogExistsAsync(int workLogId)

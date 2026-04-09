@@ -68,15 +68,8 @@ namespace backend.Infrastructure.Repositories
         // =========================
         // Replace Full Day (Bulk Mode)
         // =========================
-        public async Task ReplaceDayAsync(int employeeId, DateTime date, IEnumerable<WorkLog> logs)
+        public async Task SaveDailyWorkLogsAsync(int employeeId, DateTime date, IEnumerable<WorkLog> logs)
         {
-            var deleteSql = @"
-                UPDATE WorkLogs
-                SET IsDeleted = 1
-                WHERE EmployeeId = @EmployeeId
-                AND WorkDate >= @StartDate
-                AND WorkDate < @EndDate";
-
             var insertSql = @"
                 INSERT INTO WorkLogs
                 (ProjectId, EmployeeId, Hours, WorkDate, Notes, Status)
@@ -170,6 +163,29 @@ namespace backend.Infrastructure.Repositories
 
             return result.HasValue;
         }
+
+        public async Task<bool> ExistsLogsForDayAsync(int employeeId, DateTime date)
+        {
+            var sql = @"
+                SELECT 1
+                FROM WorkLogs
+                WHERE EmployeeId = @EmployeeId
+                AND WorkDate >= @StartDate
+                AND WorkDate < @EndDate
+                AND IsDeleted = 0";
+
+            using var conn = _db.CreateConnection();
+
+            var result = await conn.QueryFirstOrDefaultAsync<int?>(sql, new
+            {
+                EmployeeId = employeeId,
+                StartDate = date.Date,
+                EndDate = date.Date.AddDays(1)
+            });
+
+            return result.HasValue;
+        }
+
 
         //===================================================================
 
