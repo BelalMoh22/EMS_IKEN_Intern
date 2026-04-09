@@ -9,7 +9,13 @@ namespace backend.Features.TimeTrack.Projects.GetFilteredProjects
                 var query = new GetProjectsQuery(departmentId, month, year, status);
                 var projects = await mediator.Send(query);
                 return Results.Ok(ApiResponse<IEnumerable<ProjectListDto>>.SuccessResponse(projects));
-            }).WithName("GetFilteredProjects").WithTags("Projects");
+            })
+            .WithName("GetFilteredProjects")
+            .WithTags("Projects")
+            .DocumentApiResponse<IEnumerable<ProjectListDto>>(
+                "List projects (filtered)",
+                "Returns projects with optional filters (departmentId, month, year, status)."
+            );
 
             return group;
         }

@@ -15,7 +15,14 @@ namespace backend.Features.TimeTrack.WorkLogs.GetEmployeeContributions
                 return Results.Ok(
                     ApiResponse<IEnumerable<EmployeeContributionDTO>>
                     .SuccessResponse(result, "Employee contributions retrieved successfully"));
-            }).WithName("GetEmployeeContributions").WithTags("Manager").RequireAuthorization("ManagerTimeTrack");
+            })
+            .WithName("GetEmployeeContributions")
+            .WithTags("WorkLogs")
+            .RequireAuthorization("ManagerTimeTrack")
+            .DocumentApiResponse<IEnumerable<EmployeeContributionDTO>>(
+                "Get employee contributions (manager)",
+                "Returns per-employee contribution details for a project (manager-only)."
+            );
         }
     }
 }

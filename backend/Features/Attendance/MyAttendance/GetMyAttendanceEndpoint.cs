@@ -16,7 +16,13 @@ namespace backend.Features.Attendance.MyAttendance
                 var result = await mediator.Send(command);
 
                 return Results.Ok(ApiResponse<MyAttendanceResultDto>.SuccessResponse(result, "Attendance records fetched successfully."));
-            }).WithName("GetMyAttendance").WithTags("Attendance");
+            })
+            .WithName("GetMyAttendance")
+            .WithTags("Attendance")
+            .DocumentApiResponse<MyAttendanceResultDto>(
+                "Get my attendance",
+                "Returns the current user's attendance records with optional year/month/day filtering."
+            );
         }
     }
 }

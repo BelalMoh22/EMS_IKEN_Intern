@@ -10,7 +10,13 @@ namespace backend.Features.Positions.GetPositions
                 var command = new GetPositionsQuery();
                 var result = await mediator.Send(command);
                 return Results.Ok(ApiResponse<IEnumerable<Position>>.SuccessResponse(result, "Positions retrieved successfully"));
-            }).WithName("GetPositions").WithTags("Positions");
+            })
+            .WithName("GetPositions")
+            .WithTags("Positions")
+            .DocumentApiResponse<IEnumerable<Position>>(
+                "List positions",
+                "Returns all non-deleted positions."
+            );
         }
     }
 }

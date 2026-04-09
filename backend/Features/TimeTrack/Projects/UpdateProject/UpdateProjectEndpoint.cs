@@ -14,7 +14,14 @@
 
                 return Results.Ok(response);
 
-            }).WithDescription("Updating an existing Project").WithTags("Projects");
+            })
+            .WithName("UpdateProject")
+            .WithTags("Projects")
+            .DocumentJsonRequest<UpdateProjectDTO>(new { name = "HR Revamp (Phase 2)", description = "Scope update", status = "Active" })
+            .DocumentApiResponse<int>(
+                "Update project",
+                "Updates an existing project. Only provided fields are updated."
+            );
         }
     }
 }

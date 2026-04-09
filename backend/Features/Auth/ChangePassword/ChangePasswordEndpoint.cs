@@ -28,7 +28,15 @@ namespace backend.Features.Auth.ChangePassword
                         { "password", new List<string> { "Failed to change password." } }
                     }));
 
-            }).RequireAuthorization().WithName("ChangePassword").WithTags("Auth");
+            })
+            .RequireAuthorization()
+            .WithName("ChangePassword")
+            .WithTags("Auth")
+            .DocumentJsonRequest<ChangePasswordRequestDto>(new { currentPassword = "OldPass12$", newPassword = "NewPass12$" })
+            .DocumentApiResponse<object>(
+                "Change password",
+                "Changes the current user's password. Requires a valid JWT; userId is taken from the token claims."
+            );
         }
     }
 }

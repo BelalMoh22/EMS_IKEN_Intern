@@ -11,7 +11,20 @@ namespace backend.Features.Employees.UpdateEmployee
 
                 var response = ApiResponse<int>.SuccessResponse(result.RowsAffected, result.Message);
                 return Results.Ok(response);
-            }).WithDescription("Updating an existing Employee").WithTags("Employees");
+            })
+            .WithName("UpdateEmployee")
+            .WithTags("Employees")
+            .DocumentJsonRequest<UpdateEmployeeDTO>(new
+            {
+                firstName = "Updated",
+                salary = 9500,
+                status = "Active",
+                positionId = 2
+            })
+            .DocumentApiResponse<int>(
+                "Update employee",
+                "Updates an existing employee. Only provided fields are updated."
+            );
         }
     }
 }

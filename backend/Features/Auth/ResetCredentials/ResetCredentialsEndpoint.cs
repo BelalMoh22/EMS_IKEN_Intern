@@ -16,7 +16,13 @@ namespace backend.Features.Auth.ResetCredentials
                     }));
             })
             .RequireAuthorization("FullCRUD")
-            .WithTags("Auth");
+            .WithName("ResetCredentials")
+            .WithTags("Auth")
+            .DocumentJsonRequest<ResetCredentialsDto>(new { username = "some.user", newPassword = "TempPass12$" })
+            .DocumentApiResponse<object>(
+                "Reset credentials (HR)",
+                "Resets a user's credentials (e.g., temporary password). Requires HR authorization (FullCRUD policy)."
+            );
         }
     }
 }

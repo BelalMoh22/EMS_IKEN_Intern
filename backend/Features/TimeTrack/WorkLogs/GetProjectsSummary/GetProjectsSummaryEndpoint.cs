@@ -15,7 +15,13 @@ namespace backend.Features.TimeTrack.WorkLogs.GetProjectsSummary
                         .SuccessResponse(result, "Projects summary retrieved successfully")
                 );
             })
-            .WithName("GetProjectsSummary").WithTags("WorkLogs").RequireAuthorization("ManagerTimeTrack");
+            .WithName("GetProjectsSummary")
+            .WithTags("WorkLogs")
+            .RequireAuthorization("ManagerTimeTrack")
+            .DocumentApiResponse<IEnumerable<ProjectSummaryDTO>>(
+                "Get projects summary (manager)",
+                "Returns summary KPIs for projects (manager-only)."
+            );
         }
     }
 }

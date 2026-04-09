@@ -12,7 +12,15 @@ namespace backend.Features.TimeTrack.WorkLogs.CreateProjectWorkLog
                 return Results.Ok(
                     ApiResponse<int>.SuccessResponse(result, "Work log created successfully")
                 );
-            }).WithName("CreateProjectWorkLog").WithTags("WorkLogs").RequireAuthorization();
+            })
+            .WithName("CreateProjectWorkLog")
+            .WithTags("WorkLogs")
+            .RequireAuthorization()
+            .DocumentJsonRequest<CreateWorkLogDTO>(new { projectId = 1, workDate = "2026-03-24", hours = 3.5, status = "InProgress", notes = "Implemented employee list" })
+            .DocumentApiResponse<int>(
+                "Create work log entry",
+                "Creates a single work log entry for a project."
+            );
         }
     }
 }

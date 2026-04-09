@@ -11,8 +11,12 @@ namespace backend.Features.TimeTrack.Projects.GetProjectById
                 
                 return Results.Ok(ApiResponse<ProjectListDto>.SuccessResponse(project));
             })
-            .WithDescription("Getting a project by Id")
-            .WithTags("Projects");
+            .WithName("GetProjectById")
+            .WithTags("Projects")
+            .DocumentApiResponse<ProjectListDto>(
+                "Get project by id",
+                "Returns a single project by its id."
+            );
         }
     }
 }

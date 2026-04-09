@@ -10,7 +10,14 @@ namespace backend.Features.TimeTrack.WorkLogs.DeleteProjectLogs
                 var result = await mediator.Send(command);
 
                 return Results.Ok(ApiResponse<bool>.SuccessResponse(result, "Project removed from daily work log successfully"));
-            }).WithName("DeleteProjectLogs").WithTags("WorkLogs").RequireAuthorization();
+            })
+            .WithName("DeleteProjectLogs")
+            .WithTags("WorkLogs")
+            .RequireAuthorization()
+            .DocumentApiResponse<bool>(
+                "Remove project from daily logs",
+                "Deletes all daily work log entries for a given project in the daily context."
+            );
         }
     }
 }

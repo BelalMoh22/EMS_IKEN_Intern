@@ -17,7 +17,13 @@ namespace backend.Features.Employees.GetEmployees
                 var command = new GetEmployeesQuery(userId, roleClaim ?? "");
                 var result = await mediator.Send(command);
                 return Results.Ok(ApiResponse<IEnumerable<Employee>>.SuccessResponse(result, "Employees retrieved successfully"));
-            }).WithName("GetEmployees").WithTags("Employees");
+            })
+            .WithName("GetEmployees")
+            .WithTags("Employees")
+            .DocumentApiResponse<IEnumerable<Employee>>(
+                "List employees",
+                "Returns employees visible to the current user based on role/permissions."
+            );
         }
     }
 }

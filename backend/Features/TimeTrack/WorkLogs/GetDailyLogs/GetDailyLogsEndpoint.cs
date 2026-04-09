@@ -10,7 +10,14 @@ namespace backend.Features.TimeTrack.WorkLogs.GetDailyLogs
                 var result = await mediator.Send(query);
 
                 return Results.Ok(ApiResponse<IEnumerable<DailyWorkLogDTO>>.SuccessResponse(result, "Daily work logs retrieved successfully"));
-            }).WithName("GetDailyWorkLogs").WithTags("WorkLogs").RequireAuthorization();
+            })
+            .WithName("GetDailyWorkLogs")
+            .WithTags("WorkLogs")
+            .RequireAuthorization()
+            .DocumentApiResponse<IEnumerable<DailyWorkLogDTO>>(
+                "Get daily work logs",
+                "Returns daily work log entries for the current user/context."
+            );
         }
     }
 }

@@ -14,7 +14,17 @@
                 {
                     Message = "Project closed successfully"
                 });
-            }).WithName("CloseProject").WithTags("Projects");
+            })
+            .WithName("CloseProject")
+            .WithTags("Projects")
+            .WithSummary("Close project")
+            .WithDescription("Closes a project to prevent further work logging.")
+            .Produces(StatusCodes.Status200OK)
+            .Produces<ApiResponse<string>>(StatusCodes.Status400BadRequest, contentType: "application/json")
+            .Produces<ApiResponse<string>>(StatusCodes.Status404NotFound, contentType: "application/json")
+            .Produces<ApiResponse<string>>(StatusCodes.Status500InternalServerError, contentType: "application/json")
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden);
 
             return group;
         }

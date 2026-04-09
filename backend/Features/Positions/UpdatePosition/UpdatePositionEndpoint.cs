@@ -11,7 +11,14 @@ namespace backend.Features.Positions.UpdatePosition
 
                 var response = ApiResponse<int>.SuccessResponse(rows, "Position updated successfully");
                 return Results.Ok(response);
-            }).WithDescription("Updating an existing Position").WithTags("Positions");
+            })
+            .WithName("UpdatePosition")
+            .WithTags("Positions")
+            .DocumentJsonRequest<UpdatePositionDto>(new { positionName = "Senior HR Specialist", minSalary = 6500, maxSalary = 11000, departmentId = 1, targetEmployeeCount = 5 })
+            .DocumentApiResponse<int>(
+                "Update position",
+                "Updates an existing position. Only provided fields are updated."
+            );
         }
     }
 }

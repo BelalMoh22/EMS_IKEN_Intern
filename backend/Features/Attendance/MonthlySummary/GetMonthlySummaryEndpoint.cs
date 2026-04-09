@@ -10,7 +10,13 @@ namespace backend.Features.Attendance.MonthlySummary
                 var results = await mediator.Send(command);
 
                 return Results.Ok(ApiResponse<List<EmployeeMonthlyAttendanceDto>>.SuccessResponse(results));
-            }).WithName("GetMonthlyAttendanceSummary").WithTags("Attendance");
+            })
+            .WithName("GetMonthlyAttendanceSummary")
+            .WithTags("Attendance")
+            .DocumentApiResponse<List<EmployeeMonthlyAttendanceDto>>(
+                "Get monthly attendance summary",
+                "Returns a monthly attendance summary across employees."
+            );
         }
     }
 }

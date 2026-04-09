@@ -14,7 +14,13 @@
 
                 return Results.Ok(response);
 
-            }).WithName("DeleteProject").WithTags("Projects");
+            })
+            .WithName("DeleteProject")
+            .WithTags("Projects")
+            .DocumentApiResponse<int>(
+                "Delete project (soft)",
+                "Soft-deletes a project."
+            );
         }
     }
 }

@@ -9,7 +9,13 @@ namespace backend.Features.Departments.GetDepartments
                 var command = new GetDepartmentsQuery();
                 var result = await mediator.Send(command);
                 return Results.Ok(ApiResponse<IEnumerable<Department>>.SuccessResponse(result, "Departments retrieved successfully"));
-            }).WithName("GetDepartments").WithTags("Departments");
+            })
+            .WithName("GetDepartments")
+            .WithTags("Departments")
+            .DocumentApiResponse<IEnumerable<Department>>(
+                "List departments",
+                "Returns all non-deleted departments."
+            );
         }
     }
 }

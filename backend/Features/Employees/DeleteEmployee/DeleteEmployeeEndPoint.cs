@@ -11,7 +11,13 @@ namespace backend.Features.Employees.DeleteEmployee
 
                 var response = ApiResponse<int>.SuccessResponse(result.RowsAffected, result.Message);
                 return Results.Ok(response);
-            }).WithName("DeleteEmployee").WithTags("Employees");
+            })
+            .WithName("DeleteEmployee")
+            .WithTags("Employees")
+            .DocumentApiResponse<int>(
+                "Delete employee (soft)",
+                "Soft-deletes an employee."
+            );
         }
     }
 }

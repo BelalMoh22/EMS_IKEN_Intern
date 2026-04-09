@@ -18,7 +18,13 @@
 
                 return Results.Ok(response);
 
-            }).WithName("ReopenProject").WithTags("Projects");
+            })
+            .WithName("ReopenProject")
+            .WithTags("Projects")
+            .DocumentApiResponse<int>(
+                "Reopen project",
+                "Reopens a previously closed project."
+            );
         }
     }
 }

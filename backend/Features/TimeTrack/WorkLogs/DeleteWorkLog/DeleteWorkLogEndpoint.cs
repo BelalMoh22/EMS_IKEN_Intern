@@ -13,7 +13,14 @@ namespace backend.Features.TimeTrack.WorkLogs.DeleteWorkLog
                 return Results.Ok(
                    ApiResponse<bool>.SuccessResponse(result, "Work log deleted successfully")
                 );
-            }).WithName("DeleteWorkLog").WithTags("WorkLogs").RequireAuthorization();
+            })
+            .WithName("DeleteWorkLog")
+            .WithTags("WorkLogs")
+            .RequireAuthorization()
+            .DocumentApiResponse<bool>(
+                "Delete work log",
+                "Deletes a single work log entry by id."
+            );
         }
     }
 }
