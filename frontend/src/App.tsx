@@ -26,7 +26,7 @@ import EmployeeAttendanceDetails from "@/pages/attendance/EmployeeAttendanceDeta
 import ProjectsDashboard from "@/pages/projects/ProjectsDashboard";
 import ProjectDetails from "@/pages/projects/ProjectDetails";
 import EmployeeWorkLogsPage from "@/pages/worklogs/EmployeeWorkLogsPage";
-import ManagerProjectsSummaryPage from "@/pages/worklogs/ManagerProjectsSummaryPage";
+
 import ProjectEmployeesPage from "@/pages/worklogs/ProjectEmployeesPage";
 import EmployeeProjectReportPage from "@/pages/worklogs/EmployeeProjectReportPage";
 
@@ -234,15 +234,7 @@ const App = () => (
             }
           />
 
-          {/* Work Logs – Manager reports */}
-          <Route
-            path="/worklogs/projects-summary"
-            element={
-              <RoleBasedRoute allowedRoles={["Manager"]}>
-                <ManagerProjectsSummaryPage />
-              </RoleBasedRoute>
-            }
-          />
+        {/* Work Logs – Manager reports */}
           <Route
             path="/worklogs/projects/:projectId/employees"
             element={

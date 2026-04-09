@@ -88,12 +88,7 @@ const navItems: NavItem[] = [
     icon: <TimerIcon />,
     roles: ["Employee", "HR", "Manager"],
   },
-  {
-    title: "Projects Summary",
-    url: "/worklogs/projects-summary",
-    icon: <SummarizeIcon />,
-    roles: ["Manager"],
-  },
+
   {
     title: "Change Password",
     url: "/change-password",

@@ -159,6 +159,7 @@ export default function EmployeeWorkLogsPage() {
         columns={columns}
         data={pagedData}
         loading={isLoading}
+        onRowClick={(row) => setViewDate(format(new Date(row.date), "yyyy-MM-dd"))}
         page={page}
         totalCount={sortedData.length}
         rowsPerPage={rowsPerPage}

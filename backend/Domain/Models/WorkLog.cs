@@ -1,4 +1,4 @@
-﻿namespace backend.Domain.Models
+namespace backend.Domain.Models
 {
     public class WorkLog : BaseEntity
     {
@@ -19,6 +19,7 @@
 
         public int EmployeeId { get; set; }
         public int ProjectId { get; set; }
+        public string? ProjectName { get; set; }
 
         public DateTime WorkDate { get; set; }
 

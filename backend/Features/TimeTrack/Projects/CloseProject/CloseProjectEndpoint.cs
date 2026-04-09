@@ -1,10 +1,10 @@
-﻿namespace backend.Features.TimeTrack.Projects.CloseProject
+namespace backend.Features.TimeTrack.Projects.CloseProject
 {
     public static class CloseProjectEndpoint
     {
-        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder group)
+        public static RouteHandlerBuilder MapEndpoint(this RouteGroupBuilder group)
         {
-            group.MapPut("/{id}/close", async (int id, IMediator mediator) =>
+            return group.MapPut("/{id}/close", async (int id, IMediator mediator) =>
             {
                 var command = new CloseProjectCommand(id);
 
@@ -25,8 +25,6 @@
             .Produces<ApiResponse<string>>(StatusCodes.Status500InternalServerError, contentType: "application/json")
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status403Forbidden);
-
-            return group;
         }
     }
 }

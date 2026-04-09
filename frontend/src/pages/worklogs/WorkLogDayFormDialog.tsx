@@ -33,6 +33,7 @@ import {
   WORK_STATUS_FROM_NUMBER,
   WORK_STATUS_ENUM_MAP,
   type WorkLogCreateItemDTO,
+  type WorkStatus,
 } from "@/types/worklog";
 
 interface LogRow {
@@ -63,7 +64,7 @@ export default function WorkLogDayFormDialog({ date, onClose }: Props) {
   const { data: dayDetails, isLoading: loadingDetails } = useDayDetails(
     isNew ? "" : date!
   );
-  const { data: projects, isLoading: loadingProjects } = useProjects();
+  const { data: projects, isLoading: loadingProjects } = useProjects({ status: "Open" });
   const saveMutation = useSaveDailyLogs();
 
   const [rows, setRows] = useState<LogRow[]>([{ ...emptyRow }]);
@@ -76,7 +77,7 @@ export default function WorkLogDayFormDialog({ date, onClose }: Props) {
           id: log.id,
           projectId: log.projectId,
           hours: log.hours,
-          status: log.status,
+          status: typeof log.status === 'string' ? (WORK_STATUS_ENUM_MAP[log.status as WorkStatus] || 1) : log.status,
           notes: log.notes || "",
         }))
       );
@@ -117,8 +118,9 @@ export default function WorkLogDayFormDialog({ date, onClose }: Props) {
     );
   };
 
+  const openProjects = projects ?? [];
+
   const isLoading = loadingDetails || loadingProjects;
-  const openProjects = projects?.filter((p) => p.status === "Open") ?? [];
 
   return (
     <Dialog open onClose={onClose} maxWidth="md" fullWidth>

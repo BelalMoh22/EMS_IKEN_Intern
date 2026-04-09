@@ -6,26 +6,33 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import { ProjectCard } from "./ProjectCard";
 import { STATUS_META } from "./utils/projectUtils";
-import type { Project, ProjectStatus } from "@/types/project";
+import type { Project } from "@/types/project";
+
+export type DashboardColumnType = "Open" | "Logged" | "Closed";
 
 // ─── Constants ────────────────────────────────────────────
 const ITEMS_PER_COLUMN = 5;
 
-// ─── Column icons ─────────────────────────────────────────
-const COLUMN_ICON: Record<ProjectStatus, React.ReactNode> = {
-  Open: <PlayArrowIcon fontSize="small" />,
+const COLUMN_ICON: Record<DashboardColumnType, React.ReactNode> = {
+  Open: <FolderOpenIcon fontSize="small" />,
+  Logged: <PlayArrowIcon fontSize="small" />,
   Closed: <ArchiveIcon fontSize="small" />,
 };
 
 // ─── Props ───────────────────────────────────────────────
 interface Props {
-  status: ProjectStatus;
-  projects: Project[];
+  status: DashboardColumnType;
+  projects: (Project & { totalHours?: number })[];
 }
 
 export function KanbanColumn({ status, projects }: Props) {
   const theme = useTheme();
-  const meta = STATUS_META[status];
+  
+  const labelMap: Record<DashboardColumnType, string> = {
+    Open: "Open (No Logs)",
+    Logged: "Active (Logged)",
+    Closed: "Closed",
+  };
 
   const [page, setPage] = useState(1);
 
@@ -40,8 +47,9 @@ export function KanbanColumn({ status, projects }: Props) {
     return projects.slice(start, start + ITEMS_PER_COLUMN);
   }, [projects, page]);
 
-  const headerColors: Record<ProjectStatus, string> = {
+  const headerColors: Record<DashboardColumnType, string> = {
     Open: theme.palette.info?.main ?? theme.palette.primary.main,
+    Logged: theme.palette.success?.main ?? theme.palette.primary.main,
     Closed: theme.palette.text.secondary,
   };
 
@@ -76,7 +84,7 @@ export function KanbanColumn({ status, projects }: Props) {
           {COLUMN_ICON[status]}
         </Box>
         <Typography variant="body2" fontWeight={600}>
-          {meta.label}
+          {labelMap[status]}
         </Typography>
         <Chip
           label={projects.length}

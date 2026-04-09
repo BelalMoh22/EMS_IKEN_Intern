@@ -14,13 +14,14 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RestoreIcon from "@mui/icons-material/Restore";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import type { Project } from "@/types/project";
 import { STATUS_META, formatDate } from "./utils/projectUtils";
 import { useProjectActions } from "./context/ProjectActionsContext";
 
 // ─── Props ───────────────────────────────────────────────
 interface Props {
-  project: Project;
+  project: Project & { totalHours?: number };
 }
 
 export function ProjectCard({ project }: Props) {
@@ -66,13 +67,28 @@ export function ProjectCard({ project }: Props) {
           >
             {project.name}
           </Typography>
-          <Chip
-            label={meta.label}
-            color={meta.color}
-            size="small"
-            variant="outlined"
-            sx={{ fontSize: "0.7rem", height: 20, flexShrink: 0 }}
-          />
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {(project.totalHours ?? 0) > 0 && (
+              <Chip
+                label={`${project.totalHours}h`}
+                size="small"
+                sx={{
+                  fontSize: "0.7rem",
+                  height: 20,
+                  bgcolor: "rgba(34, 197, 94, 0.12)",
+                  color: "#16a34a",
+                  fontWeight: 600,
+                }}
+              />
+            )}
+            <Chip
+              label={meta.label}
+              color={meta.color}
+              size="small"
+              variant="outlined"
+              sx={{ fontSize: "0.7rem", height: 20, flexShrink: 0 }}
+            />
+          </Box>
         </Box>
 
         {/* Description */}
@@ -108,7 +124,22 @@ export function ProjectCard({ project }: Props) {
           >
             {formatDate(project.createdAt)}
           </Typography>
-          <Stack direction="row" spacing={0.25}>
+          <Stack direction="row" spacing={0.25} alignItems="center">
+            <Tooltip title="View Employees">
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCardClick(project);
+                }}
+                sx={{
+                  color: theme.palette.info.main,
+                  "&:hover": { bgcolor: "rgba(14,165,233,0.08)" },
+                }}
+              >
+                <VisibilityIcon sx={{ fontSize: 16 }} />
+              </IconButton>
+            </Tooltip>
             <Tooltip title="Edit">
               <IconButton
                 size="small"

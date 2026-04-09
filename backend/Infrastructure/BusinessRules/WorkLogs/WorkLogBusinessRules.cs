@@ -30,7 +30,11 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
             foreach (var log in dto.Logs)
             {
                 if (!projectIds.Add(log.ProjectId))
-                    AddError(errors, "logs", $"Duplicate project {log.ProjectId} is not allowed.");
+                {
+                    var project = await _projectRepo.GetByIdAsync(log.ProjectId);
+                    var projectName = project?.Name ?? log.ProjectId.ToString();
+                    AddError(errors, "logs", $"Duplicate project '{projectName}' is not allowed.");
+                }
 
                 if (log.Hours <= 0 || log.Hours > 24)
                     AddError(errors, "hours", "Hours must be between 0 and 24.");
@@ -116,6 +120,14 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
 
             if (exists)
                 throw new Exception("You have already submitted work logs for this day.");
+        }
+
+        public async Task EnsureProjectNotLoggedForDayAsync(int employeeId, int projectId, DateTime date)
+        {
+            var exists = await _repo.ExistsProjectLogForDayAsync(employeeId, projectId, date);
+
+            if (exists)
+                throw new Exception("You have already logged hours for this project on this date.");
         }
 
         // =========================

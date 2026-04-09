@@ -31,6 +31,8 @@ namespace backend.Features.TimeTrack.WorkLogs.CreateProjectWorkLog
 
             var dto = request.Dto;
 
+            await _rules.EnsureProjectNotLoggedForDayAsync(employee.Id, dto.ProjectId, dto.WorkDate);
+
             await _rules.ValidateForCreateAsync(employee.Id, new CreateWorkLogDTO
             {
                 ProjectId = dto.ProjectId,

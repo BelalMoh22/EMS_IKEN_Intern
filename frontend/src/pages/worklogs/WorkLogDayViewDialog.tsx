@@ -23,8 +23,9 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { WORK_STATUS_FROM_NUMBER } from "@/types/worklog";
+import { WORK_STATUS_FROM_NUMBER, type WorkLogResponseItemDTO } from "@/types/worklog";
 import { useState } from "react";
+import WorkLogSingleEditDialog from "./WorkLogSingleEditDialog";
 
 interface Props {
   date: string;
@@ -36,6 +37,7 @@ export default function WorkLogDayViewDialog({ date, onClose, onEdit }: Props) {
   const { data, isLoading } = useDayDetails(date);
   const deleteMutation = useDeleteWorkLog();
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [editLog, setEditLog] = useState<WorkLogResponseItemDTO | null>(null);
 
   const handleDelete = () => {
     if (deleteId !== null) {
@@ -131,9 +133,9 @@ export default function WorkLogDayViewDialog({ date, onClose, onEdit }: Props) {
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={WORK_STATUS_FROM_NUMBER[log.status] || "Unknown"}
+                          label={typeof log.status === 'string' ? log.status : (WORK_STATUS_FROM_NUMBER[log.status as number] || "Unknown")}
                           size="small"
-                          color={log.status === 2 ? "success" : "warning"}
+                          color={String(log.status) === '2' || String(log.status) === 'Done' ? "success" : "warning"}
                           variant="outlined"
                           sx={{ fontWeight: 500 }}
                         />
@@ -149,15 +151,26 @@ export default function WorkLogDayViewDialog({ date, onClose, onEdit }: Props) {
                         </Typography>
                       </TableCell>
                       <TableCell align="right">
-                        <Tooltip title="Delete">
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => setDeleteId(log.id)}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
+                        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 0.5 }}>
+                          <Tooltip title="Edit Row">
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={() => setEditLog(log)}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={() => setDeleteId(log.id)}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -183,6 +196,15 @@ export default function WorkLogDayViewDialog({ date, onClose, onEdit }: Props) {
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
       />
+
+      {/* Single Row Edit Dialog */}
+      {editLog && (
+        <WorkLogSingleEditDialog
+          log={editLog}
+          open={!!editLog}
+          onClose={() => setEditLog(null)}
+        />
+      )}
     </>
   );
 }

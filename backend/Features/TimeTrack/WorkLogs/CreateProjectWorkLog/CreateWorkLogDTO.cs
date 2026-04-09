@@ -9,7 +9,6 @@ namespace backend.Features.TimeTrack.WorkLogs.CreateProjectWorkLog
         public DateTime WorkDate { get; set; }
 
         [Required(ErrorMessage = "Hours are required")]
-        [Range(0.01, 24, ErrorMessage = "Hours must be between 0.01 and 24")]
         public decimal Hours { get; set; }
 
         [Required(ErrorMessage = "Status is required")]

@@ -35,12 +35,13 @@ namespace backend.Infrastructure.Repositories
         public async Task<IEnumerable<WorkLog>> GetDailyWorkLogForEmployee(int employeeId, DateTime date)
         {
             var sql = @"
-                SELECT Id, ProjectId, EmployeeId, Hours, WorkDate, Notes, Status
-                FROM WorkLogs
-                WHERE EmployeeId = @EmployeeId
-                AND WorkDate >= @StartDate
-                AND WorkDate < @EndDate
-                AND IsDeleted = 0";
+                SELECT w.*, p.Name AS ProjectName
+                FROM WorkLogs w
+                LEFT JOIN Projects p ON w.ProjectId = p.Id
+                WHERE w.EmployeeId = @EmployeeId
+                AND w.WorkDate >= @StartDate
+                AND w.WorkDate < @EndDate
+                AND w.IsDeleted = 0";
 
             using var conn = _db.CreateConnection();
             return await conn.QueryAsync<WorkLog>(sql, new
@@ -70,13 +71,33 @@ namespace backend.Infrastructure.Repositories
         // =========================
         public async Task SaveDailyWorkLogsAsync(int employeeId, DateTime date, IEnumerable<WorkLog> logs)
         {
+            var deleteSql = @"
+                DELETE FROM WorkLogs
+                WHERE EmployeeId = @EmployeeId
+                AND WorkDate = @WorkDate";
+
             var insertSql = @"
                 INSERT INTO WorkLogs
                 (ProjectId, EmployeeId, Hours, WorkDate, Notes, Status)
                 VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes, @Status)";
 
             using var conn = _db.CreateConnection();
-            await conn.ExecuteAsync(insertSql, logs);
+            conn.Open();
+            using var trans = conn.BeginTransaction();
+            try
+            {
+                await conn.ExecuteAsync(deleteSql, new { EmployeeId = employeeId, WorkDate = date.Date }, trans);
+                if (logs.Any())
+                {
+                    await conn.ExecuteAsync(insertSql, logs, trans);
+                }
+                trans.Commit();
+            }
+            catch
+            {
+                trans.Rollback();
+                throw;
+            }
         }
 
         // =========================
@@ -179,6 +200,30 @@ namespace backend.Infrastructure.Repositories
             var result = await conn.QueryFirstOrDefaultAsync<int?>(sql, new
             {
                 EmployeeId = employeeId,
+                StartDate = date.Date,
+                EndDate = date.Date.AddDays(1)
+            });
+
+            return result.HasValue;
+        }
+
+        public async Task<bool> ExistsProjectLogForDayAsync(int employeeId, int projectId, DateTime date)
+        {
+            var sql = @"
+                SELECT 1
+                FROM WorkLogs
+                WHERE EmployeeId = @EmployeeId
+                AND ProjectId = @ProjectId
+                AND WorkDate >= @StartDate
+                AND WorkDate < @EndDate
+                AND IsDeleted = 0";
+
+            using var conn = _db.CreateConnection();
+
+            var result = await conn.QueryFirstOrDefaultAsync<int?>(sql, new
+            {
+                EmployeeId = employeeId,
+                ProjectId = projectId,
                 StartDate = date.Date,
                 EndDate = date.Date.AddDays(1)
             });

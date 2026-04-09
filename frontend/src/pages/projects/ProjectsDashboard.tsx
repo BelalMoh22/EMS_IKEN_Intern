@@ -21,6 +21,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ArchiveIcon from "@mui/icons-material/Archive";
@@ -29,13 +30,14 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useProjects, useDeleteProject, useReopenProject, useCloseProject } from "@/hooks/useProjects";
 import type { Project, ProjectStatus } from "@/types/project";
 import { SummaryCard } from "./SummaryCard";
-import { KanbanColumn } from "./KanbanColumn";
+import { KanbanColumn, type DashboardColumnType } from "./KanbanColumn";
 import { ProjectFormDialog } from "./ProjectFormDialog";
 import { ProjectActionsProvider } from "./context/ProjectActionsContext";
 import { STATUS_META } from "./utils/projectUtils";
+import { useProjectsSummary } from "@/hooks/useWorkLogs";
 
 // ─── Constants ───────────────────────────────────────────
-const ALL_COLUMNS: ProjectStatus[] = ["Open", "Closed"];
+const DASHBOARD_COLUMNS: DashboardColumnType[] = ["Open", "Logged", "Closed"];
 type SortOption = "newest" | "oldest" | "name_asc" | "name_desc";
 
 // ─── Page ────────────────────────────────────────────────
@@ -45,7 +47,7 @@ export default function ProjectsDashboard() {
 
   // ── UI state ──
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ProjectStatus | "All">("All");
+  const [statusFilter, setStatusFilter] = useState<DashboardColumnType | "All">("All");
   const [monthFilter, setMonthFilter] = useState<number | "All">("All");
   const [yearFilter, setYearFilter] = useState<number | "All">("All");
   const [sort, setSort] = useState<SortOption>("newest");
@@ -54,8 +56,10 @@ export default function ProjectsDashboard() {
   const { data: projects = [], isLoading } = useProjects({
     month: monthFilter === "All" ? undefined : monthFilter,
     year: yearFilter === "All" ? undefined : yearFilter,
-    status: statusFilter,
+    status: statusFilter === "All" || statusFilter === "Logged" ? undefined : statusFilter,
   });
+
+  const { data: projectSummaries = [] } = useProjectsSummary();
 
   const deleteMutation = useDeleteProject();
   const reopenMutation = useReopenProject();
@@ -69,16 +73,31 @@ export default function ProjectsDashboard() {
   const [closeTarget, setCloseTarget] = useState<Project | null>(null);
 
   // ── Summary counts ──
-  const totalCount = projects.length;
-  const stats = useMemo(() => ({
-    Open: projects.filter((p) => p.status === "Open").length,
-    Closed: projects.filter((p) => p.status === "Closed").length,
-  }), [projects]);
+  const stats = useMemo(() => {
+    let openCount = 0;
+    let loggedCount = 0;
+    let closedCount = 0;
+    
+    projects.forEach((p) => {
+      const summary = projectSummaries.find(s => s.projectId === p.id);
+      const hours = summary ? summary.totalHours : 0;
+      
+      if (p.status === "Closed") {
+        closedCount++;
+      } else if (hours > 0) {
+        loggedCount++;
+      } else {
+        openCount++;
+      }
+    });
+
+    return { Open: openCount, Logged: loggedCount, Closed: closedCount };
+  }, [projects, projectSummaries]);
 
   // ── Columns to display based on status filter ──
   const visibleColumns = useMemo(() => {
-    if (statusFilter === "All") return ALL_COLUMNS;
-    return [statusFilter];
+    if (statusFilter === "All") return DASHBOARD_COLUMNS;
+    return [statusFilter] as DashboardColumnType[];
   }, [statusFilter]);
 
   // ── Filtered + sorted list ──
@@ -95,7 +114,20 @@ export default function ProjectsDashboard() {
     }
 
     if (statusFilter !== "All") {
-      list = list.filter((p) => p.status === statusFilter);
+      if (statusFilter === "Logged") {
+        list = list.filter((p) => {
+          const summary = projectSummaries.find((s) => s.projectId === p.id);
+          return (summary?.totalHours ?? 0) > 0 && p.status === "Open";
+        });
+      } else if (statusFilter === "Open") {
+        list = list.filter((p) => {
+          if (p.status !== "Open") return false;
+          const summary = projectSummaries.find((s) => s.projectId === p.id);
+          return (summary?.totalHours ?? 0) === 0;
+        });
+      } else {
+        list = list.filter((p) => p.status === statusFilter);
+      }
     }
 
     switch (sort) {
@@ -117,20 +149,30 @@ export default function ProjectsDashboard() {
   }, [projects, search, statusFilter, sort]);
 
   // ── Group by status ──
-  const grouped = useMemo(
-    () =>
-      ALL_COLUMNS.reduce<Record<ProjectStatus, Project[]>>(
-        (acc, status) => {
-          acc[status] = filtered.filter((p) => p.status === status);
-          return acc;
-        },
-        { Open: [], Closed: [] }
-      ),
-    [filtered]
-  );
+  const grouped = useMemo(() => {
+    // Augment projects with logged hours
+    const augmentedFiltered = filtered.map((p) => {
+      const summary = projectSummaries.find((s) => s.projectId === p.id);
+      return { ...p, totalHours: summary ? summary.totalHours : 0 };
+    });
+
+    return DASHBOARD_COLUMNS.reduce<Record<DashboardColumnType, (Project & { totalHours?: number })[]>>(
+      (acc, col) => {
+        if (col === "Logged") {
+          acc[col] = augmentedFiltered.filter((p) => p.status === "Open" && (p.totalHours ?? 0) > 0);
+        } else if (col === "Open") {
+          acc[col] = augmentedFiltered.filter((p) => p.status === "Open" && (p.totalHours ?? 0) === 0);
+        } else if (col === "Closed") {
+          acc[col] = augmentedFiltered.filter((p) => p.status === "Closed");
+        }
+        return acc;
+      },
+      { Open: [], Logged: [], Closed: [] }
+    );
+  }, [filtered, projectSummaries]);
 
   // Reset to page 1 when filters change
-  const handleStatusFilterChange = (value: ProjectStatus | "All") => {
+  const handleStatusFilterChange = (value: DashboardColumnType | "All") => {
     setStatusFilter(value);
   };
 
@@ -187,20 +229,20 @@ export default function ProjectsDashboard() {
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <SummaryCard
-            label="Total Projects"
-            count={totalCount}
-            icon={<AssignmentIcon />}
+            label="Open (No Logs)"
+            count={stats.Open}
+            icon={<FolderOpenIcon />}
             bgAlpha="rgba(59,130,246,0.10)"
             iconColor={theme.palette.primary.main}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <SummaryCard
-            label="Open"
-            count={stats.Open}
+            label="Active (Logged)"
+            count={stats.Logged}
             icon={<PlayArrowIcon />}
-            bgAlpha="rgba(59,130,246,0.08)"
-            iconColor={theme.palette.info?.main ?? theme.palette.primary.main}
+            bgAlpha="rgba(34,197,94,0.10)"
+            iconColor={theme.palette.success?.main ?? theme.palette.info.main}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
@@ -239,14 +281,12 @@ export default function ProjectsDashboard() {
             id="status-filter"
             label="Status"
             value={statusFilter}
-            onChange={(e) => handleStatusFilterChange(e.target.value as ProjectStatus | "All")}
+            onChange={(e) => handleStatusFilterChange(e.target.value as DashboardColumnType | "All")}
           >
             <MenuItem value="All">All Statuses</MenuItem>
-            {ALL_COLUMNS.map((s) => (
-              <MenuItem key={s} value={s}>
-                {STATUS_META[s].label}
-              </MenuItem>
-            ))}
+            <MenuItem value="Open">Open (No Logs)</MenuItem>
+            <MenuItem value="Logged">Active (Logged)</MenuItem>
+            <MenuItem value="Closed">Closed</MenuItem>
           </Select>
         </FormControl>
 
@@ -314,12 +354,12 @@ export default function ProjectsDashboard() {
             onDelete: (p) => setDeleteTarget(p),
             onReopen: (p) => setReopenTarget(p),
             onClose: (p) => setCloseTarget(p),
-            onCardClick: (p) => navigate(`/projects/${p.id}`),
+            onCardClick: (p) => navigate(`/worklogs/projects/${p.id}/employees`),
           }}
         >
           <Grid container spacing={2}>
             {visibleColumns.map((status) => (
-              <Grid key={status} size={{ xs: 12, md: visibleColumns.length === 1 ? 12 : 6 }}>
+              <Grid key={status} size={{ xs: 12, md: visibleColumns.length === 1 ? 12 : 4 }}>
                 <KanbanColumn
                   status={status}
                   projects={grouped[status]}

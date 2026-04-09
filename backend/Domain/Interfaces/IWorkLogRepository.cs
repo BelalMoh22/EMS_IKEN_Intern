@@ -25,6 +25,7 @@ namespace backend.Domain.Interfaces
         Task<int> DeleteProjectLogsAsync(int employeeId, int projectId);
         Task<bool> ExistsEmployeeProjectLogsAsync(int employeeId, int projectId);
         Task<bool> ExistsLogsForDayAsync(int employeeId, DateTime date);
+        Task<bool> ExistsProjectLogForDayAsync(int employeeId, int projectId, DateTime date);
 
         // =========================
         // Manager

@@ -24,7 +24,7 @@ export interface WorkLogResponseItemDTO {
   projectId: number;
   projectName: string;
   hours: number;
-  status: number; // WorkStatus enum from backend
+  status: number | string; // WorkStatus enum from backend (can be Int or String)
   notes: string | null;
 }
 

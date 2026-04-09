@@ -91,10 +91,10 @@ export default function ProjectEmployeesPage() {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate("/worklogs/projects-summary")}
+          onClick={() => navigate("/projects")}
           sx={{ borderRadius: 2 }}
         >
-          Back to Summary
+          Back to Projects
         </Button>
       </Box>
 

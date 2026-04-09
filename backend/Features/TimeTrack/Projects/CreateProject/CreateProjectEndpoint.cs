@@ -2,9 +2,9 @@ namespace backend.Features.TimeTrack.Projects.CreateProject
 {
     public static class CreateProjectEndpoint
     {
-        public static RouteGroupBuilder MapEndpoint(this RouteGroupBuilder group)
+        public static RouteHandlerBuilder MapEndpoint(this RouteGroupBuilder group)
         {
-            group.MapPost("/", async (CreateProjectDTO dto, IMediator mediator) =>
+            return group.MapPost("/", async (CreateProjectDTO dto, IMediator mediator) =>
             {
                 var command = new CreateProjectCommand(dto);
 
@@ -26,8 +26,6 @@ namespace backend.Features.TimeTrack.Projects.CreateProject
             .Produces<ApiResponse<string>>(StatusCodes.Status500InternalServerError, contentType: "application/json")
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status403Forbidden);
-
-            return group;
         }
     }
 }

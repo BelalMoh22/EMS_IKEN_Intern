@@ -22,8 +22,6 @@ namespace backend.Features.TimeTrack.WorkLogs.SaveDailyWorkLogs
             if (employee == null)
                 throw new Exception("Employee not found.");
 
-            await _rules.EnsureNoLogsExistForDayAsync(employee.Id, request.Dto.WorkDate);
-
             await _rules.ValidateDailyLogsAsync(employee.Id, request.Dto);
 
             var entities = request.Dto.Logs.Select(l => new WorkLog(

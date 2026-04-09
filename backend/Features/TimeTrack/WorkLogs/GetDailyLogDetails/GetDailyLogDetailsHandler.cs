@@ -29,6 +29,7 @@ namespace backend.Features.TimeTrack.WorkLogs.GetDailyLogDetails
                 {
                     Id = l.Id,
                     ProjectId = l.ProjectId,
+                    ProjectName = l.ProjectName ?? "Unknown",
                     Hours = l.Hours,
                     Status = l.Status,
                     Notes = l.Notes

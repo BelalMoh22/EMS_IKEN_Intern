@@ -27,16 +27,15 @@ interface Props {
 }
 
 export default function WorkLogQuickAddDialog({ open, onClose }: Props) {
-  const { data: projects } = useProjects();
   const createMutation = useCreateWorkLog();
 
   const [projectId, setProjectId] = useState<number>(0);
   const [workDate, setWorkDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [hours, setHours] = useState<number>(0);
+  const { data: projects } = useProjects({ status: "Open" });
+  const openProjects = projects ?? [];
   const [status, setStatus] = useState<number>(WORK_STATUS_ENUM_MAP.Todo);
   const [notes, setNotes] = useState("");
-
-  const openProjects = projects?.filter((p) => p.status === "Open") ?? [];
 
   const resetForm = () => {
     setProjectId(0);
