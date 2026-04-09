@@ -25,6 +25,10 @@ import MonthlyAttendance from "@/pages/attendance/MonthlyAttendance";
 import EmployeeAttendanceDetails from "@/pages/attendance/EmployeeAttendanceDetails";
 import ProjectsDashboard from "@/pages/projects/ProjectsDashboard";
 import ProjectDetails from "@/pages/projects/ProjectDetails";
+import EmployeeWorkLogsPage from "@/pages/worklogs/EmployeeWorkLogsPage";
+import ManagerProjectsSummaryPage from "@/pages/worklogs/ManagerProjectsSummaryPage";
+import ProjectEmployeesPage from "@/pages/worklogs/ProjectEmployeesPage";
+import EmployeeProjectReportPage from "@/pages/worklogs/EmployeeProjectReportPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -216,6 +220,42 @@ const App = () => (
             element={
               <RoleBasedRoute allowedRoles={["HR"]}>
                 <EditPosition />
+              </RoleBasedRoute>
+            }
+          />
+
+          {/* Work Logs – Employee, HR, Manager */}
+          <Route
+            path="/worklogs"
+            element={
+              <RoleBasedRoute allowedRoles={["Employee", "HR", "Manager"]}>
+                <EmployeeWorkLogsPage />
+              </RoleBasedRoute>
+            }
+          />
+
+          {/* Work Logs – Manager reports */}
+          <Route
+            path="/worklogs/projects-summary"
+            element={
+              <RoleBasedRoute allowedRoles={["Manager"]}>
+                <ManagerProjectsSummaryPage />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/worklogs/projects/:projectId/employees"
+            element={
+              <RoleBasedRoute allowedRoles={["Manager"]}>
+                <ProjectEmployeesPage />
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/worklogs/projects/:projectId/employees/:employeeId/report"
+            element={
+              <RoleBasedRoute allowedRoles={["Manager"]}>
+                <EmployeeProjectReportPage />
               </RoleBasedRoute>
             }
           />

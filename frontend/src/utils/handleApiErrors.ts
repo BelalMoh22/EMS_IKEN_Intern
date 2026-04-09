@@ -97,3 +97,20 @@ export function extractErrorMessage(
 
   return message || defaultMsg;
 }
+export function extractAllErrorMessages(
+  error: any,
+  defaultMsg = "Something went wrong",
+): string[] {
+  const data = error?.response?.data;
+  if (!data) return [defaultMsg];
+
+  const errors = data.errors || data.Errors;
+  const message = data.message || data.Message;
+
+  if (errors && typeof errors === "object") {
+    const allErrors = Object.values(errors).flat().map(String);
+    if (allErrors.length > 0) return allErrors;
+  }
+
+  return message ? [message] : [defaultMsg];
+}

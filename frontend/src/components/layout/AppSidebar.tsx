@@ -20,6 +20,8 @@ import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import FolderSpecialIcon from "@mui/icons-material/FolderSpecial";
+import TimerIcon from "@mui/icons-material/Timer";
+import SummarizeIcon from "@mui/icons-material/Summarize";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
 import type { Role } from "@/types";
@@ -78,6 +80,18 @@ const navItems: NavItem[] = [
     title: "Projects",
     url: "/projects",
     icon: <FolderSpecialIcon />,
+    roles: ["Manager"],
+  },
+  {
+    title: "My Work Logs",
+    url: "/worklogs",
+    icon: <TimerIcon />,
+    roles: ["Employee", "HR", "Manager"],
+  },
+  {
+    title: "Projects Summary",
+    url: "/worklogs/projects-summary",
+    icon: <SummarizeIcon />,
     roles: ["Manager"],
   },
   {
