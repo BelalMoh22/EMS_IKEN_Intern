@@ -18,8 +18,11 @@ namespace backend.Features.TimeTrack.WorkLogs.SaveDailyWorkLogs
         public async Task<bool> Handle(SaveDailyWorkLogsCommand request, CancellationToken cancellationToken)
         {
             var employee = await _employeeRepo.GetByUserIdAsync(_currentUser.UserId);
-            if (employee == null) 
+
+            if (employee == null)
                 throw new Exception("Employee not found.");
+
+            await _rules.EnsureNoLogsExistForDayAsync(employee.Id, request.Dto.WorkDate);
 
             await _rules.ValidateDailyLogsAsync(employee.Id, request.Dto);
 
@@ -32,9 +35,10 @@ namespace backend.Features.TimeTrack.WorkLogs.SaveDailyWorkLogs
                 l.Notes
             ));
 
-            await _workLogRepo.ReplaceDayAsync(employee.Id, request.Dto.WorkDate, entities);
+            await _workLogRepo.SaveDailyWorkLogsAsync(employee.Id, request.Dto.WorkDate, entities);
 
             return true;
         }
+
     }
 }

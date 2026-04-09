@@ -16,6 +16,8 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
 
         Task ValidateForDeleteAsync(int employeeId, WorkLog existing);
 
+        Task EnsureNoLogsExistForDayAsync(int employeeId, DateTime date);
+
         // =========================
         // Common
         // =========================
