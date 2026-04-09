@@ -117,6 +117,17 @@ export function AppSidebar({ collapsed, width }: Props) {
     user ? item.roles.includes(user.role) : false,
   );
 
+  const activeItem = [...filteredItems]
+    .sort((a, b) => b.url.length - a.url.length)
+    .find((item) => {
+      if (item.url === "/profile") return location.pathname === item.url;
+      return (
+        location.pathname === item.url ||
+        location.pathname.startsWith(item.url + "/") ||
+        location.pathname.startsWith(item.url + "-") // handle cases like projects-summary if needed, but the exact match catches it
+      );
+    });
+
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -256,8 +267,7 @@ export function AppSidebar({ collapsed, width }: Props) {
       {/* Nav Items */}
       <List sx={{ flexGrow: 1, px: 1 }}>
         {filteredItems.map((item) => {
-          const isActive =
-            location.pathname === item.url || (item.url !== "/profile" && location.pathname.startsWith(item.url));
+          const isActive = activeItem?.url === item.url;
           return (
             <ListItemButton
               key={item.title}
