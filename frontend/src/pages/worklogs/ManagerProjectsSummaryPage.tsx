@@ -42,23 +42,6 @@ export default function ManagerProjectsSummaryPage() {
         />
       ),
     },
-    {
-      header: "Actions",
-      cell: (row) => (
-        <Tooltip title="View Employees">
-          <IconButton
-            size="small"
-            color="primary"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/worklogs/projects/${row.projectId}/employees`);
-            }}
-          >
-            <VisibilityIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      ),
-    },
   ];
 
   return (
