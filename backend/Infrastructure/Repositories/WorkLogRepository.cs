@@ -83,33 +83,7 @@ namespace backend.Infrastructure.Repositories
                 VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes, @Status)";
 
             using var conn = _db.CreateConnection();
-            conn.Open();
-
-            using var transaction = conn.BeginTransaction();
-
-            try
-            {
-                // Step 1: Delete old logs
-                await conn.ExecuteAsync(deleteSql, new
-                {
-                    EmployeeId = employeeId,
-                    StartDate = date.Date,
-                    EndDate = date.Date.AddDays(1)
-                }, transaction);
-
-                // Step 2: Insert new logs
-                if (logs != null && logs.Any())
-                {
-                    await conn.ExecuteAsync(insertSql, logs, transaction);
-                }
-
-                transaction.Commit();
-            }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
+            await conn.ExecuteAsync(insertSql, logs);
         }
 
         // =========================
