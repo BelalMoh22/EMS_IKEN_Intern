@@ -176,7 +176,28 @@ namespace backend.Infrastructure.Repositories
             });
             return rows;
         }
-//===================================================================
+
+        public async Task<bool> ExistsEmployeeProjectLogsAsync(int employeeId, int projectId)
+        {
+            var sql = @"
+                SELECT 1
+                FROM WorkLogs
+                WHERE EmployeeId = @EmployeeId
+                AND ProjectId = @ProjectId
+                AND IsDeleted = 0";
+
+            using var conn = _db.CreateConnection();
+
+            var result = await conn.QueryFirstOrDefaultAsync<int?>(sql, new
+            {
+                EmployeeId = employeeId,
+                ProjectId = projectId
+            });
+
+            return result.HasValue;
+        }
+
+        //===================================================================
 
         // Manager
         //=======================

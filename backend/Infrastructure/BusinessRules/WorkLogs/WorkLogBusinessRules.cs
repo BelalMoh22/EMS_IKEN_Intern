@@ -120,6 +120,15 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
             return log;
         }
 
+        public async Task CheckEmployeeProjectLogsExistAsync(int employeeId, int projectId)
+        {
+            var exists = await _repo.ExistsEmployeeProjectLogsAsync(employeeId, projectId);
+
+            if (!exists)
+                throw new Exception("No work logs found for this project for the current employee.");
+        }
+
+
         // =========================
         // OWNERSHIP
         // =========================

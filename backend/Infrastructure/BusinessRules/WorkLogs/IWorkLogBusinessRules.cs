@@ -20,6 +20,7 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
         // Common
         // =========================
         Task<WorkLog> CheckWorkLogExistsAsync(int workLogId);
+        Task CheckEmployeeProjectLogsExistAsync(int employeeId, int projectId);
 
         void ValidateOwnership(int employeeId, WorkLog existing, Dictionary<string, List<string>> errors);
 
