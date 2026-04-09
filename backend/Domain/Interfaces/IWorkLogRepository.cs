@@ -23,6 +23,8 @@ namespace backend.Domain.Interfaces
         Task<int> SoftDeleteLogAsync(int logId);
 
         Task<int> DeleteProjectLogsAsync(int employeeId, int projectId);
+        Task<bool> ExistsEmployeeProjectLogsAsync(int employeeId, int projectId);
+
 
         // =========================
         // Manager
