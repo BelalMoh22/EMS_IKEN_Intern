@@ -27,16 +27,19 @@ namespace backend.Features.Attendance.Sync
 
                 var result = new SyncResultDto();
 
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "attendance_template.xlsx"); // .. : “Go one folder UP”
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                var filePath = Path.Combine(baseDir, "attendance_template.xlsx");
 
                 if (!File.Exists(filePath))
                 {
-                    filePath = Path.Combine(Directory.GetCurrentDirectory(), "attendance_template.xlsx"); // Try current directory instead of parent
+                    // Fallback to current directory for some environments
+                    filePath = Path.Combine(Directory.GetCurrentDirectory(), "attendance_template.xlsx");
                 }
 
                 if (!File.Exists(filePath))
                 {
-                    result.Errors.Add($"Static file not found at: {filePath}");
+                    result.Errors.Add($"Attendance template file not found. Expected at: {filePath}");
+                    _logger.LogError("Sync failed: File not found at {FilePath}", filePath);
                     return result;
                 }
 
