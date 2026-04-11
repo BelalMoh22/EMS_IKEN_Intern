@@ -16,6 +16,7 @@ export interface DailyWorkLogDTO {
   date: string;
   totalHours: number;
   projectsCount: number;
+  projectDetails?: string;
 }
 
 // ─── Employee: Day Detail ────────────────────────────────
@@ -81,4 +82,5 @@ export interface EmployeeContributionDTO {
 export interface EmployeeDailyReportDTO {
   date: string;
   hours: number;
+  status: number;
 }

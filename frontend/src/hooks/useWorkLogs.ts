@@ -10,6 +10,32 @@ import { enqueueSnackbar } from "notistack";
 import { extractErrorMessage } from "@/utils/handleApiErrors";
 
 // ─── Employee Hooks ──────────────────────────────────────
+export function useSettings() {
+  return useQuery({
+    queryKey: ["settings"],
+    queryFn: () => worklogApi.getSettings(),
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+  });
+}
+
+export function useUpdateSettings() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { workLogGracePeriod: number }) =>
+      worklogApi.updateSettings(data),
+    onSuccess: (response) => {
+      qc.invalidateQueries({ queryKey: ["settings"] });
+      enqueueSnackbar(response.message || "Settings updated successfully", {
+        variant: "success",
+      });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(extractErrorMessage(error, "Failed to update settings"), {
+        variant: "error",
+      });
+    },
+  });
+}
 
 export function useDailyLogs() {
   return useQuery({

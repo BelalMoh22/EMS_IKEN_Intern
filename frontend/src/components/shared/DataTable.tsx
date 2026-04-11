@@ -20,6 +20,7 @@ export interface Column<T> {
   header: string;
   accessorKey?: keyof T;
   cell?: (row: T) => React.ReactNode;
+  sortable?: boolean;
 }
 
 interface Props<T> {
@@ -32,6 +33,8 @@ interface Props<T> {
   onRowsPerPageChange?: (rowsPerPage: number) => void;
   loading?: boolean;
   onRowClick?: (row: T) => void;
+  getRowSx?: (row: T) => any;
+  sx?: any;
 }
 
 export function DataTable<T>({
@@ -44,15 +47,17 @@ export function DataTable<T>({
   onRowsPerPageChange,
   loading,
   onRowClick,
+  getRowSx,
+  sx,
 }: Props<T>) {
   if (loading) {
     return (
-      <TableContainer component={Paper} variant="outlined">
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, ...sx }}>
         <Table>
           <TableHead>
             <TableRow>
               {columns.map((col, i) => (
-                <TableCell key={i}>{col.header}</TableCell>
+                <TableCell key={i} sx={{ fontWeight: 700, bgcolor: "rgba(0,0,0,0.02)" }}>{col.header}</TableCell>
               ))}
             </TableRow>
           </TableHead>
@@ -82,6 +87,10 @@ export function DataTable<T>({
           alignItems: "center",
           justifyContent: "center",
           py: 8,
+          borderRadius: 3,
+          border: "1px dashed",
+          borderColor: "divider",
+          ...sx
         }}
       >
         <InboxIcon sx={{ fontSize: 48, color: "text.disabled" }} />
@@ -94,12 +103,24 @@ export function DataTable<T>({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <TableContainer component={Paper} variant="outlined">
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, overflow: "hidden", ...sx }}>
         <Table>
           <TableHead>
             <TableRow>
               {columns.map((col, i) => (
-                <TableCell key={i}>{col.header}</TableCell>
+                <TableCell 
+                  key={i} 
+                  sx={{ 
+                    fontWeight: 700, 
+                    bgcolor: "rgba(0,0,0,0.02)",
+                    color: "text.secondary",
+                    fontSize: "0.75rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em"
+                  }}
+                >
+                  {col.header}
+                </TableCell>
               ))}
             </TableRow>
           </TableHead>
@@ -109,10 +130,15 @@ export function DataTable<T>({
                 key={i}
                 hover
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
-                sx={{ cursor: onRowClick ? "pointer" : "default" }}
+                sx={{ 
+                  cursor: onRowClick ? "pointer" : "default",
+                  transition: "all 0.2s",
+                  "&:hover": { bgcolor: "rgba(0,0,0,0.02) !important" },
+                  ...(getRowSx ? getRowSx(row) : {})
+                }}
               >
                 {columns.map((col, j) => (
-                  <TableCell key={j}>
+                  <TableCell key={j} sx={{ py: 1.5 }}>
                     {col.cell
                       ? col.cell(row)
                       : String(
@@ -144,8 +170,10 @@ export function DataTable<T>({
             borderTop: "1px solid",
             borderColor: "divider",
             bgcolor: "background.paper",
-            borderBottomLeftRadius: 8,
-            borderBottomRightRadius: 8,
+            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+              fontSize: "0.875rem",
+              color: "text.secondary"
+            }
           }}
         />
       )}

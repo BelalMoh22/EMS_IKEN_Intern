@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { format } from "date-fns";
-import { useDayDetails, useSaveDailyLogs } from "@/hooks/useWorkLogs";
+import { useDayDetails, useSaveDailyLogs, useDailyLogs, useSettings } from "@/hooks/useWorkLogs";
 import { useProjects } from "@/hooks/useProjects";
 import { extractAllErrorMessages } from "@/utils/handleApiErrors";
 import {
@@ -58,9 +58,48 @@ const emptyRow: LogRow = {
 
 export default function WorkLogDayFormDialog({ date, onClose }: Props) {
   const isNew = !date;
+  const { data: allDailyLogs } = useDailyLogs();
   const [workDate, setWorkDate] = useState(
     date || format(new Date(), "yyyy-MM-dd")
   );
+
+  const { data: settings } = useSettings();
+  const gracePeriod = settings?.workLogGracePeriod ?? 7;
+
+  const isDateAllowed = useMemo(() => {
+    if (!workDate) return true;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selected = new Date(workDate);
+    selected.setHours(0, 0, 0, 0);
+
+    // Future check
+    if (selected > today) return false;
+
+    // Grace period check
+    const diffTime = Math.abs(today.getTime() - selected.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= gracePeriod;
+  }, [workDate, gracePeriod]);
+
+  const minDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - gracePeriod);
+    return format(d, "yyyy-MM-dd");
+  }, [gracePeriod]);
+
+  const maxDate = useMemo(() => {
+    return format(new Date(), "yyyy-MM-dd");
+  }, []);
+
+  const dateExists = useMemo(() => {
+    if (!isNew || !allDailyLogs || !workDate) return false;
+    // Normalize dates to YYYY-MM-DD for comparison
+    return allDailyLogs.some(
+      (log) => format(new Date(log.date), "yyyy-MM-dd") === workDate
+    );
+  }, [allDailyLogs, isNew, workDate]);
+
   const { data: dayDetails, isLoading: loadingDetails } = useDayDetails(
     isNew ? "" : date!
   );
@@ -103,7 +142,7 @@ export default function WorkLogDayFormDialog({ date, onClose }: Props) {
   const handleSave = () => {
     // Validate
     const validLogs = rows.filter((r) => r.projectId > 0 && r.hours > 0);
-    if (validLogs.length === 0) return;
+    if (validLogs.length === 0 || !isDateAllowed) return;
 
     const payload: WorkLogCreateItemDTO[] = validLogs.map((r) => ({
       projectId: r.projectId,
@@ -164,8 +203,25 @@ export default function WorkLogDayFormDialog({ date, onClose }: Props) {
               onChange={(e) => setWorkDate(e.target.value)}
               disabled={!isNew}
               InputLabelProps={{ shrink: true }}
+              inputProps={{
+                min: minDate,
+                max: maxDate,
+              }}
               sx={{ maxWidth: 220 }}
             />
+
+            {!isDateAllowed && (
+              <Alert severity="error">
+                You cannot add a work log for a date older than {gracePeriod} days.
+                Please select a more recent date or contact your manager for an exception.
+              </Alert>
+            )}
+
+            {dateExists && (
+              <Alert severity="error">
+                Logs already exist for this date! Please use the <strong>Edit</strong> mode from the dashboard to modify them.
+              </Alert>
+            )}
 
             {totalHours > 24 && (
               <Alert severity="warning">
@@ -319,7 +375,12 @@ export default function WorkLogDayFormDialog({ date, onClose }: Props) {
             )
           }
           onClick={handleSave}
-          disabled={saveMutation.isPending || totalHours === 0}
+          disabled={
+            saveMutation.isPending || 
+            totalHours === 0 || 
+            dateExists || 
+            !isDateAllowed
+          }
           sx={{
             background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
             "&:hover": {

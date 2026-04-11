@@ -22,6 +22,7 @@ import AssessmentIcon from "@mui/icons-material/Assessment";
 import FolderSpecialIcon from "@mui/icons-material/FolderSpecial";
 import TimerIcon from "@mui/icons-material/Timer";
 import SummarizeIcon from "@mui/icons-material/Summarize";
+import SettingsIcon from "@mui/icons-material/Settings";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
 import type { Role } from "@/types";
@@ -87,6 +88,12 @@ const navItems: NavItem[] = [
     url: "/worklogs",
     icon: <TimerIcon />,
     roles: ["Employee", "HR", "Manager"],
+  },
+  {
+    title: "System Settings",
+    url: "/settings",
+    icon: <SettingsIcon />,
+    roles: ["Manager"],
   },
 
   {

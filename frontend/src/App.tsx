@@ -29,6 +29,7 @@ import EmployeeWorkLogsPage from "@/pages/worklogs/EmployeeWorkLogsPage";
 
 import ProjectEmployeesPage from "@/pages/worklogs/ProjectEmployeesPage";
 import EmployeeProjectReportPage from "@/pages/worklogs/EmployeeProjectReportPage";
+import SystemSettingsPage from "@/pages/worklogs/SystemSettingsPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -248,6 +249,15 @@ const App = () => (
             element={
               <RoleBasedRoute allowedRoles={["Manager"]}>
                 <EmployeeProjectReportPage />
+              </RoleBasedRoute>
+            }
+          />
+
+          <Route
+            path="/settings"
+            element={
+              <RoleBasedRoute allowedRoles={["Manager"]}>
+                <SystemSettingsPage />
               </RoleBasedRoute>
             }
           />

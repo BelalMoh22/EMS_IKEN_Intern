@@ -32,5 +32,6 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
         Task ValidateDailyHoursLimitAsync(int employeeId, DateTime date, decimal newHours, Dictionary<string, List<string>> errors, int? excludeLogId = null);
 
         void ValidateStatus(WorkStatus status, Dictionary<string, List<string>> errors);
+        Task ValidateGracePeriodAsync(DateTime workDate, Dictionary<string, List<string>> errors);
     }
 }

@@ -1,3 +1,4 @@
+
 namespace backend
 {
     public class Program
@@ -50,6 +51,7 @@ namespace backend
             builder.Services.AddScoped<DepartmentRepository>();
             builder.Services.AddScoped<IProjectRepository , ProjectRepository>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            builder.Services.AddScoped<ISystemSettingsRepository, SystemSettingsRepository>();
             builder.Services.AddScoped<IEmployeeBusinessRules, EmployeeBusinessRules>();
             builder.Services.AddScoped<IProjectBusinessRules, ProjectBusinessRules>();
             builder.Services.AddScoped<IPositionBusinessRules, PositionBusinessRules>();
@@ -162,6 +164,7 @@ namespace backend
             app.MapGroup("/api/attendance").MapAttendanceEndpoints();
             app.MapGroup("/api/projects").MapProjectsEndpoints();
             app.MapGroup("/api/worklogs").MapWorkLogsEndpoints();
+            app.MapGroup("/api/settings").MapSettingsEndpoints();
             app.MapFallbackToFile("index.html");
             app.Run();
         }

@@ -4,11 +4,16 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
     {
         private readonly IWorkLogRepository _repo;
         private readonly IProjectRepository _projectRepo;
+        private readonly ISystemSettingsRepository _settingsRepo;
 
-        public WorkLogBusinessRules(IWorkLogRepository repo, IProjectRepository projectRepo)
+        public WorkLogBusinessRules(
+            IWorkLogRepository repo, 
+            IProjectRepository projectRepo,
+            ISystemSettingsRepository settingsRepo)
         {
             _repo = repo;
             _projectRepo = projectRepo;
+            _settingsRepo = settingsRepo;
         }
 
         // =========================
@@ -46,6 +51,11 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
                 await ValidateProjectAsync(log.ProjectId, errors);
             }
 
+            if (dto.WorkDate != default)
+            {
+                await ValidateGracePeriodAsync(dto.WorkDate, errors);
+            }
+
             if (totalHours > 24)
                 AddError(errors, "totalHours", "Total daily hours cannot exceed 24.");
 
@@ -65,6 +75,8 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
             ValidateStatus(dto.Status, errors);
 
             await ValidateProjectAsync(dto.ProjectId, errors);
+
+            await ValidateGracePeriodAsync(dto.WorkDate, errors);
 
             await ValidateDailyHoursLimitAsync(employeeId, dto.WorkDate, dto.Hours, errors);
 
@@ -90,6 +102,8 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
 
             if (dto.Status.HasValue)
                 ValidateStatus(dto.Status.Value, errors);
+
+            await ValidateGracePeriodAsync(existing.WorkDate, errors);
 
             await ValidateDailyHoursLimitAsync(employeeId, existing.WorkDate, newHours, errors, existing.Id);
 
@@ -197,6 +211,29 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
         {
             if (!Enum.IsDefined(typeof(WorkStatus), status))
                 AddError(errors, "status", "Invalid work status value.");
+        }
+
+        public async Task ValidateGracePeriodAsync(DateTime workDate, Dictionary<string, List<string>> errors)
+        {
+            var gracePeriod = await _settingsRepo.GetWorkLogGracePeriodAsync();
+            if (gracePeriod <= 0) gracePeriod = 7;
+
+            var today = DateTime.UtcNow.Date;
+            var selected = workDate.Date;
+
+            // Future dates check
+            if (selected > today)
+            {
+                AddError(errors, "workDate", "Future dates are not allowed for work logs.");
+                return;
+            }
+
+            var diff = (today - selected).TotalDays;
+
+            if (diff > gracePeriod)
+            {
+                AddError(errors, "workDate", $"You cannot add or modify a work log older than {gracePeriod} days. Please select a more recent date or contact your manager for an exception.");
+            }
         }
     }
 }

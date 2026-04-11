@@ -82,4 +82,17 @@ export const worklogApi = {
         `/worklogs/projects/${projectId}/employees/${employeeId}/report`
       )
       .then((r) => r.data.data!),
+
+  // ─── Settings ────────────────────────────────────────────
+  /** GET /api/settings */
+  getSettings: () =>
+    api
+      .get<ApiResponse<{ workLogGracePeriod: number }>>("/settings")
+      .then((r) => r.data.data!),
+
+  /** PUT /api/settings */
+  updateSettings: (data: { workLogGracePeriod: number }) =>
+    api
+      .put<ApiResponse<boolean>>("/settings", data)
+      .then((r) => r.data),
 };

@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useDayDetails, useDeleteWorkLog } from "@/hooks/useWorkLogs";
+import { useDayDetails, useDeleteWorkLog, useUpdateWorkLog } from "@/hooks/useWorkLogs";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import {
   Dialog,
@@ -36,6 +36,7 @@ interface Props {
 export default function WorkLogDayViewDialog({ date, onClose, onEdit }: Props) {
   const { data, isLoading } = useDayDetails(date);
   const deleteMutation = useDeleteWorkLog();
+  const updateMutation = useUpdateWorkLog();
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [editLog, setEditLog] = useState<WorkLogResponseItemDTO | null>(null);
 
@@ -132,13 +133,32 @@ export default function WorkLogDayViewDialog({ date, onClose, onEdit }: Props) {
                         />
                       </TableCell>
                       <TableCell>
-                        <Chip
-                          label={typeof log.status === 'string' ? log.status : (WORK_STATUS_FROM_NUMBER[log.status as number] || "Unknown")}
-                          size="small"
-                          color={String(log.status) === '2' || String(log.status) === 'Done' ? "success" : "warning"}
-                          variant="outlined"
-                          sx={{ fontWeight: 500 }}
-                        />
+                        <Tooltip title={`Mark as ${String(log.status) === '2' || String(log.status) === 'Done' ? 'Todo' : 'Done'}`} arrow>
+                          <Chip
+                            label={typeof log.status === 'string' ? log.status : (WORK_STATUS_FROM_NUMBER[log.status as number] || "Unknown")}
+                            size="small"
+                            color={String(log.status) === '2' || String(log.status) === 'Done' ? "success" : "warning"}
+                            variant={String(log.status) === '2' || String(log.status) === 'Done' ? "filled" : "outlined"}
+                            onClick={() => {
+                              const currentStatus = String(log.status) === '2' || String(log.status) === 'Done' ? 2 : 1;
+                              const newStatus = currentStatus === 2 ? 1 : 2;
+                              updateMutation.mutate({ 
+                                id: log.id, 
+                                data: { status: newStatus } 
+                              });
+                            }}
+                            disabled={updateMutation.isPending}
+                            sx={{ 
+                              fontWeight: 600,
+                              cursor: "pointer",
+                              transition: "all 0.2s",
+                              "&:hover": {
+                                transform: "scale(1.05)",
+                                boxShadow: 1
+                              }
+                            }}
+                          />
+                        </Tooltip>
                       </TableCell>
                       <TableCell>
                         <Typography

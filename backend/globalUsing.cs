@@ -83,3 +83,4 @@ global using backend.Features.TimeTrack.WorkLogs.GetDailyLogDetails;
 global using backend.Features.TimeTrack.WorkLogs.GetEmployeReport;
 global using backend.Features.TimeTrack.WorkLogs;
 global using backend.Infrastructure.Swagger;
+global using backend.Features.Settings;

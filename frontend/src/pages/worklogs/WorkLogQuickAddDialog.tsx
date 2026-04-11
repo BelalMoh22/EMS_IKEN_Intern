@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { useCreateWorkLog } from "@/hooks/useWorkLogs";
+import { useCreateWorkLog, useSettings } from "@/hooks/useWorkLogs";
 import { useProjects } from "@/hooks/useProjects";
+import { useMemo } from "react";
 import { extractAllErrorMessages } from "@/utils/handleApiErrors";
 import {
   Dialog,
@@ -32,10 +33,40 @@ export default function WorkLogQuickAddDialog({ open, onClose }: Props) {
   const [projectId, setProjectId] = useState<number>(0);
   const [workDate, setWorkDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [hours, setHours] = useState<number>(0);
-  const { data: projects } = useProjects({ status: "Open" });
-  const openProjects = projects ?? [];
   const [status, setStatus] = useState<number>(WORK_STATUS_ENUM_MAP.Todo);
   const [notes, setNotes] = useState("");
+
+  const { data: settings } = useSettings();
+  const gracePeriod = settings?.workLogGracePeriod ?? 7;
+
+  const isDateAllowed = useMemo(() => {
+    if (!workDate) return true;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selected = new Date(workDate);
+    selected.setHours(0, 0, 0, 0);
+
+    // Future check
+    if (selected > today) return false;
+
+    // Grace period check
+    const diffTime = Math.abs(today.getTime() - selected.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= gracePeriod;
+  }, [workDate, gracePeriod]);
+
+  const minDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - gracePeriod);
+    return format(d, "yyyy-MM-dd");
+  }, [gracePeriod]);
+
+  const maxDate = useMemo(() => {
+    return format(new Date(), "yyyy-MM-dd");
+  }, []);
+
+  const { data: projects } = useProjects({ status: "Open" });
+  const openProjects = projects ?? [];
 
   const resetForm = () => {
     setProjectId(0);
@@ -46,7 +77,7 @@ export default function WorkLogQuickAddDialog({ open, onClose }: Props) {
   };
 
   const handleSubmit = () => {
-    if (!projectId || hours <= 0) return;
+    if (!projectId || hours <= 0 || !isDateAllowed) return;
 
     createMutation.mutate(
       {
@@ -103,8 +134,18 @@ export default function WorkLogQuickAddDialog({ open, onClose }: Props) {
             value={workDate}
             onChange={(e) => setWorkDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
+            inputProps={{
+              min: minDate,
+              max: maxDate,
+            }}
             fullWidth
           />
+
+          {!isDateAllowed && (
+            <Alert severity="error">
+              Work logs older than {gracePeriod} days are not allowed. Please contact your manager for an exception.
+            </Alert>
+          )}
 
           <TextField
             label="Hours"
@@ -155,7 +196,12 @@ export default function WorkLogQuickAddDialog({ open, onClose }: Props) {
             )
           }
           onClick={handleSubmit}
-          disabled={createMutation.isPending || !projectId || hours <= 0}
+          disabled={
+            createMutation.isPending || 
+            !projectId || 
+            hours <= 0 || 
+            !isDateAllowed
+          }
           sx={{
             background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
             "&:hover": {

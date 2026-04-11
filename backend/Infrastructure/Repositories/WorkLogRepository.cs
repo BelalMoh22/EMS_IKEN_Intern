@@ -16,14 +16,16 @@ namespace backend.Infrastructure.Repositories
         {
             var sql = @"
                 SELECT 
-                    WorkDate AS Date,
-                    SUM(Hours) AS TotalHours,
-                    COUNT(DISTINCT ProjectId) AS ProjectsCount
-                    FROM WorkLogs
-                    WHERE EmployeeId = @EmployeeId
-                    AND IsDeleted = 0
-                    GROUP BY WorkDate
-                    ORDER BY WorkDate DESC";
+                    w.WorkDate AS Date,
+                    SUM(w.Hours) AS TotalHours,
+                    COUNT(DISTINCT w.ProjectId) AS ProjectsCount,
+                    STRING_AGG(p.Name + '|' + CAST(w.Hours AS VARCHAR), ';') AS ProjectDetails
+                FROM WorkLogs w
+                JOIN Projects p ON p.Id = w.ProjectId
+                WHERE w.EmployeeId = @EmployeeId
+                AND w.IsDeleted = 0
+                GROUP BY w.WorkDate
+                ORDER BY w.WorkDate DESC";
 
             using var conn = _db.CreateConnection();
             return await conn.QueryAsync<DailyWorkLogDTO>(sql, new { EmployeeId = employeeId });
@@ -282,12 +284,13 @@ namespace backend.Infrastructure.Repositories
             var sql = @"
                 SELECT 
                     WorkDate AS Date,
+                    Status,
                     SUM(Hours) AS Hours
                 FROM WorkLogs
                 WHERE ProjectId = @ProjectId
                 AND EmployeeId = @EmployeeId
                 AND IsDeleted = 0
-                GROUP BY WorkDate
+                GROUP BY WorkDate, Status
                 ORDER BY WorkDate";
 
             using var conn = _db.CreateConnection();
