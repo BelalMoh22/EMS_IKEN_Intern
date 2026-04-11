@@ -28,6 +28,8 @@ namespace backend.Infrastructure.BusinessRules.Departments
                 var manager = await _employeeRepository.GetByIdAsync(dto.ManagerId.Value);
                 if (manager is null)
                     AddError(errors, "managerId", "Manager does not exist.");
+                else if (await _departmentRepository.ExistsAsync(d => d.ManagerId == dto.ManagerId.Value))
+                    AddError(errors, "managerId", "Employee is already a manager of another department.");
             }
 
             ThrowIfAny(errors);
@@ -48,6 +50,8 @@ namespace backend.Infrastructure.BusinessRules.Departments
                 var manager = await _employeeRepository.GetByIdAsync(managerId.Value);
                 if (manager is null)
                     AddError(errors, "managerId", "Manager does not exist.");
+                else if (await _departmentRepository.ExistsAsync(d => d.ManagerId == managerId.Value && d.Id != id))
+                    AddError(errors, "managerId", "Employee is already a manager of another department.");
             }
 
             ThrowIfAny(errors);
