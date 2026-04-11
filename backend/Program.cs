@@ -135,10 +135,23 @@ namespace backend
                 app.UseSwaggerUI();
             }
 
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/error");
+                app.UseHsts();
+            }
+
             // Best Order for Middleware: Exception Handling, Logging, Authentication, Authorization
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.UseMiddleware<GlobalExceptionMiddleware>();
             app.UseMiddleware<RequestLoggingMiddleware>();
-            app.UseCors("FrontendPolicy");
+            
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseCors("FrontendPolicy");
+            }
+
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -149,6 +162,7 @@ namespace backend
             app.MapGroup("/api/attendance").MapAttendanceEndpoints();
             app.MapGroup("/api/projects").MapProjectsEndpoints();
             app.MapGroup("/api/worklogs").MapWorkLogsEndpoints();
+            app.MapFallbackToFile("index.html");
             app.Run();
         }
     }
