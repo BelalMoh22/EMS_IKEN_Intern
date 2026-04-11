@@ -42,7 +42,7 @@
             {
                 var deptName = await _rules.HandleManagerRemovalAsync(request.Id);
 
-                if (deptName.Any())
+                if (!string.IsNullOrEmpty(deptName))
                 {
                     managerRemovalMessage = $" Manager '{employee.FirstName} {employee.Lastname}' was removed from department '{deptName}' due to termination. Please assign a new manager.";
                 }

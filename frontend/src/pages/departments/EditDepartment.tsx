@@ -143,9 +143,7 @@ export default function EditDepartment() {
                               !departments?.some(
                                 (d) =>
                                   d.managerId === e.id && d.isActive !== false,
-                              ) &&
-                              // Filter by department positions
-                              positions?.find(p => p.id === e.positionId)?.departmentId === numId
+                              )
                             )),
                         )
                         .map((e) => ({
