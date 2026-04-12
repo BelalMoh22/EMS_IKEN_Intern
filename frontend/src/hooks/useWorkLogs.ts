@@ -14,7 +14,7 @@ export function useSettings() {
   return useQuery({
     queryKey: ["settings"],
     queryFn: () => worklogApi.getSettings(),
-    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 
@@ -31,6 +31,24 @@ export function useUpdateSettings() {
     },
     onError: (error: any) => {
       enqueueSnackbar(extractErrorMessage(error, "Failed to update settings"), {
+        variant: "error",
+      });
+    },
+  });
+}
+
+export function useDisableSettings() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => worklogApi.disableSettings(),
+    onSuccess: (response) => {
+      qc.invalidateQueries({ queryKey: ["settings"] });
+      enqueueSnackbar(response.message || "Grace period disabled successfully", {
+        variant: "success",
+      });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(extractErrorMessage(error, "Failed to disable grace period"), {
         variant: "error",
       });
     },
@@ -149,5 +167,13 @@ export function useEmployeeReport(projectId: number, employeeId: number) {
     queryKey: ["worklogs", "employee-report", projectId, employeeId],
     queryFn: () => worklogApi.getEmployeeReport(projectId, employeeId),
     enabled: !!projectId && !!employeeId,
+  });
+}
+
+export function useReportsData(startDate: string, endDate: string) {
+  return useQuery({
+    queryKey: ["worklogs", "reports-matrix", startDate, endDate],
+    queryFn: () => worklogApi.getWorkLogsReport(startDate, endDate),
+    staleTime: 5 * 60 * 1000,
   });
 }

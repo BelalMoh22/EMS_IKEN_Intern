@@ -84,3 +84,12 @@ export interface EmployeeDailyReportDTO {
   hours: number;
   status: number;
 }
+
+// ─── Manager: Work Logs Report (Matrix) ────────────────
+export interface WorkLogReportDto {
+  employeeId: number;
+  employeeName: string;
+  projectId: number;
+  projectName: string;
+  totalHours: number;
+}

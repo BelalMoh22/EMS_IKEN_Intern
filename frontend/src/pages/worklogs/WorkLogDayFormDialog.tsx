@@ -73,20 +73,23 @@ export default function WorkLogDayFormDialog({ date, onClose }: Props) {
     const selected = new Date(workDate);
     selected.setHours(0, 0, 0, 0);
 
-    // Future check
+    // Future check - ALWAYS block
     if (selected > today) return false;
 
-    // Grace period check
+    // Grace period check - skip if disabled
+    if (settings?.isDisabled) return true;
+
     const diffTime = Math.abs(today.getTime() - selected.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays <= gracePeriod;
-  }, [workDate, gracePeriod]);
+  }, [workDate, gracePeriod, settings?.isDisabled]);
 
   const minDate = useMemo(() => {
+    if (settings?.isDisabled) return "2000-01-01";
     const d = new Date();
     d.setDate(d.getDate() - gracePeriod);
     return format(d, "yyyy-MM-dd");
-  }, [gracePeriod]);
+  }, [gracePeriod, settings?.isDisabled]);
 
   const maxDate = useMemo(() => {
     return format(new Date(), "yyyy-MM-dd");
@@ -212,8 +215,9 @@ export default function WorkLogDayFormDialog({ date, onClose }: Props) {
 
             {!isDateAllowed && (
               <Alert severity="error">
-                You cannot add a work log for a date older than {gracePeriod} days.
-                Please select a more recent date or contact your manager for an exception.
+                {workDate && new Date(workDate) > new Date() 
+                  ? "Future dates are not allowed for work logs."
+                  : `You cannot add a work log for a date older than ${gracePeriod} days. Please select a more recent date or contact your manager for an exception.`}
               </Alert>
             )}
 

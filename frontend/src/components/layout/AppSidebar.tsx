@@ -8,6 +8,7 @@ import {
   Typography,
   Divider,
   Avatar,
+  Collapse,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import PeopleIcon from "@mui/icons-material/People";
@@ -23,15 +24,19 @@ import FolderSpecialIcon from "@mui/icons-material/FolderSpecial";
 import TimerIcon from "@mui/icons-material/Timer";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import SettingsIcon from "@mui/icons-material/Settings";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
 import type { Role } from "@/types";
+import React from "react";
 
 interface NavItem {
   title: string;
-  url: string;
+  url?: string;
   icon: React.ReactNode;
   roles: Role[];
+  children?: NavItem[];
 }
 
 const navItems: NavItem[] = [
@@ -79,9 +84,28 @@ const navItems: NavItem[] = [
   },
   {
     title: "Projects",
-    url: "/projects",
     icon: <FolderSpecialIcon />,
     roles: ["Manager"],
+    children: [
+      {
+        title: "Project Details",
+        url: "/projects",
+        icon: <SummarizeIcon sx={{ fontSize: "1.1rem" }} />,
+        roles: ["Manager"],
+      },
+      {
+        title: "Reports",
+        url: "/reports",
+        icon: <AssessmentIcon sx={{ fontSize: "1.1rem" }} />,
+        roles: ["Manager"],
+      },
+      {
+        title: "System Settings",
+        url: "/settings",
+        icon: <SettingsIcon sx={{ fontSize: "1.1rem" }} />,
+        roles: ["Manager"],
+      },
+    ],
   },
   {
     title: "My Work Logs",
@@ -89,13 +113,6 @@ const navItems: NavItem[] = [
     icon: <TimerIcon />,
     roles: ["Employee", "HR", "Manager"],
   },
-  {
-    title: "System Settings",
-    url: "/settings",
-    icon: <SettingsIcon />,
-    roles: ["Manager"],
-  },
-
   {
     title: "Change Password",
     url: "/change-password",
@@ -115,18 +132,30 @@ export function AppSidebar({ collapsed, width }: Props) {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
+  // State for expanded menus
+  const [openMenus, setOpenMenus] = React.useState<Record<string, boolean>>({});
+
+  const toggleMenu = (title: string) => {
+    setOpenMenus(prev => ({ ...prev, [title]: !prev[title] }));
+  };
+
   const filteredItems = navItems.filter((item) =>
     user ? item.roles.includes(user.role) : false,
   );
 
   const activeItem = [...filteredItems]
-    .sort((a, b) => b.url.length - a.url.length)
+    .flatMap(item => item.children ? [item, ...item.children] : [item])
+    .filter(item => item.url)
+    .sort((a, b) => (b.url?.length || 0) - (a.url?.length || 0))
     .find((item) => {
+      if (location.pathname.startsWith("/worklogs/projects") && item.title === "Project Details") {
+        return true;
+      }
+
       if (item.url === "/profile") return location.pathname === item.url;
       return (
         location.pathname === item.url ||
-        location.pathname.startsWith(item.url + "/") ||
-        location.pathname.startsWith(item.url + "-") // handle cases like projects-summary if needed, but the exact match catches it
+        location.pathname.startsWith(item.url + "/")
       );
     });
 
@@ -269,43 +298,98 @@ export function AppSidebar({ collapsed, width }: Props) {
       {/* Nav Items */}
       <List sx={{ flexGrow: 1, px: 1 }}>
         {filteredItems.map((item) => {
-          const isActive = activeItem?.url === item.url;
+          const hasChildren = item.children && item.children.length > 0;
+          const isOpen = openMenus[item.title];
+          const isActive = activeItem?.url === item.url ||
+            (hasChildren && item.children?.some(c => activeItem?.url === c.url));
+
           return (
-            <ListItemButton
-              key={item.title}
-              onClick={() => navigate(item.url)}
-              selected={isActive}
-              sx={{
-                borderRadius: 1.5,
-                mb: 0.5,
-                minHeight: 40,
-                justifyContent: collapsed ? "center" : "flex-start",
-                px: collapsed ? 1 : 2,
-                "&.Mui-selected": {
-                  bgcolor: "rgba(59,130,246,0.12)",
-                  color: "#60a5fa",
-                  "& .MuiListItemIcon-root": { color: "#60a5fa" },
-                  "&:hover": { bgcolor: "rgba(59,130,246,0.18)" },
-                },
-                "&:hover": { bgcolor: "rgba(255,255,255,0.04)" },
-                transition: "all 0.15s ease",
-              }}
-            >
-              <ListItemIcon
-                sx={{ color: "inherit", minWidth: collapsed ? 0 : 36 }}
+            <React.Fragment key={item.title}>
+              <ListItemButton
+                onClick={() => {
+                  if (hasChildren) {
+                    toggleMenu(item.title);
+                  } else if (item.url) {
+                    navigate(item.url);
+                  }
+                }}
+                selected={isActive && !hasChildren}
+                sx={{
+                  borderRadius: 1.5,
+                  mb: 0.5,
+                  minHeight: 40,
+                  justifyContent: collapsed ? "center" : "flex-start",
+                  px: collapsed ? 1 : 2,
+                  "&.Mui-selected": {
+                    bgcolor: "rgba(59,130,246,0.12)",
+                    color: "#60a5fa",
+                    "& .MuiListItemIcon-root": { color: "#60a5fa" },
+                    "&:hover": { bgcolor: "rgba(59,130,246,0.18)" },
+                  },
+                  "&:hover": { bgcolor: "rgba(255,255,255,0.04)" },
+                  transition: "all 0.15s ease",
+                }}
               >
-                {item.icon}
-              </ListItemIcon>
-              {!collapsed && (
-                <ListItemText
-                  primary={item.title}
-                  primaryTypographyProps={{
-                    fontSize: "0.85rem",
-                    fontWeight: isActive ? 600 : 400,
-                  }}
-                />
+                <ListItemIcon
+                  sx={{ color: isActive ? "#60a5fa" : "inherit", minWidth: collapsed ? 0 : 36 }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                {!collapsed && (
+                  <>
+                    <ListItemText
+                      primary={item.title}
+                      primaryTypographyProps={{
+                        fontSize: "0.85rem",
+                        fontWeight: isActive ? 600 : 400,
+                        color: isActive ? "#60a5fa" : "inherit"
+                      }}
+                    />
+                    {hasChildren && (isOpen ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />)}
+                  </>
+                )}
+              </ListItemButton>
+
+              {hasChildren && !collapsed && (
+                <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding>
+                    {item.children?.map((child) => {
+                      const isChildActive = activeItem?.url === child.url;
+                      return (
+                        <ListItemButton
+                          key={child.title}
+                          onClick={() => child.url && navigate(child.url)}
+                          selected={isChildActive}
+                          sx={{
+                            pl: 5,
+                            borderRadius: 1.5,
+                            mb: 0.5,
+                            minHeight: 36,
+                            "&.Mui-selected": {
+                              bgcolor: "rgba(59,130,246,0.08)",
+                              color: "#60a5fa",
+                              "& .MuiListItemIcon-root": { color: "#60a5fa" },
+                            },
+                            "&:hover": { bgcolor: "rgba(255,255,255,0.04)" },
+                          }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 28, color: "inherit" }}>
+                            {child.icon}
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={child.title}
+                            primaryTypographyProps={{
+                              fontSize: "0.8rem",
+                              fontWeight: isChildActive ? 600 : 400,
+                            }}
+                          />
+                        </ListItemButton>
+                      );
+                    })}
+                  </List>
+                </Collapse>
               )}
-            </ListItemButton>
+            </React.Fragment>
           );
         })}
       </List>

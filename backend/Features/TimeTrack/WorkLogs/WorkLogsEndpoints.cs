@@ -18,6 +18,7 @@ namespace backend.Features.TimeTrack.WorkLogs
             DeleteProjectLogsEndpoint.MapEndpoint(dailyGroup);
 
             // Analysis & Reporting (/api/worklogs/...)
+            GetWorkLogsReportEndpoint.MapEndpoint(group);
             GetEmployeReportEndpoint.MapEndpoint(group);
             GetEmployeeContributionsEndpoint.MapEndpoint(group);
             GetProjectsSummaryEndpoint.MapEndpoint(group);

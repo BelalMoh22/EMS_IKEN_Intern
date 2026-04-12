@@ -16,13 +16,16 @@ import {
 import SaveIcon from "@mui/icons-material/Save";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TimerIcon from "@mui/icons-material/Timer";
-import { useSettings, useUpdateSettings } from "@/hooks/useWorkLogs";
+import { useSettings, useUpdateSettings, useDisableSettings } from "@/hooks/useWorkLogs";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 
 export default function SystemSettingsPage() {
   const { data: settings, isLoading } = useSettings();
   const updateMutation = useUpdateSettings();
+  const disableMutation = useDisableSettings();
 
-  const [gracePeriod, setGracePeriod] = useState<number>(7);
+  const [gracePeriod, setGracePeriod] = useState<number | string>(7);
+  const [showError, setShowError] = useState(false);
 
   useEffect(() => {
     if (settings) {
@@ -30,8 +33,16 @@ export default function SystemSettingsPage() {
     }
   }, [settings]);
 
+  const isValid = gracePeriod !== "" && !isNaN(Number(gracePeriod)) && Number(gracePeriod) >= 1;
+  const isStringValue = isNaN(Number(gracePeriod));
+
   const handleSave = () => {
-    updateMutation.mutate({ workLogGracePeriod: gracePeriod });
+    if (!isValid) {
+      setShowError(true);
+      return;
+    }
+    setShowError(false);
+    updateMutation.mutate({ workLogGracePeriod: Number(gracePeriod) });
   };
 
   if (isLoading) {
@@ -86,13 +97,32 @@ export default function SystemSettingsPage() {
                         label="Grace Period (Days)"
                         type="number"
                         value={gracePeriod}
-                        onChange={(e) => setGracePeriod(parseInt(e.target.value) || 0)}
-                        inputProps={{ min: 0 }}
+                        onChange={(e) => {
+                          setGracePeriod(e.target.value);
+                          if (showError) setShowError(false);
+                        }}
+                        error={showError || (gracePeriod !== "" && Number(gracePeriod) < 1) || isStringValue}
+                        helperText={
+                          (showError || (gracePeriod !== "" && Number(gracePeriod) < 1) || isStringValue) 
+                            ? "Please enter a valid number (minimum 1)" 
+                            : ""
+                        }
+                        inputProps={{ min: 1 }}
                       />
                     </Grid>
                     <Grid size={{ xs: 12, md: 8 }}>
+                      {showError && (
+                        <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
+                          Failed to save: Please enter valid data (positive number).
+                        </Alert>
+                      )}
+                      {settings?.isDisabled && (
+                        <Alert severity="warning" sx={{ mb: 2, borderRadius: 2, fontWeight: 700 }}>
+                          The grace period is currently DISABLED. Employees can log work logs for any date in the past.
+                        </Alert>
+                      )}
                       <Alert severity="info" sx={{ borderRadius: 2 }}>
-                        Current limit: Employees can log work for today and the previous <strong>{gracePeriod}</strong> days.
+                        Current limit: Employees can log work for today and the previous <strong>{isValid ? gracePeriod : "?"}</strong> days.
                       </Alert>
                     </Grid>
                   </Grid>
@@ -100,12 +130,24 @@ export default function SystemSettingsPage() {
 
                 <Divider />
 
-                <Box sx={{ display: "flex", justifySelf: "flex-end" }}>
+                <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
+                  {!settings?.isDisabled && (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      startIcon={disableMutation.isPending ? <CircularProgress size={16} color="inherit" /> : <RemoveCircleOutlineIcon />}
+                      onClick={() => disableMutation.mutate()}
+                      disabled={disableMutation.isPending || updateMutation.isPending}
+                      sx={{ borderRadius: 2.5, px: 3, fontWeight: 700 }}
+                    >
+                      {disableMutation.isPending ? "Disabling..." : "Disable Grace Period"}
+                    </Button>
+                  )}
                   <Button
                     variant="contained"
                     startIcon={updateMutation.isPending ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
                     onClick={handleSave}
-                    disabled={updateMutation.isPending}
+                    disabled={updateMutation.isPending || disableMutation.isPending}
                     sx={{
                       px: 4,
                       borderRadius: 2.5,
@@ -114,7 +156,7 @@ export default function SystemSettingsPage() {
                       "&:hover": { background: "linear-gradient(135deg, #2563eb, #1e40af)" },
                     }}
                   >
-                    {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                    {updateMutation.isPending ? "Saving..." : settings?.isDisabled ? "Enable & Save" : "Save Changes"}
                   </Button>
                 </Box>
               </Stack>

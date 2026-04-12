@@ -215,6 +215,9 @@ namespace backend.Infrastructure.BusinessRules.WorkLogs
 
         public async Task ValidateGracePeriodAsync(DateTime workDate, Dictionary<string, List<string>> errors)
         {
+            var isDisabled = await _settingsRepo.IsGracePeriodDisabledAsync();
+            if (isDisabled) return;
+
             var gracePeriod = await _settingsRepo.GetWorkLogGracePeriodAsync();
             if (gracePeriod <= 0) gracePeriod = 7;
 

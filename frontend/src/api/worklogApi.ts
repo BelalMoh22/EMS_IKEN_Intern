@@ -10,6 +10,7 @@ import type {
   ProjectSummaryDTO,
   EmployeeContributionDTO,
   EmployeeDailyReportDTO,
+  WorkLogReportDto,
 } from "@/types/worklog";
 
 export const worklogApi = {
@@ -83,16 +84,28 @@ export const worklogApi = {
       )
       .then((r) => r.data.data!),
 
+  /** GET /api/worklogs/report */
+  getWorkLogsReport: (startDate: string, endDate: string) =>
+    api
+      .get<ApiResponse<WorkLogReportDto[]>>(
+        `/worklogs/report?startDate=${startDate}&endDate=${endDate}`
+      )
+      .then((r) => r.data.data!),
+
   // ─── Settings ────────────────────────────────────────────
   /** GET /api/settings */
   getSettings: () =>
     api
-      .get<ApiResponse<{ workLogGracePeriod: number }>>("/settings")
+      .get<ApiResponse<{ workLogGracePeriod: number; isDisabled: boolean }>>(
+        "/settings"
+      )
       .then((r) => r.data.data!),
 
   /** PUT /api/settings */
   updateSettings: (data: { workLogGracePeriod: number }) =>
-    api
-      .put<ApiResponse<boolean>>("/settings", data)
-      .then((r) => r.data),
+    api.put<ApiResponse<boolean>>("/settings", data).then((r) => r.data),
+
+  /** DELETE /api/settings */
+  disableSettings: () =>
+    api.delete<ApiResponse<boolean>>("/settings").then((r) => r.data),
 };

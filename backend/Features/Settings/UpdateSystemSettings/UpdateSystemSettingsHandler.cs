@@ -11,8 +11,8 @@ namespace backend.Features.Settings.UpdateSystemSettings
 
         public async Task<bool> Handle(UpdateSystemSettingsCommand request, CancellationToken cancellationToken)
         {
-            if (request.WorkLogGracePeriod < 0)
-                throw new Exception("Grace period cannot be negative.");
+            if (request.WorkLogGracePeriod < 1)
+                throw new Exception("Grace period must be at least 1 day.");
 
             await _repo.UpdateWorkLogGracePeriodAsync(request.WorkLogGracePeriod);
             return true;

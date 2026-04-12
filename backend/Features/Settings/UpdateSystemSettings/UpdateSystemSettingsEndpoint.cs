@@ -7,11 +7,11 @@ namespace backend.Features.Settings.UpdateSystemSettings
             app.MapPut("/", async (UpdateSystemSettingsDTO dto, IMediator mediator) =>
             {
                 var result = await mediator.Send(new UpdateSystemSettingsCommand(dto.WorkLogGracePeriod));
-                return Results.Ok(new { message = "Settings updated successfully", success = result });
+                return Results.Ok(ApiResponse<bool>.SuccessResponse(result, "Settings updated successfully"));
             })
             .WithName("UpdateSystemSettings")
             .WithTags("Settings")
-            .RequireAuthorization("ManagerTimeTrack"); // Restrict to Managers
+            .RequireAuthorization("ManagerTimeTrack");
         }
     }
 }

@@ -1,6 +1,3 @@
-using backend.Features.Settings.GetSystemSettings;
-using backend.Features.Settings.UpdateSystemSettings;
-
 namespace backend.Features.Settings
 {
     public static class SettingsEndpoints
@@ -9,6 +6,7 @@ namespace backend.Features.Settings
         {
             app.MapGetSystemSettings();
             app.MapUpdateSystemSettings();
+            app.MapDisableSystemSettings();
         }
     }
 }

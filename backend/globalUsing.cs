@@ -84,3 +84,7 @@ global using backend.Features.TimeTrack.WorkLogs.GetEmployeReport;
 global using backend.Features.TimeTrack.WorkLogs;
 global using backend.Infrastructure.Swagger;
 global using backend.Features.Settings;
+global using backend.Features.Settings.DisableSystemSettings;
+global using backend.Features.Settings.GetSystemSettings;
+global using backend.Features.Settings.UpdateSystemSettings;
+global using backend.Features.TimeTrack.WorkLogs.GetReport;

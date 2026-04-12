@@ -12,13 +12,15 @@ namespace backend.Features.Settings.GetSystemSettings
         public async Task<SystemSettingsDTO> Handle(GetSystemSettingsQuery request, CancellationToken cancellationToken)
         {
             var gracePeriod = await _repo.GetWorkLogGracePeriodAsync();
+            var isDisabled = await _repo.IsGracePeriodDisabledAsync();
             
-            // If DB returns 0 (e.g. table empty), fallback to 7
-            if (gracePeriod <= 0) gracePeriod = 7;
+            if (gracePeriod <= 0) 
+                gracePeriod = 7;
 
             return new SystemSettingsDTO
             {
-                WorkLogGracePeriod = gracePeriod
+                WorkLogGracePeriod = gracePeriod,
+                IsDisabled = isDisabled
             };
         }
     }

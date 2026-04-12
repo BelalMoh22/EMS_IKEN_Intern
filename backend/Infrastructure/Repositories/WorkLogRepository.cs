@@ -300,5 +300,40 @@ namespace backend.Infrastructure.Repositories
                 EmployeeId = employeeId
             });
         }
+
+        public async Task<IEnumerable<WorkLogReportDto>> GetWorkLogsReportAsync(DateTime startDate, DateTime endDate, int? managerEmployeeId = null)
+        {
+            var sql = @"
+                SELECT 
+                    e.Id AS EmployeeId,
+                    (e.FirstName + ' ' + e.Lastname) AS EmployeeName,
+                    ISNULL(p.Id, 0) AS ProjectId,
+                    ISNULL(p.Name, '') AS ProjectName,
+                    ISNULL(SUM(w.Hours), 0) AS TotalHours
+                FROM Employees e
+                LEFT JOIN WorkLogs w ON w.EmployeeId = e.Id 
+                    AND w.IsDeleted = 0 
+                    AND w.WorkDate >= @StartDate 
+                    AND w.WorkDate <= @EndDate
+                LEFT JOIN Projects p ON p.Id = w.ProjectId
+                LEFT JOIN Positions pos ON e.PositionId = pos.Id
+                LEFT JOIN Departments d ON pos.DepartmentId = d.Id
+                WHERE e.IsDeleted = 0 ";
+
+            if (managerEmployeeId.HasValue)
+            {
+                sql += " AND d.ManagerId = @ManagerId ";
+            }
+
+            sql += " GROUP BY e.Id, e.FirstName, e.Lastname, p.Id, p.Name";
+
+            using var conn = _db.CreateConnection();
+            return await conn.QueryAsync<WorkLogReportDto>(sql, new
+            {
+                StartDate = startDate.Date,
+                EndDate = endDate.Date,
+                ManagerId = managerEmployeeId
+            });
+        }
     }
 }
