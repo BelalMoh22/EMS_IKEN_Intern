@@ -19,7 +19,6 @@ namespace backend.Features.Auth.ResetCredentials
 
             await _userRepository.UpdateCredentialsAsync(request.UserId, request.Dto.Username, hashedPassword);
 
-            // Simple audit logging via ILogger
             _logger.LogInformation("HR reset credentials for UserId {UserId} at {Time}", request.UserId, DateTime.UtcNow);
 
             return true;

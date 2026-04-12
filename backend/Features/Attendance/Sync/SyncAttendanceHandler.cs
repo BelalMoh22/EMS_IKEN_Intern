@@ -7,19 +7,14 @@ namespace backend.Features.Attendance.Sync
         private readonly AttendanceRepository _attendanceRepo;
         private readonly ILogger<SyncAttendanceHandler> _logger;
 
-        public SyncAttendanceHandler(
-            IRepository<Employee> employeeRepo,
-            AttendanceRepository attendanceRepo,
-            ILogger<SyncAttendanceHandler> logger)
+        public SyncAttendanceHandler(IRepository<Employee> employeeRepo,AttendanceRepository attendanceRepo,ILogger<SyncAttendanceHandler> logger)
         {
             _employeeRepo = employeeRepo;
             _attendanceRepo = attendanceRepo;
             _logger = logger;
         }
 
-        public async Task<SyncResultDto> Handle(
-            SyncAttendanceCommand request,
-            CancellationToken cancellationToken)
+        public async Task<SyncResultDto> Handle(SyncAttendanceCommand request,CancellationToken cancellationToken)
         {
             try
             {

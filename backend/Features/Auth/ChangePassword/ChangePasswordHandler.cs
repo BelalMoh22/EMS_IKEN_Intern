@@ -14,8 +14,6 @@ namespace backend.Features.Auth.ChangePassword
         {
             var errors = new Dictionary<string, List<string>>();
 
-            // Business rules
-
             if (!IsStrongPassword(request.NewPassword))
                 AddError(errors, "newPassword", "Password must be at least 8 characters and contain an uppercase letter, a number, and a special character.");
 

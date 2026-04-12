@@ -1,7 +1,6 @@
 namespace backend.Features.Auth.Refresh
 {
-    public class RefreshTokenHandler
-        : IRequestHandler<RefreshTokenCommand, AuthResponse>
+    public class RefreshTokenHandler: IRequestHandler<RefreshTokenCommand, AuthResponse>
     {
         private readonly UserRepository _userRepository;
         private readonly IRefreshTokenRepository _refreshRepo;

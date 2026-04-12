@@ -10,9 +10,7 @@ namespace backend.Features.Departments.UpdateDepartment
                 var rows = await mediator.Send(command);
                 var response = ApiResponse<int>.SuccessResponse(rows, "Department updated successfully");
                 return Results.Ok(response);
-            })
-            .WithName("UpdateDepartment")
-            .WithTags("Departments")
+            }).WithName("UpdateDepartment").WithTags("Departments")
             .DocumentJsonRequest<UpdateDepartmentDto>(new { departmentName = "HR", description = "Updated description", managerId = 123, isActive = true })
             .DocumentApiResponse<int>(
                 "Update department",

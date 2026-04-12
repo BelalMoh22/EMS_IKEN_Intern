@@ -15,13 +15,9 @@ namespace backend.Domain.Interfaces
         // Incremental Mode
         // =========================
         Task<int> CreateAsync(WorkLog log);
-
         Task<int> UpdateAsync(WorkLog log);
-
         Task<WorkLog?> GetByIdAsync(int id);
-
         Task<int> SoftDeleteLogAsync(int logId);
-
         Task<int> DeleteProjectLogsAsync(int employeeId, int projectId);
         Task<bool> ExistsEmployeeProjectLogsAsync(int employeeId, int projectId);
         Task<bool> ExistsLogsForDayAsync(int employeeId, DateTime date);

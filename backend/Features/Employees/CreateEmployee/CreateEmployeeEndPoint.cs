@@ -12,13 +12,11 @@ namespace backend.Features.Employees.CreateEmployee
                 var response = ApiResponse<int>.SuccessResponse(id, "Employee created successfully");
                 return Results.Created($"/employees/{id}", response);
 
-            })
-            .WithName("CreateEmployee")
-            .WithTags("Employees")
+            }).WithName("CreateEmployee").WithTags("Employees")
             .DocumentJsonRequest<CreateEmployeeDTO>(new
             {
                 firstName = "Yussif",
-                lastname = "Khaled",
+                lastName = "Khaled",
                 nationalId = "12345678901234",
                 email = "yussif@example.com",
                 phoneNumber = "01000000000",

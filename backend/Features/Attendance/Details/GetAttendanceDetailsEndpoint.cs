@@ -14,9 +14,7 @@ namespace backend.Features.Attendance.Details
                 var command = new GetAttendanceDetailsQuery(employeeId, year, month, day);
                 var results = await mediator.Send(command);
                 return Results.Ok(ApiResponse<List<AttendanceRecordDto>>.SuccessResponse(results));
-            })
-            .WithName("GetAttendanceDetails")
-            .WithTags("Attendance")
+            }).WithName("GetAttendanceDetails").WithTags("Attendance")
             .DocumentApiResponse<List<AttendanceRecordDto>>(
                 "Get attendance details",
                 "Returns attendance details filtered by employeeId/year/month/day (optional)."

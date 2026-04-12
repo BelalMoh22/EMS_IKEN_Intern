@@ -13,7 +13,6 @@ namespace backend.Features.Auth.Register
         {
             var errors = ValidationHelper.ValidateModel(request.dto);
 
-            // Business rules
             if (!Enum.IsDefined(typeof(Roles), request.dto.Role))
                 AddError(errors, "role", "Invalid role value.");
 

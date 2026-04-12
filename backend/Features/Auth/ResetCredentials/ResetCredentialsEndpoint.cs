@@ -14,10 +14,7 @@ namespace backend.Features.Auth.ResetCredentials
                     {
                         { "credentials", new List<string> { "Failed to reset credentials" } }
                     }));
-            })
-            .RequireAuthorization("FullCRUD")
-            .WithName("ResetCredentials")
-            .WithTags("Auth")
+            }).RequireAuthorization("FullCRUD").WithName("ResetCredentials").WithTags("Auth")
             .DocumentJsonRequest<ResetCredentialsDto>(new { username = "some.user", newPassword = "TempPass12$" })
             .DocumentApiResponse<object>(
                 "Reset credentials (HR)",

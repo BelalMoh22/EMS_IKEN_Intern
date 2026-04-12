@@ -10,9 +10,7 @@ namespace backend.Features.Positions.DeletePosition
                 var result = await mediator.Send(command);
                 var response = ApiResponse<int>.SuccessResponse(result, "Position deleted successfully");
                 return Results.Ok(response);
-            })
-            .WithName("DeletePosition")
-            .WithTags("Positions")
+            }).WithName("DeletePosition").WithTags("Positions")
             .DocumentApiResponse<int>(
                 "Delete position (soft)",
                 "Soft-deletes a position (and may cascade soft-delete related entities depending on business rules)."

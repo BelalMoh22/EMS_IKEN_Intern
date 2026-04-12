@@ -11,9 +11,7 @@ namespace backend.Features.Employees.UpdateEmployee
 
                 var response = ApiResponse<int>.SuccessResponse(result.RowsAffected, result.Message);
                 return Results.Ok(response);
-            })
-            .WithName("UpdateEmployee")
-            .WithTags("Employees")
+            }).WithName("UpdateEmployee").WithTags("Employees")
             .DocumentJsonRequest<UpdateEmployeeDTO>(new
             {
                 firstName = "Updated",

@@ -1,7 +1,3 @@
-using backend.Domain.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
-using backend.Infrastructure.Repositories;
-
 namespace backend.Features.TimeTrack.Projects.CreateProject
 {
     public class CreateProjectHandler : IRequestHandler<CreateProjectCommand, int>

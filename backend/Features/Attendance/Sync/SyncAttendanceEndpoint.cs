@@ -10,14 +10,11 @@ namespace backend.Features.Attendance.Sync
                 var result = await mediator.Send(command);
 
                 return Results.Ok(ApiResponse<SyncResultDto>.SuccessResponse(result, "Sync completed successfully."));
-            })
-            .WithName("SyncAttendance")
-            .WithTags("Attendance")
+            }).WithName("SyncAttendance").WithTags("Attendance").DisableAntiforgery()
             .DocumentApiResponse<SyncResultDto>(
                 "Sync attendance",
                 "Synchronizes/imports attendance records from the configured source."
-            )
-            .DisableAntiforgery();
+            );
         }
     }
 }

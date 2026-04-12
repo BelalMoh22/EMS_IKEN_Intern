@@ -8,12 +8,7 @@ namespace backend.Features.TimeTrack.Projects.GetFilteredProjects
         private readonly DepartmentRepository _departmentRepository;
         private readonly EmployeeRepository _employeeRepository;
 
-        public GetProjectsHandler(
-            IProjectRepository projectRepository, 
-            IProjectBusinessRules rules, 
-            ICurrentUserService currentUser, 
-            DepartmentRepository departmentRepository, 
-            EmployeeRepository employeeRepository)
+        public GetProjectsHandler(IProjectRepository projectRepository, IProjectBusinessRules rules, ICurrentUserService currentUser, DepartmentRepository departmentRepository, EmployeeRepository employeeRepository)
         {
             _projectRepository = projectRepository;
             _rules = rules;

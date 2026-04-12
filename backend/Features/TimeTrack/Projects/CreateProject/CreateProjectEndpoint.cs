@@ -15,9 +15,7 @@ namespace backend.Features.TimeTrack.Projects.CreateProject
                     Id = id,
                     Message = "Project created successfully"
                 });
-            })
-            .WithName("CreateProject")
-            .WithTags("Projects")
+            }).WithName("CreateProject").WithTags("Projects")
             .DocumentJsonRequest<CreateProjectDTO>(new { name = "HR Revamp", description = "Improve HR flows and approvals" })
             .WithSummary("Create project")
             .WithDescription("Creates a new project for time tracking.")

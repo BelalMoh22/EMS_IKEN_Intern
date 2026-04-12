@@ -10,9 +10,7 @@ namespace backend.Features.Employees.GetEmployeeByUserId
                 var result = await mediator.Send(command);
 
                 return Results.Ok(ApiResponse<EmployeeProfileDto>.SuccessResponse(result, "Employee profile retrieved successfully"));
-            })
-            .WithName("GetEmployeeByUserId")
-            .WithTags("Employees")
+            }).WithName("GetEmployeeByUserId").WithTags("Employees")
             .DocumentApiResponse<EmployeeProfileDto>(
                 "Get employee profile by user id",
                 "Returns employee profile data for a given user id."

@@ -14,9 +14,7 @@ namespace backend.Features.TimeTrack.Projects.CloseProject
                 {
                     Message = "Project closed successfully"
                 });
-            })
-            .WithName("CloseProject")
-            .WithTags("Projects")
+            }).WithName("CloseProject").WithTags("Projects")
             .WithSummary("Close project")
             .WithDescription("Closes a project to prevent further work logging.")
             .Produces(StatusCodes.Status200OK)

@@ -1,7 +1,6 @@
 ﻿namespace backend.Features.Employees.Handlers.Implementations
 {
-    public class UpdateEmployeeHandler
-        : IRequestHandler<UpdateEmployeeCommand, EmployeeActionResult>
+    public class UpdateEmployeeHandler: IRequestHandler<UpdateEmployeeCommand, EmployeeActionResult>
     {
         private readonly IRepository<Employee> _repo;
         private readonly IEmployeeBusinessRules _rules;
@@ -14,11 +13,8 @@
             _rules = rules;
         }
 
-        public async Task<EmployeeActionResult> Handle(
-            UpdateEmployeeCommand request,
-            CancellationToken cancellationToken)
+        public async Task<EmployeeActionResult> Handle(UpdateEmployeeCommand request,CancellationToken cancellationToken)
         {
-            // 🔴 1. Validate Id
             if (request.Id <= 0)
             {
                 throw new Exceptions.ValidationException(new Dictionary<string, List<string>>
@@ -27,7 +23,6 @@
                 });
             }
 
-            // 🔴 2. Get Employee
             var employee = await _repo.GetByIdAsync(request.Id);
             if (employee is null)
                 throw new NotFoundException($"Employee with Id {request.Id} not found.");
@@ -37,8 +32,7 @@
 
             string? managerRemovalMessage = null;
 
-            if (dto.Status == EmployeeStatus.Terminated &&
-                employee.Status != EmployeeStatus.Terminated)
+            if (dto.Status == EmployeeStatus.Terminated &&employee.Status != EmployeeStatus.Terminated)
             {
                 var deptName = await _rules.HandleManagerRemovalAsync(request.Id);
 
