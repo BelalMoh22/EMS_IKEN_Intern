@@ -6,5 +6,6 @@ namespace backend.Infrastructure.BusinessRules.Positions
     {
         Task ValidateForCreateAsync(CreatePositionDto dto);
         Task ValidateForUpdateAsync(int positionId, UpdatePositionDto dto, Position existingPosition);
+        Task ValidateForDeleteAsync(int positionId);
     }
 }

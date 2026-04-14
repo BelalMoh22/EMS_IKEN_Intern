@@ -52,6 +52,7 @@ export default function ChangePassword() {
   const onSubmit = (values: ChangePasswordForm) => {
     mutate(values, {
       onSuccess: () => {
+        enqueueSnackbar("Password changed successfully", { variant: "success" });
         methods.reset();
       },
       onError: (error) => {

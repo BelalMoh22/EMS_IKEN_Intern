@@ -71,18 +71,18 @@ const navItems: NavItem[] = [
     icon: <WorkIcon />,
     roles: ["HR"],
   },
-  {
-    title: "Attendance",
-    url: "/attendance/monthly",
-    icon: <EventAvailableIcon />,
-    roles: ["HR"],
-  },
-  {
-    title: "My Attendance",
-    url: "/attendance/my",
-    icon: <CalendarTodayIcon />,
-    roles: ["Employee", "HR", "Manager"],
-  },
+  // {
+  //   title: "Attendance",
+  //   url: "/attendance/monthly",
+  //   icon: <EventAvailableIcon />,
+  //   roles: ["HR"],
+  // },
+  // {
+  //   title: "My Attendance",
+  //   url: "/attendance/my",
+  //   icon: <CalendarTodayIcon />,
+  //   roles: ["Employee", "HR", "Manager"],
+  // },
   {
     title: "Projects",
     icon: <FolderSpecialIcon />,
@@ -112,7 +112,7 @@ const navItems: NavItem[] = [
     title: "My Work Logs",
     url: "/worklogs",
     icon: <TimerIcon />,
-    roles: ["Employee", "HR", "Manager"],
+    roles: ["Employee", "Manager"],
   },
   {
     title: "Change Password",
@@ -138,9 +138,9 @@ export function AppSidebar({ collapsed, width }: Props) {
     if (location.pathname === url) return;
 
     if (hasUnsavedChanges) {
-        setPendingAction(() => () => navigate(url));
+      setPendingAction(() => () => navigate(url));
     } else {
-        navigate(url);
+      navigate(url);
     }
   };
 
@@ -173,13 +173,13 @@ export function AppSidebar({ collapsed, width }: Props) {
 
   const handleLogout = () => {
     if (hasUnsavedChanges) {
-        setPendingAction(() => () => {
-            logout();
-            navigate("/login");
-        });
-    } else {
+      setPendingAction(() => () => {
         logout();
         navigate("/login");
+      });
+    } else {
+      logout();
+      navigate("/login");
     }
   };
 

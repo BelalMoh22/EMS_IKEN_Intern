@@ -10,10 +10,8 @@ import { Box, Typography, Button, Chip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { ActionButtons } from "@/components/shared/ActionButtons";
 import type { Department } from "@/types";
-import { getGeneralErrors } from "@/utils/handleApiErrors";
+import { extractErrorMessage } from "@/utils/handleApiErrors";
 import { useSnackbar } from "notistack";
-import { AxiosError } from "axios";
-import { ApiResponse } from "@/types";
 
 export default function DepartmentList() {
   const navigate = useNavigate();
@@ -47,15 +45,10 @@ export default function DepartmentList() {
       deleteMutation.mutate(deleteTarget, {
         onSuccess: () => {
           setDeleteTarget(null);
+          enqueueSnackbar("Department deleted successfully", { variant: "success" });
         },
         onError: (error) => {
-          const errors = getGeneralErrors(error);
-          if (errors.length > 0) {
-            errors.forEach((msg) => enqueueSnackbar(msg, { variant: "error" }));
-          } else {
-            const data = (error as AxiosError<ApiResponse<any>>)?.response?.data;
-            enqueueSnackbar(data?.message || "Failed to delete department", { variant: "error" });
-          }
+          enqueueSnackbar(extractErrorMessage(error, "Failed to delete department"), { variant: "error" });
         },
       });
     }
@@ -194,7 +187,7 @@ export default function DepartmentList() {
         open={deleteTarget !== null}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Delete Department"
-        description="Are you sure? This will also delete all positions and employees assigned to this department. This action cannot be undone."
+        description="Are you sure you want to delete this department? This action cannot be undone."
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
       />

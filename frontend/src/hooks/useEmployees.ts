@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"; // useQuery : fetch data , useMutation : update data(PUT , POST , DELETE) , useQueryClient : control cache
 import { employeeApi } from "@/api/employeeApi";
 import type { CreateEmployeeRequest, UpdateEmployeeRequest } from "@/types";
-import { enqueueSnackbar } from "notistack";
 
 /*
   With TanStack you get :
@@ -41,10 +40,7 @@ export function useCreateEmployee() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["employees"] });
       qc.invalidateQueries({ queryKey: ["positions"] });
-      enqueueSnackbar("Employee created successfully", { variant: "success" });
     },
-    onError: () =>
-      enqueueSnackbar("Failed to create employee", { variant: "error" }),
   });
 }
 
@@ -53,14 +49,11 @@ export function useUpdateEmployee() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateEmployeeRequest }) =>
       employeeApi.update(id, data),
-    onSuccess: (response) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["employees"] });
       qc.invalidateQueries({ queryKey: ["positions"] });
       qc.invalidateQueries({ queryKey: ["departments"] });
-      enqueueSnackbar(response.message || "Employee updated successfully", { variant: "success" });
     },
-    onError: () =>
-      enqueueSnackbar("Failed to update employee", { variant: "error" }),
   });
 }
 
@@ -68,14 +61,11 @@ export function useDeleteEmployee() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => employeeApi.delete(id),
-    onSuccess: (response) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["employees"] });
       qc.invalidateQueries({ queryKey: ["positions"] });
       qc.invalidateQueries({ queryKey: ["departments"] });
-      enqueueSnackbar(response.message || "Employee deleted successfully", { variant: "success" });
     },
-    onError: () =>
-      enqueueSnackbar("Failed to delete employee", { variant: "error" }),
   });
 }
 import { authApi } from "@/api/authApi";
@@ -85,13 +75,9 @@ export function useResetCredentials() {
   return useMutation({
     mutationFn: ({ userId, data }: { userId: number; data: { username: string; newPassword: string } }) =>
       authApi.resetCredentials(userId, data),
-    onSuccess: (response) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["employees"] });
-      enqueueSnackbar(response.message || "Credentials reset successfully", { variant: "success" });
-    },
-    onError: (error: any) => {
-      const msg = error.response?.data?.message || "Failed to reset credentials";
-      enqueueSnackbar(msg, { variant: "error" });
     },
   });
 }
+

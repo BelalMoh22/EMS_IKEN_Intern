@@ -4,6 +4,7 @@ namespace backend.Infrastructure.BusinessRules.Positions
     {
         private readonly IRepository<Position> _positionRepository;
         private readonly IRepository<Department> _departmentRepository;
+        private readonly IRepository<Employee> _employeeRepository;
 
         public PositionBusinessRules(
             IRepository<Position> positionRepository,
@@ -13,6 +14,7 @@ namespace backend.Infrastructure.BusinessRules.Positions
         {
             _positionRepository = positionRepository;
             _departmentRepository = departmentRepository;
+            _employeeRepository = employeeRepository;
         }
 
         public async Task ValidateForCreateAsync(CreatePositionDto dto)
@@ -51,5 +53,11 @@ namespace backend.Infrastructure.BusinessRules.Positions
 
             ThrowIfAny(errors);
         }
+
+        public async Task ValidateForDeleteAsync(int positionId)
+        {
+            if (await _employeeRepository.ExistsAsync(e => e.PositionId == positionId && !e.IsDeleted))
+                throw new BusinessException("This position cannot be deleted because it is assigned to employees.");
+        }
     }
-}
+}

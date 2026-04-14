@@ -19,10 +19,14 @@ import TimerIcon from "@mui/icons-material/Timer";
 import { useSettings, useUpdateSettings, useDisableSettings } from "@/hooks/useWorkLogs";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 
+import { useSnackbar } from "notistack";
+import { extractErrorMessage } from "@/utils/handleApiErrors";
+
 export default function SystemSettingsPage() {
   const { data: settings, isLoading } = useSettings();
   const updateMutation = useUpdateSettings();
   const disableMutation = useDisableSettings();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [gracePeriod, setGracePeriod] = useState<number | string>(7);
   const [showError, setShowError] = useState(false);
@@ -42,7 +46,25 @@ export default function SystemSettingsPage() {
       return;
     }
     setShowError(false);
-    updateMutation.mutate({ workLogGracePeriod: Number(gracePeriod) });
+    updateMutation.mutate({ workLogGracePeriod: Number(gracePeriod) }, {
+      onSuccess: (response) => {
+        enqueueSnackbar(response.message || "Settings updated successfully", { variant: "success" });
+      },
+      onError: (error) => {
+        enqueueSnackbar(extractErrorMessage(error, "Failed to update settings"), { variant: "error" });
+      }
+    });
+  };
+
+  const handleDisable = () => {
+    disableMutation.mutate(undefined, {
+      onSuccess: (response) => {
+        enqueueSnackbar(response.message || "Grace period disabled successfully", { variant: "success" });
+      },
+      onError: (error) => {
+        enqueueSnackbar(extractErrorMessage(error, "Failed to disable grace period"), { variant: "error" });
+      }
+    });
   };
 
   if (isLoading) {
@@ -136,7 +158,7 @@ export default function SystemSettingsPage() {
                       variant="outlined"
                       color="error"
                       startIcon={disableMutation.isPending ? <CircularProgress size={16} color="inherit" /> : <RemoveCircleOutlineIcon />}
-                      onClick={() => disableMutation.mutate()}
+                      onClick={handleDisable}
                       disabled={disableMutation.isPending || updateMutation.isPending}
                       sx={{ borderRadius: 2.5, px: 3, fontWeight: 700 }}
                     >

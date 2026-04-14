@@ -2,8 +2,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { worklogApi } from "@/api/worklogApi";
 import type { SaveTimesheetRequest } from "@/types/worklog";
-import { enqueueSnackbar } from "notistack";
-import { extractErrorMessage } from "@/utils/handleApiErrors";
 
 // ─── Shared/Settings Hooks ─────────────────────────────────
 export function useSettings() {
@@ -19,16 +17,8 @@ export function useUpdateSettings() {
   return useMutation({
     mutationFn: (data: { workLogGracePeriod: number }) =>
       worklogApi.updateSettings(data),
-    onSuccess: (response) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["settings"] });
-      enqueueSnackbar(response.message || "Settings updated successfully", {
-        variant: "success",
-      });
-    },
-    onError: (error: any) => {
-      enqueueSnackbar(extractErrorMessage(error, "Failed to update settings"), {
-        variant: "error",
-      });
     },
   });
 }
@@ -37,16 +27,8 @@ export function useDisableSettings() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () => worklogApi.disableSettings(),
-    onSuccess: (response) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["settings"] });
-      enqueueSnackbar(response.message || "Grace period disabled successfully", {
-        variant: "success",
-      });
-    },
-    onError: (error: any) => {
-      enqueueSnackbar(extractErrorMessage(error, "Failed to disable grace period"), {
-        variant: "error",
-      });
     },
   });
 }
@@ -64,16 +46,8 @@ export function useSaveTimesheet() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: SaveTimesheetRequest) => worklogApi.saveTimesheet(data),
-    onSuccess: (response) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["worklogs"] });
-      enqueueSnackbar(response.message || "Timesheet saved successfully", {
-        variant: "success",
-      });
-    },
-    onError: (error: any) => {
-      enqueueSnackbar(extractErrorMessage(error, "Failed to save timesheet"), {
-        variant: "error",
-      });
     },
   });
 }
@@ -109,3 +83,4 @@ export function useReportsData(startDate: string, endDate: string) {
     staleTime: 5 * 60 * 1000,
   });
 }
+

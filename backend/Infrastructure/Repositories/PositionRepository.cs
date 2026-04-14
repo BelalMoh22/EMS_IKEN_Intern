@@ -76,43 +76,7 @@ namespace backend.Infrastructure.Repositories
 
         public override async Task<int> DeleteAsync(int id)
         {
-            using var connection = _connectionFactory.CreateConnection();
-            connection.Open();
-            using var transaction = connection.BeginTransaction();
-            try
-            {
-                // Soft-delete employees assigned to this position first.
-                var softDeleteEmployeesSql = @"
-                    UPDATE Employees 
-                    SET IsDeleted = 1 
-                    WHERE PositionId = @PositionId AND IsDeleted = 0;";
-
-                await connection.ExecuteAsync(
-                    softDeleteEmployeesSql,
-                    new { PositionId = id },
-                    transaction
-                );
-
-                // Soft-delete position.
-                var softDeletePositionSql = $@"
-                    UPDATE {TableName} 
-                    SET IsDeleted = 1 
-                    WHERE Id = @Id AND IsDeleted = 0;";
-
-                var rows = await connection.ExecuteAsync(
-                    softDeletePositionSql,
-                    new { Id = id },
-                    transaction
-                );
-
-                transaction.Commit();
-                return rows;
-            }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
+            return await SoftDeleteAsync(id);
         }
 
     }

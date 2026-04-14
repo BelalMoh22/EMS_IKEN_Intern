@@ -77,6 +77,7 @@ export default function EditDepartment() {
       },
       {
         onSuccess: () => {
+          enqueueSnackbar("Department updated successfully", { variant: "success" });
           navigate("/departments");
         },
         onError: (error) => {

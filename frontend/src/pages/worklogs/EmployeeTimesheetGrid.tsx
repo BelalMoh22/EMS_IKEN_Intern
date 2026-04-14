@@ -40,6 +40,7 @@ import { useProjects } from "@/hooks/useProjects";
 import { useSettings } from "@/hooks/useWorkLogs";
 import { Alert, AlertTitle, Collapse } from "@mui/material";
 import { extractErrorMessage } from "@/utils/handleApiErrors";
+import { useSnackbar } from "notistack";
 import { useWorkLogStore } from "@/stores/workLogStore";
 import React from "react";
 
@@ -184,11 +185,20 @@ export default function EmployeeTimesheetGrid() {
     warnings,
     isValid
   } = useTimesheet(selectedDate, settings);
+  const { enqueueSnackbar } = useSnackbar();
 
   // Memoize cell change to prevent re-rendering the whole table
   const handleCellChange = useCallback((pid: number, dStr: string, val: number) => {
       internalHandleCellChange(pid, parseISO(dStr), val);
   }, [internalHandleCellChange]);
+
+  const handleSave = () => {
+    saveChanges({
+      onSuccess: () => {
+        enqueueSnackbar("Timesheet saved successfully", { variant: "success" });
+      }
+    });
+  };
  
   const { hasUnsavedChanges, pendingAction: globalPendingAction, setPendingAction: setGlobalPendingAction } = useWorkLogStore();
 
@@ -363,7 +373,7 @@ export default function EmployeeTimesheetGrid() {
             variant="contained"
             color="primary"
             startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
-            onClick={saveChanges}
+            onClick={handleSave}
             disabled={!hasChanges || !isValid || isSaving}
             sx={{ borderRadius: 2, fontWeight: 700, height: 44, px: 4, boxShadow: 2 }}
           >
@@ -372,7 +382,6 @@ export default function EmployeeTimesheetGrid() {
         </Stack>
       </Stack>
 
-      {/* Compact Validation Banners */}
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
         <Collapse in={errors.length > 0}>
           <Alert severity="error" sx={{ borderRadius: 2, fontSize: "0.875rem" }}>

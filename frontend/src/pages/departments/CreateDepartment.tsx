@@ -52,6 +52,7 @@ export default function CreateDepartment() {
       },
       {
         onSuccess: () => {
+          enqueueSnackbar("Department created successfully", { variant: "success" });
           navigate("/departments");
         },
         onError: (error) => {

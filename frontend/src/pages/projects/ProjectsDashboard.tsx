@@ -35,6 +35,8 @@ import { ProjectFormDialog } from "./ProjectFormDialog";
 import { ProjectActionsProvider } from "./context/ProjectActionsContext";
 import { STATUS_META } from "./utils/projectUtils";
 import { useProjectsSummary } from "@/hooks/useWorkLogs";
+import { useSnackbar } from "notistack";
+import { extractErrorMessage } from "@/utils/handleApiErrors";
 
 // ─── Constants ───────────────────────────────────────────
 const DASHBOARD_COLUMNS: DashboardColumnType[] = ["Open", "Logged", "Closed"];
@@ -64,6 +66,7 @@ export default function ProjectsDashboard() {
   const deleteMutation = useDeleteProject();
   const reopenMutation = useReopenProject();
   const closeMutation = useCloseProject();
+  const { enqueueSnackbar } = useSnackbar();
 
   // ── Dialog State ──
   const [formOpen, setFormOpen] = useState(false);
@@ -194,7 +197,13 @@ export default function ProjectsDashboard() {
   const handleDelete = () => {
     if (deleteTarget) {
       deleteMutation.mutate(deleteTarget.id, {
-        onSuccess: () => setDeleteTarget(null),
+        onSuccess: () => {
+          setDeleteTarget(null);
+          enqueueSnackbar("Project deleted successfully", { variant: "success" });
+        },
+        onError: (error) => {
+          enqueueSnackbar(extractErrorMessage(error, "Failed to delete project"), { variant: "error" });
+        },
       });
     }
   };
@@ -202,7 +211,13 @@ export default function ProjectsDashboard() {
   const handleReopen = () => {
     if (reopenTarget) {
       reopenMutation.mutate(reopenTarget.id, {
-        onSuccess: () => setReopenTarget(null),
+        onSuccess: () => {
+          setReopenTarget(null);
+          enqueueSnackbar("Project reopened successfully", { variant: "success" });
+        },
+        onError: (error) => {
+          enqueueSnackbar(extractErrorMessage(error, "Failed to reopen project"), { variant: "error" });
+        },
       });
     }
   };
@@ -210,7 +225,13 @@ export default function ProjectsDashboard() {
   const handleClose = () => {
     if (closeTarget) {
       closeMutation.mutate(closeTarget.id, {
-        onSuccess: () => setCloseTarget(null),
+        onSuccess: () => {
+          setCloseTarget(null);
+          enqueueSnackbar("Project closed successfully", { variant: "success" });
+        },
+        onError: (error) => {
+          enqueueSnackbar(extractErrorMessage(error, "Failed to close project"), { variant: "error" });
+        },
       });
     }
   };

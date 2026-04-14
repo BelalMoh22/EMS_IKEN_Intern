@@ -21,7 +21,7 @@ import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import PeopleIcon from "@mui/icons-material/People";
 import { useSnackbar } from "notistack";
-import { getGeneralErrors } from "@/utils/handleApiErrors";
+import { extractErrorMessage } from "@/utils/handleApiErrors";
 import type { Employee } from "@/types";
 
 export default function PositionDetails() {
@@ -69,18 +69,14 @@ export default function PositionDetails() {
   const handleDelete = () => {
     deleteMutation.mutate(positionId, {
       onSuccess: () => {
+        setDeleteDialogOpen(false);
+        enqueueSnackbar("Position deleted successfully", { variant: "success" });
         navigate("/positions");
       },
       onError: (error) => {
-        const errors = getGeneralErrors(error);
-        if (errors.length > 0) {
-          errors.forEach((msg) => enqueueSnackbar(msg, { variant: "error" }));
-        } else {
-          const data = (error as any)?.response?.data;
-          enqueueSnackbar(data?.message || "Failed to delete position", {
-            variant: "error",
-          });
-        }
+        enqueueSnackbar(extractErrorMessage(error, "Failed to delete position"), {
+          variant: "error",
+        });
       },
     });
   };
@@ -271,7 +267,7 @@ export default function PositionDetails() {
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         title="Delete Position"
-        description={`Are you sure you want to delete ${position.positionName}? This will also delete all employees assigned to this position. This action cannot be undone.`}
+        description={`Are you sure you want to delete ${position.positionName}? This action cannot be undone.`}
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
       />

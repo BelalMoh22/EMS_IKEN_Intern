@@ -61,57 +61,7 @@ namespace backend.Infrastructure.Repositories
 
         public override async Task<int> DeleteAsync(int id)
         {
-            using var connection = _connectionFactory.CreateConnection();
-            connection.Open();
-            using var transaction = connection.BeginTransaction();
-            try
-            {
-                // Soft-delete employees under positions belonging to this department.
-                var softDeleteEmployeesSql = @"
-                    UPDATE Employees 
-                    SET IsDeleted = 1 
-                    WHERE PositionId IN (
-                        SELECT Id FROM Positions WHERE DepartmentId = @DepartmentId AND IsDeleted = 0
-                    ) AND IsDeleted = 0;";
-
-                await connection.ExecuteAsync(
-                    softDeleteEmployeesSql,
-                    new { DepartmentId = id },
-                    transaction
-                );
-
-                // Soft-delete positions under this department.
-                var softDeletePositionsSql = @"
-                    UPDATE Positions 
-                    SET IsDeleted = 1 
-                    WHERE DepartmentId = @DepartmentId AND IsDeleted = 0;";
-
-                await connection.ExecuteAsync(
-                    softDeletePositionsSql,
-                    new { DepartmentId = id },
-                    transaction
-                );
-
-                // Soft-delete the department.
-                var softDeleteDepartmentSql = $@"
-                    UPDATE {TableName} 
-                    SET IsDeleted = 1 
-                    WHERE Id = @Id AND IsDeleted = 0;";
-
-                var rows = await connection.ExecuteAsync(
-                    softDeleteDepartmentSql,
-                    new { Id = id },
-                    transaction
-                );
-
-                transaction.Commit();
-                return rows;
-            }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
+            return await SoftDeleteAsync(id);
         }
     }
-}
+}

@@ -9,10 +9,8 @@ import { Box, Typography, Button, Chip, LinearProgress, Select, MenuItem, Grid }
 import AddIcon from "@mui/icons-material/Add";
 import { ActionButtons } from "@/components/shared/ActionButtons";
 import type { Position } from "@/types";
-import { getGeneralErrors } from "@/utils/handleApiErrors";
+import { extractErrorMessage } from "@/utils/handleApiErrors";
 import { useSnackbar } from "notistack";
-import { AxiosError } from "axios";
-import { ApiResponse } from "@/types";
 import BusinessIcon from "@mui/icons-material/Business";
 import PeopleIcon from "@mui/icons-material/People";
 
@@ -68,17 +66,12 @@ export default function PositionList() {
       deleteMutation.mutate(deleteTarget, {
         onSuccess: () => {
           setDeleteTarget(null);
+          enqueueSnackbar("Position deleted successfully", { variant: "success" });
         },
         onError: (error) => {
-          const errors = getGeneralErrors(error);
-          if (errors.length > 0) {
-            errors.forEach((msg) => enqueueSnackbar(msg, { variant: "error" }));
-          } else {
-            const data = (error as AxiosError<ApiResponse<any>>)?.response?.data;
-            enqueueSnackbar(data?.message || "Failed to delete position", {
-              variant: "error",
-            });
-          }
+          enqueueSnackbar(extractErrorMessage(error, "Failed to delete position"), {
+            variant: "error",
+          });
         },
       });
     }
@@ -289,7 +282,7 @@ export default function PositionList() {
         open={deleteTarget !== null}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Delete Position"
-        description="Are you sure? This will also delete all employees assigned to this position. This action cannot be undone."
+        description="Are you sure you want to delete this position? This action cannot be undone."
         onConfirm={handleDelete}
         loading={deleteMutation.isPending}
       />

@@ -21,6 +21,10 @@ namespace backend.Middlewares
             {
                 await HandleValidationException(context, ex);
             }
+            catch (BusinessException ex)
+            {
+                await HandleGenericException(context, 400, ex.Message);
+            }
             catch (NotFoundException ex)
             {
                 await HandleGenericException(context, 404, ex.Message);

@@ -95,13 +95,17 @@ export const useTimesheet = (selectedDate: Date, settings?: { workLogGracePeriod
     setEditedData(originalData);
   };
 
-  const saveChanges = () => {
+  const saveChanges = (options?: { onSuccess?: () => void; onError?: (error: any) => void }) => {
     if (!hasChanges || !isValid) return;
 
     if (entries.length > 0) {
       saveMutation.mutate({ entries }, {
           onSuccess: () => {
               setOriginalData(editedData);
+              options?.onSuccess?.();
+          },
+          onError: (error) => {
+              options?.onError?.(error);
           }
       });
     }

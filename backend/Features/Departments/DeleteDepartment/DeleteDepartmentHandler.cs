@@ -3,12 +3,14 @@ namespace backend.Features.Departments.DeleteDepartment
     public class DeleteDepartmentHandler : IRequestHandler<DeleteDepartmentCommand, int>
     {
         private readonly IRepository<Department> _repo;
+        private readonly IDepartmentBusinessRules _rules;
 
         public DeleteDepartmentHandler(
             IRepository<Department> repo,
             IDepartmentBusinessRules rules)
         {
             _repo = repo;
+            _rules = rules;
         }
 
         public async Task<int> Handle(DeleteDepartmentCommand request, CancellationToken cancellationToken)
@@ -18,7 +20,9 @@ namespace backend.Features.Departments.DeleteDepartment
                 {
                     { "id", new List<string> { "Id must be a positive integer." } }
                 });
-                
+
+            await _rules.ValidateForDeleteAsync(request.id);
+
             var rows = await _repo.DeleteAsync(request.id);
 
             if (rows == 0)

@@ -4,5 +4,6 @@ namespace backend.Infrastructure.BusinessRules.Departments
     {
         Task ValidateForCreateAsync(CreateDepartmentDto dto);
         Task ValidateForUpdateAsync(int departmentId, UpdateDepartmentDto dto, Department existingDepartment);
+        Task ValidateForDeleteAsync(int departmentId);
     }
 }

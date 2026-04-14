@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -46,9 +47,10 @@ import { format } from "date-fns";
 import { useProject, useDeleteProject, useReopenProject, useCloseProject } from "@/hooks/useProjects";
 import { useProjectEmployees, useEmployeeReport } from "@/hooks/useWorkLogs";
 import { STATUS_META, formatDate } from "./utils/projectUtils";
-import { useState } from "react";
 import { ProjectFormDialog } from "./ProjectFormDialog";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { useSnackbar } from "notistack";
+import { extractErrorMessage } from "@/utils/handleApiErrors";
 
 export default function ProjectDetails() {
   const { id } = useParams<{ id: string }>();
@@ -60,6 +62,7 @@ export default function ProjectDetails() {
   const deleteMutation = useDeleteProject();
   const reopenMutation = useReopenProject();
   const closeMutation = useCloseProject();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [formOpen, setFormOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -90,7 +93,35 @@ export default function ProjectDetails() {
 
   const handleDelete = () => {
     deleteMutation.mutate(project.id, {
-      onSuccess: () => navigate("/projects"),
+      onSuccess: () => {
+        enqueueSnackbar("Project deleted successfully", { variant: "success" });
+        navigate("/projects");
+      },
+      onError: (err) => {
+        enqueueSnackbar(extractErrorMessage(err, "Failed to delete project"), { variant: "error" });
+      }
+    });
+  };
+
+  const handleReopen = () => {
+    reopenMutation.mutate(project.id, {
+      onSuccess: () => {
+        enqueueSnackbar("Project reopened successfully", { variant: "success" });
+      },
+      onError: (err) => {
+        enqueueSnackbar(extractErrorMessage(err, "Failed to reopen project"), { variant: "error" });
+      }
+    });
+  };
+
+  const handleClose = () => {
+    closeMutation.mutate(project.id, {
+      onSuccess: () => {
+        enqueueSnackbar("Project closed successfully", { variant: "success" });
+      },
+      onError: (err) => {
+        enqueueSnackbar(extractErrorMessage(err, "Failed to close project"), { variant: "error" });
+      }
     });
   };
 
@@ -188,7 +219,7 @@ export default function ProjectDetails() {
                     startIcon={<CheckCircleIcon />}
                     fullWidth
                     disabled={closeMutation.isPending}
-                    onClick={() => closeMutation.mutate(project.id)}
+                    onClick={handleClose}
                   >
                     Close Project
                   </Button>
@@ -199,7 +230,7 @@ export default function ProjectDetails() {
                     startIcon={<RestoreIcon />}
                     fullWidth
                     disabled={reopenMutation.isPending}
-                    onClick={() => reopenMutation.mutate(project.id)}
+                    onClick={handleReopen}
                   >
                     Reopen Project
                   </Button>

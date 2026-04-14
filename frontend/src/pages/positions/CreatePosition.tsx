@@ -58,6 +58,7 @@ export default function CreatePosition() {
   const onSubmit = (values: FormData) => {
     createMutation.mutate(values, {
       onSuccess: () => {
+        enqueueSnackbar("Position created successfully", { variant: "success" });
         navigate("/positions");
       },
       onError: (error) => {

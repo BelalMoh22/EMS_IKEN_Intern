@@ -78,6 +78,7 @@ export default function EditPosition() {
       { id: numId, data: values },
       {
         onSuccess: () => {
+          enqueueSnackbar("Position updated successfully", { variant: "success" });
           navigate("/positions");
         },
         onError: (error) => {

@@ -25,7 +25,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { useSnackbar } from "notistack";
-import { getGeneralErrors } from "@/utils/handleApiErrors";
+import { extractErrorMessage } from "@/utils/handleApiErrors";
 
 export default function EmployeeDetails() {
   const { id } = useParams<{ id: string }>();
@@ -77,18 +77,14 @@ export default function EmployeeDetails() {
   const handleDelete = () => {
     deleteMutation.mutate(employeeId, {
       onSuccess: () => {
+        setDeleteDialogOpen(false);
+        enqueueSnackbar("Employee deleted successfully", { variant: "success" });
         navigate("/employees");
       },
       onError: (error) => {
-        const errors = getGeneralErrors(error);
-        if (errors.length > 0) {
-          errors.forEach((msg) => enqueueSnackbar(msg, { variant: "error" }));
-        } else {
-          const data = (error as any)?.response?.data;
-          enqueueSnackbar(data?.message || "Failed to delete employee", {
-            variant: "error",
-          });
-        }
+        enqueueSnackbar(extractErrorMessage(error, "Failed to delete employee"), {
+          variant: "error",
+        });
       },
     });
   };

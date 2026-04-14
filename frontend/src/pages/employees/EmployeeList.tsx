@@ -11,9 +11,8 @@ import { ResetCredentialsDialog } from "./ResetCredentialsDialog";
 import { Box, Typography, Button, Chip, Select, MenuItem, Grid } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { ActionButtons } from "@/components/shared/ActionButtons";
-import type { Employee, ApiResponse } from "@/types";
-import { AxiosError } from "axios";
-import { getGeneralErrors } from "@/utils/handleApiErrors";
+import type { Employee } from "@/types";
+import { extractErrorMessage } from "@/utils/handleApiErrors";
 import { useSnackbar } from "notistack";
 
 // Initial page size
@@ -99,17 +98,12 @@ export default function EmployeeList() {
       deleteMutation.mutate(deleteTarget, {
         onSuccess: () => {
           setDeleteTarget(null);
+          enqueueSnackbar("Employee deleted successfully", { variant: "success" });
         },
         onError: (error) => {
-          const errors = getGeneralErrors(error);
-          if (errors.length > 0) {
-            errors.forEach((msg) => enqueueSnackbar(msg, { variant: "error" }));
-          } else {
-            const data = (error as AxiosError<ApiResponse<unknown>>)?.response?.data;
-            enqueueSnackbar(data?.message || "Failed to delete employee", {
-              variant: "error",
-            });
-          }
+          enqueueSnackbar(extractErrorMessage(error, "Failed to delete employee"), {
+            variant: "error",
+          });
         },
       });
     }
@@ -297,11 +291,18 @@ export default function EmployeeList() {
         employee={resetTarget}
         loading={resetMutation.isPending}
         onConfirm={async (userId, username, newPassword) => {
-          await resetMutation.mutateAsync({
-            userId,
-            data: { username, newPassword },
-          });
-          setResetTarget(null);
+          await resetMutation.mutateAsync(
+            { userId, data: { username, newPassword } },
+            {
+              onSuccess: () => {
+                enqueueSnackbar("Credentials reset successfully", { variant: "success" });
+                setResetTarget(null);
+              },
+              onError: (error) => {
+                enqueueSnackbar(extractErrorMessage(error, "Failed to reset credentials"), { variant: "error" });
+              },
+            }
+          );
         }}
       />
     </Box>

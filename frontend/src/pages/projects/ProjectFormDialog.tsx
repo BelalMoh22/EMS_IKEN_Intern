@@ -54,21 +54,35 @@ export function ProjectFormDialog({ open, onClose, editTarget }: Props) {
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const onSubmit = (values: ProjectFormValues) => {
     if (isEdit && editTarget) {
       updateMutation.mutate(
         { id: editTarget.id, data: { name: values.name, description: values.description } },
         { 
-          onSuccess: () => onClose(),
-          onError: (err) => handleApiErrors(err, methods)
+          onSuccess: () => {
+            enqueueSnackbar("Project updated successfully", { variant: "success" });
+            onClose();
+          },
+          onError: (err) => {
+            const msg = handleApiErrors(err, methods);
+            enqueueSnackbar(msg, { variant: "error" });
+          }
         }
       );
     } else {
       createMutation.mutate(
         { name: values.name, description: values.description },
         { 
-          onSuccess: () => onClose(),
-          onError: (err) => handleApiErrors(err, methods)
+          onSuccess: () => {
+            enqueueSnackbar("Project created successfully", { variant: "success" });
+            onClose();
+          },
+          onError: (err) => {
+            const msg = handleApiErrors(err, methods);
+            enqueueSnackbar(msg, { variant: "error" });
+          }
         }
       );
     }
