@@ -1,67 +1,21 @@
-// ─── WorkLog Status Enum ─────────────────────────────────
-export type WorkStatus = "Todo" | "Done";
-
-export const WORK_STATUS_ENUM_MAP: Record<WorkStatus, number> = {
-  Todo: 1,
-  Done: 2,
-} as const;
-
-export const WORK_STATUS_FROM_NUMBER: Record<number, WorkStatus> = {
-  1: "Todo",
-  2: "Done",
-};
-
-// ─── Employee: Daily Logs List ───────────────────────────
-export interface DailyWorkLogDTO {
-  date: string;
-  totalHours: number;
-  projectsCount: number;
-  projectDetails?: string;
-}
-
-// ─── Employee: Day Detail ────────────────────────────────
-export interface WorkLogResponseItemDTO {
-  id: number;
+// ─── Employee: Timesheet (Monthly) ─────────────────────
+export interface MonthlyWorkLogDTO {
   projectId: number;
   projectName: string;
-  hours: number;
-  status: number | string; // WorkStatus enum from backend (can be Int or String)
-  notes: string | null;
-}
-
-export interface DailyWorkLogDetailsDTO {
   date: string;
-  totalHours: number;
-  logs: WorkLogResponseItemDTO[];
-}
-
-// ─── Employee: Create Single Log (Quick Add) ─────────────
-export interface CreateWorkLogRequest {
-  projectId: number;
-  workDate: string;
   hours: number;
-  status: number;
-  notes?: string;
 }
 
-// ─── Employee: Save Daily Logs (Bulk) ────────────────────
-export interface WorkLogCreateItemDTO {
+// ─── Employee: Save Timesheet ──────────────────────────
+export interface TimesheetEntryDTO {
   projectId: number;
+  date: string; // YYYY-MM-DD
   hours: number;
-  status: number;
   notes?: string;
 }
 
-export interface CreateUpdateDailyWorkLogsRequest {
-  workDate: string;
-  logs: WorkLogCreateItemDTO[];
-}
-
-// ─── Employee: Update Single Log ─────────────────────────
-export interface UpdateWorkLogRequest {
-  hours?: number;
-  status?: number;
-  notes?: string;
+export interface SaveTimesheetRequest {
+  entries: TimesheetEntryDTO[];
 }
 
 // ─── Manager: Projects Summary ───────────────────────────
@@ -82,7 +36,6 @@ export interface EmployeeContributionDTO {
 export interface EmployeeDailyReportDTO {
   date: string;
   hours: number;
-  status: number;
 }
 
 // ─── Manager: Work Logs Report (Matrix) ────────────────

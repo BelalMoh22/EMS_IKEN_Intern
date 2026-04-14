@@ -206,6 +206,5 @@ namespace backend.Infrastructure.Repositories
             var profile = await connection.QuerySingleOrDefaultAsync<EmployeeProfileDto>(sql, new { UserId = UserId });
             return profile;
         }
-
     }
 }

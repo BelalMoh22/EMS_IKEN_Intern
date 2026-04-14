@@ -1,12 +1,8 @@
 import api from "./axios";
 import type { ApiResponse } from "@/types";
 import type {
-  DailyWorkLogDTO,
-  DailyWorkLogDetailsDTO,
-  CreateWorkLogRequest,
-  CreateUpdateDailyWorkLogsRequest,
-  UpdateWorkLogRequest,
-  WorkLogResponseItemDTO,
+  MonthlyWorkLogDTO,
+  SaveTimesheetRequest,
   ProjectSummaryDTO,
   EmployeeContributionDTO,
   EmployeeDailyReportDTO,
@@ -14,50 +10,18 @@ import type {
 } from "@/types/worklog";
 
 export const worklogApi = {
-  // ─── Employee: Daily Logs ────────────────────────────────
+  // ─── Employee: Timesheet ────────────────────────────────
 
-  /** GET /api/worklogs/daily/ */
-  getDailyLogs: () =>
+  /** GET /api/worklogs/month?year=YYYY&month=MM */
+  getMonthlyLogs: (year: number, month: number) =>
     api
-      .get<ApiResponse<DailyWorkLogDTO[]>>("/worklogs/daily")
+      .get<ApiResponse<MonthlyWorkLogDTO[]>>(`/worklogs/month?year=${year}&month=${month}`)
       .then((r) => r.data.data!),
 
-  /** GET /api/worklogs/daily/{date} */
-  getDayDetails: (date: string) =>
+  /** POST /api/worklogs/daily/ — Timesheet Save (UPSERT) */
+  saveTimesheet: (data: SaveTimesheetRequest) =>
     api
-      .get<ApiResponse<DailyWorkLogDetailsDTO>>(`/worklogs/daily/${date}`)
-      .then((r) => r.data.data!),
-
-  /** POST /api/worklogs/daily/ — Bulk save (create / replace) */
-  saveDailyLogs: (data: CreateUpdateDailyWorkLogsRequest) =>
-    api
-      .post<ApiResponse<boolean>>("/worklogs/daily", data)
-      .then((r) => r.data),
-
-  // ─── Employee: Single Log CRUD ───────────────────────────
-
-  /** POST /api/worklogs/log/ — Quick add one log */
-  createLog: (data: CreateWorkLogRequest) =>
-    api
-      .post<ApiResponse<number>>("/worklogs/log", data)
-      .then((r) => r.data.data!),
-
-  /** PUT /api/worklogs/log/{id} */
-  updateLog: (id: number, data: UpdateWorkLogRequest) =>
-    api
-      .put<ApiResponse<WorkLogResponseItemDTO>>(`/worklogs/log/${id}`, data)
-      .then((r) => r.data),
-
-  /** DELETE /api/worklogs/log/{id} */
-  deleteLog: (id: number) =>
-    api
-      .delete<ApiResponse<boolean>>(`/worklogs/log/${id}`)
-      .then((r) => r.data),
-
-  /** DELETE /api/worklogs/daily/project/{projectId} */
-  deleteProjectLogs: (projectId: number) =>
-    api
-      .delete<ApiResponse<boolean>>(`/worklogs/daily/project/${projectId}`)
+      .post<ApiResponse<boolean>>("/worklogs", data) // Fixed base path: backend is group.MapPost("/") in WorkLogs group
       .then((r) => r.data),
 
   // ─── Manager: Reports ────────────────────────────────────

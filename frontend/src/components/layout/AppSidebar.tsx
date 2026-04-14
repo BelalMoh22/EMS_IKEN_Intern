@@ -28,6 +28,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
+import { useWorkLogStore } from "@/stores/workLogStore";
 import type { Role } from "@/types";
 import React from "react";
 
@@ -131,6 +132,17 @@ export function AppSidebar({ collapsed, width }: Props) {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const { hasUnsavedChanges, setPendingAction } = useWorkLogStore();
+
+  const handleNav = (url: string) => {
+    if (location.pathname === url) return;
+
+    if (hasUnsavedChanges) {
+        setPendingAction(() => () => navigate(url));
+    } else {
+        navigate(url);
+    }
+  };
 
   // State for expanded menus
   const [openMenus, setOpenMenus] = React.useState<Record<string, boolean>>({});
@@ -160,8 +172,15 @@ export function AppSidebar({ collapsed, width }: Props) {
     });
 
   const handleLogout = () => {
-    logout();
-    navigate("/login");
+    if (hasUnsavedChanges) {
+        setPendingAction(() => () => {
+            logout();
+            navigate("/login");
+        });
+    } else {
+        logout();
+        navigate("/login");
+    }
   };
 
   const initials = user?.username
@@ -310,7 +329,7 @@ export function AppSidebar({ collapsed, width }: Props) {
                   if (hasChildren) {
                     toggleMenu(item.title);
                   } else if (item.url) {
-                    navigate(item.url);
+                    handleNav(item.url);
                   }
                 }}
                 selected={isActive && !hasChildren}
@@ -358,7 +377,7 @@ export function AppSidebar({ collapsed, width }: Props) {
                       return (
                         <ListItemButton
                           key={child.title}
-                          onClick={() => child.url && navigate(child.url)}
+                          onClick={() => child.url && handleNav(child.url)}
                           selected={isChildActive}
                           sx={{
                             pl: 5,

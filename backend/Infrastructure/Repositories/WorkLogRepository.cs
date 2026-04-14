@@ -10,88 +10,68 @@ namespace backend.Infrastructure.Repositories
         }
 
         // =========================
-        // Daily Mode (TABLE VIEW)
+        // Timesheet: Monthly Logs
         // =========================
-        public async Task<IEnumerable<DailyWorkLogDTO>> GetDailyLogsAsync(int employeeId)
+        public async Task<IEnumerable<MonthlyWorkLogDTO>> GetMonthlyLogsAsync(int employeeId, int year, int month)
         {
             var sql = @"
                 SELECT 
-                    w.WorkDate AS Date,
-                    SUM(w.Hours) AS TotalHours,
-                    COUNT(DISTINCT w.ProjectId) AS ProjectsCount,
-                    STRING_AGG(p.Name + '|' + CAST(w.Hours AS VARCHAR), ';') AS ProjectDetails
+                    w.ProjectId,
+                    p.Name AS ProjectName,
+                    CONVERT(VARCHAR(10), w.WorkDate, 120) AS Date,
+                    w.Hours
                 FROM WorkLogs w
                 JOIN Projects p ON p.Id = w.ProjectId
                 WHERE w.EmployeeId = @EmployeeId
                 AND w.IsDeleted = 0
-                GROUP BY w.WorkDate
-                ORDER BY w.WorkDate DESC";
+                AND YEAR(w.WorkDate) = @Year
+                AND MONTH(w.WorkDate) = @Month
+                ORDER BY w.WorkDate, p.Name";
 
             using var conn = _db.CreateConnection();
-            return await conn.QueryAsync<DailyWorkLogDTO>(sql, new { EmployeeId = employeeId });
-        }
-
-        // =========================
-        // Get Logs for a Day
-        // =========================
-        public async Task<IEnumerable<WorkLog>> GetDailyWorkLogForEmployee(int employeeId, DateTime date)
-        {
-            var sql = @"
-                SELECT w.*, p.Name AS ProjectName
-                FROM WorkLogs w
-                LEFT JOIN Projects p ON w.ProjectId = p.Id
-                WHERE w.EmployeeId = @EmployeeId
-                AND w.WorkDate >= @StartDate
-                AND w.WorkDate < @EndDate
-                AND w.IsDeleted = 0";
-
-            using var conn = _db.CreateConnection();
-            return await conn.QueryAsync<WorkLog>(sql, new
+            return await conn.QueryAsync<MonthlyWorkLogDTO>(sql, new
             {
                 EmployeeId = employeeId,
-                StartDate = date.Date,
-                EndDate = date.Date.AddDays(1)
+                Year = year,
+                Month = month
             });
         }
 
         // =========================
-        // Get By Id
+        // Timesheet: Upsert
         // =========================
-        public async Task<WorkLog?> GetByIdAsync(int id)
+        public async Task UpsertTimesheetAsync(int employeeId, IEnumerable<WorkLog> logs)
         {
-            var sql = @"
-                SELECT * FROM WorkLogs
-                WHERE Id = @Id
-                AND IsDeleted = 0";
-
-            using var conn = _db.CreateConnection();
-            return await conn.QueryFirstOrDefaultAsync<WorkLog>(sql, new { Id = id });
-        }
-
-        // =========================
-        // Replace Full Day (Bulk Mode)
-        // =========================
-        public async Task SaveDailyWorkLogsAsync(int employeeId, DateTime date, IEnumerable<WorkLog> logs)
-        {
-            var deleteSql = @"
-                DELETE FROM WorkLogs
-                WHERE EmployeeId = @EmployeeId
-                AND WorkDate = @WorkDate";
-
-            var insertSql = @"
-                INSERT INTO WorkLogs
-                (ProjectId, EmployeeId, Hours, WorkDate, Notes, Status)
-                VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes, @Status)";
+            var upsertSql = @"
+                MERGE WorkLogs AS target
+                USING (SELECT @ProjectId AS ProjectId, @EmployeeId AS EmployeeId, @WorkDate AS WorkDate) AS source
+                ON target.ProjectId = source.ProjectId 
+                   AND target.EmployeeId = source.EmployeeId 
+                   AND target.WorkDate = source.WorkDate
+                   AND target.IsDeleted = 0
+                WHEN MATCHED AND @Hours = 0 THEN
+                    UPDATE SET IsDeleted = 1, UpdatedAt = GETDATE()
+                WHEN MATCHED AND @Hours > 0 THEN
+                    UPDATE SET Hours = @Hours, Notes = @Notes, UpdatedAt = GETDATE()
+                WHEN NOT MATCHED AND @Hours > 0 THEN
+                    INSERT (ProjectId, EmployeeId, Hours, WorkDate, Notes)
+                    VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes);";
 
             using var conn = _db.CreateConnection();
             conn.Open();
             using var trans = conn.BeginTransaction();
             try
             {
-                await conn.ExecuteAsync(deleteSql, new { EmployeeId = employeeId, WorkDate = date.Date }, trans);
-                if (logs.Any())
+                foreach (var log in logs)
                 {
-                    await conn.ExecuteAsync(insertSql, logs, trans);
+                    await conn.ExecuteAsync(upsertSql, new
+                    {
+                        log.ProjectId,
+                        log.EmployeeId,
+                        log.WorkDate,
+                        log.Hours,
+                        log.Notes
+                    }, trans);
                 }
                 trans.Commit();
             }
@@ -101,138 +81,6 @@ namespace backend.Infrastructure.Repositories
                 throw;
             }
         }
-
-        // =========================
-        // Create Single Log
-        // =========================
-        public async Task<int> CreateAsync(WorkLog log)
-        {
-            var sql = @"
-                INSERT INTO WorkLogs
-                (ProjectId, EmployeeId, Hours, WorkDate, Notes, Status)
-                VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes, @Status);
-
-                SELECT CAST(SCOPE_IDENTITY() AS INT);";
-
-            using var conn = _db.CreateConnection();
-            return await conn.ExecuteScalarAsync<int>(sql, log);
-        }
-
-        // =========================
-        // Update Single Log
-        // =========================
-        public async Task<int> UpdateAsync(WorkLog log)
-        {
-            var sql = @"
-                UPDATE WorkLogs
-                SET Hours = @Hours,
-                    Notes = @Notes,
-                    Status = @Status,
-                    UpdatedAt = GETDATE()
-                WHERE Id = @Id
-                AND IsDeleted = 0";
-
-            using var conn = _db.CreateConnection();
-            var rows = await conn.ExecuteAsync(sql, log);
-            return rows;
-        }
-
-        public async Task<int> SoftDeleteLogAsync(int logId)
-        {
-            var sql = @"
-                UPDATE WorkLogs
-                SET IsDeleted = 1
-                WHERE Id = @Id";
-
-            using var conn = _db.CreateConnection();
-            var rows = await conn.ExecuteAsync(sql, new { Id = logId });
-            return rows;
-        }
-
-        public async Task<int> DeleteProjectLogsAsync(int employeeId, int projectId)
-        {
-            var sql = @"
-                UPDATE WorkLogs
-                SET IsDeleted = 1
-                WHERE EmployeeId = @EmployeeId
-                AND ProjectId = @ProjectId
-                AND IsDeleted = 0";
-
-            using var conn = _db.CreateConnection();
-            var rows = await conn.ExecuteAsync(sql, new
-            {
-                EmployeeId = employeeId,
-                ProjectId = projectId
-            });
-            return rows;
-        }
-
-        public async Task<bool> ExistsEmployeeProjectLogsAsync(int employeeId, int projectId)
-        {
-            var sql = @"
-                SELECT 1
-                FROM WorkLogs
-                WHERE EmployeeId = @EmployeeId
-                AND ProjectId = @ProjectId
-                AND IsDeleted = 0";
-
-            using var conn = _db.CreateConnection();
-
-            var result = await conn.QueryFirstOrDefaultAsync<int?>(sql, new
-            {
-                EmployeeId = employeeId,
-                ProjectId = projectId
-            });
-
-            return result.HasValue;
-        }
-
-        public async Task<bool> ExistsLogsForDayAsync(int employeeId, DateTime date)
-        {
-            var sql = @"
-                SELECT 1
-                FROM WorkLogs
-                WHERE EmployeeId = @EmployeeId
-                AND WorkDate >= @StartDate
-                AND WorkDate < @EndDate
-                AND IsDeleted = 0";
-
-            using var conn = _db.CreateConnection();
-
-            var result = await conn.QueryFirstOrDefaultAsync<int?>(sql, new
-            {
-                EmployeeId = employeeId,
-                StartDate = date.Date,
-                EndDate = date.Date.AddDays(1)
-            });
-
-            return result.HasValue;
-        }
-
-        public async Task<bool> ExistsProjectLogForDayAsync(int employeeId, int projectId, DateTime date)
-        {
-            var sql = @"
-                SELECT 1
-                FROM WorkLogs
-                WHERE EmployeeId = @EmployeeId
-                AND ProjectId = @ProjectId
-                AND WorkDate >= @StartDate
-                AND WorkDate < @EndDate
-                AND IsDeleted = 0";
-
-            using var conn = _db.CreateConnection();
-
-            var result = await conn.QueryFirstOrDefaultAsync<int?>(sql, new
-            {
-                EmployeeId = employeeId,
-                ProjectId = projectId,
-                StartDate = date.Date,
-                EndDate = date.Date.AddDays(1)
-            });
-
-            return result.HasValue;
-        }
-
 
         //===================================================================
 
@@ -284,13 +132,12 @@ namespace backend.Infrastructure.Repositories
             var sql = @"
                 SELECT 
                     WorkDate AS Date,
-                    Status,
                     SUM(Hours) AS Hours
                 FROM WorkLogs
                 WHERE ProjectId = @ProjectId
                 AND EmployeeId = @EmployeeId
                 AND IsDeleted = 0
-                GROUP BY WorkDate, Status
+                GROUP BY WorkDate
                 ORDER BY WorkDate";
 
             using var conn = _db.CreateConnection();

@@ -14,7 +14,6 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import type { EmployeeDailyReportDTO } from "@/types/worklog";
-import { WORK_STATUS_FROM_NUMBER } from "@/types/worklog";
 
 export default function EmployeeProjectReportPage() {
   const navigate = useNavigate();
@@ -37,7 +36,7 @@ export default function EmployeeProjectReportPage() {
   }, [data]);
 
   const totalHours = useMemo(
-    () => sortedData.reduce((sum, d) => sum + (d.status === 2 ? d.hours : 0), 0),
+    () => sortedData.reduce((sum, d) => sum + d.hours, 0),
     [sortedData]
   );
 
@@ -67,21 +66,9 @@ export default function EmployeeProjectReportPage() {
           size="small"
           sx={{
             fontWeight: 600,
-            bgcolor: row.status === 2 ? "rgba(34, 197, 94, 0.12)" : "rgba(245, 158, 11, 0.12)",
-            color: row.status === 2 ? "#16a34a" : "#d97706",
+            bgcolor: "rgba(34, 197, 94, 0.12)",
+            color: "#16a34a",
           }}
-        />
-      ),
-    },
-    {
-      header: "Status",
-      cell: (row) => (
-        <Chip
-          label={WORK_STATUS_FROM_NUMBER[row.status] || "Unknown"}
-          size="small"
-          variant="outlined"
-          color={row.status === 2 ? "success" : "warning"}
-          sx={{ fontWeight: 600 }}
         />
       ),
     },
@@ -99,7 +86,7 @@ export default function EmployeeProjectReportPage() {
         <Box>
           <Typography variant="h1">Employee Report</Typography>
           <Typography variant="body2" color="text.secondary">
-            Daily hours for selected employee in this project (Only 'Done' hours are counted towards project total)
+            Daily hours for selected employee in this project.
           </Typography>
         </Box>
         <Button
@@ -116,7 +103,7 @@ export default function EmployeeProjectReportPage() {
         <Card sx={{ flex: 1 }}>
           <CardContent>
             <Typography variant="body2" color="text.secondary">
-              Total Approved Hours
+              Total Hours
             </Typography>
             <Typography variant="h2" sx={{ color: "#2563eb", mt: 0.5 }}>
               {totalHours}h
@@ -136,7 +123,7 @@ export default function EmployeeProjectReportPage() {
         <Card sx={{ flex: 1 }}>
           <CardContent>
             <Typography variant="body2" color="text.secondary">
-              Avg Approved Hours / Day
+              Avg Hours / Day
             </Typography>
             <Typography variant="h2" sx={{ color: "#d97706", mt: 0.5 }}>
               {avgHours}h

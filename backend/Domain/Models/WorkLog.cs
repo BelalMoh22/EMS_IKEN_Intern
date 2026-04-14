@@ -4,13 +4,12 @@ namespace backend.Domain.Models
     {
         private WorkLog(){}
 
-        public WorkLog(int employeeId, int projectId, DateTime workDate, decimal hours, WorkStatus status, string? notes = null)
+        public WorkLog(int employeeId, int projectId, DateTime workDate, decimal hours, string? notes = null)
         {
             EmployeeId = employeeId;
             ProjectId = projectId;
             WorkDate = workDate;
             Hours = hours;
-            Status = status;
             Notes = notes;
 
             CreatedAt = DateTime.UtcNow;
@@ -25,17 +24,14 @@ namespace backend.Domain.Models
 
         public decimal Hours { get; set; }
 
-        public WorkStatus Status { get; set; }
-
         public string? Notes { get; set; }
 
         public DateTime? UpdatedAt { get; set; }
 
 
-        public void Update(decimal hours, WorkStatus status, string? notes = null)
+        public void Update(decimal hours, string? notes = null)
         {
             Hours = hours;
-            Status = status;
             Notes = notes;
             UpdatedAt = DateTime.UtcNow;
         }

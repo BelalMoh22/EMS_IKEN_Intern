@@ -83,8 +83,7 @@ export const ProjectLeaderboard = ({
       const filteredHours = report
         .filter((log) => {
           const logDate = new Date(log.date);
-          // Only count hours if status is 'Done' (2)
-          return isWithinInterval(logDate, range) && Number(log.status) === 2;
+          return isWithinInterval(logDate, range);
         })
         .reduce((sum, log) => sum + log.hours, 0);
 
