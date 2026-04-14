@@ -85,12 +85,16 @@ export function ProjectFormDialog({ open, onClose, editTarget }: Props) {
             <TextField
               id="project-name"
               label="Project Name"
+              required
               size="small"
               fullWidth
               error={!!errors.name}
               helperText={errors.name?.message as string}
               {...register("name", { required: "Project name is required" })}
-              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+              sx={{ 
+                "& .MuiOutlinedInput-root": { borderRadius: 2 },
+                "& .MuiFormLabel-asterisk": { color: "#d32f2f" }
+              }}
             />
             <TextField
               id="project-description"

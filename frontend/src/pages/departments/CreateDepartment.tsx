@@ -94,6 +94,7 @@ export default function CreateDepartment() {
                     name="departmentName"
                     label="Department Name"
                     placeholder="Engineering"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12 }}>

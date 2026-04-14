@@ -118,6 +118,7 @@ export default function EmployeeDetails() {
           canEdit={canEdit}
           canDelete={canDelete}
           onDelete={() => setDeleteDialogOpen(true)}
+          hideView={true}
         />
       }
     >

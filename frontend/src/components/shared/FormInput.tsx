@@ -4,12 +4,13 @@ import { TextField, IconButton, InputAdornment, TextFieldProps } from "@mui/mate
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-type Props = TextFieldProps & {
+type Props = Omit<TextFieldProps, 'label'> & {
   name: string;
-  label: string;
+  label: string | React.ReactNode;
+  required?: boolean;
 };
 
-export function FormInput({ name, label, type = "text", placeholder, ...rest }: Props) {
+export function FormInput({ name, label, type = "text", placeholder, required, ...rest }: Props) {
   const {
     register,
     formState: { errors },
@@ -26,6 +27,7 @@ export function FormInput({ name, label, type = "text", placeholder, ...rest }: 
     <TextField
       id={name}
       label={label}
+      required={required}
       type={inputType}
       placeholder={placeholder}
       fullWidth
@@ -61,6 +63,9 @@ export function FormInput({ name, label, type = "text", placeholder, ...rest }: 
         ...(rest.sx || {}),
         "& .MuiOutlinedInput-root": {
           borderRadius: 2,
+        },
+        "& .MuiFormLabel-asterisk": {
+          color: "#d32f2f",
         },
       }}
     />

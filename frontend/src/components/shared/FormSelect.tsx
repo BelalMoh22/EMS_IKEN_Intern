@@ -9,9 +9,10 @@ interface Option {
 
 interface Props {
   name: string;
-  label: string;
+  label: string | React.ReactNode;
   placeholder?: string;
   options: Option[];
+  required?: boolean;
 }
 
 export function FormSelect({
@@ -19,6 +20,7 @@ export function FormSelect({
   label,
   placeholder = "Select...",
   options,
+  required,
 }: Props) {
   const {
     control,
@@ -35,11 +37,17 @@ export function FormSelect({
           {...field}
           select
           label={label}
+          required={required}
           fullWidth
           size="small"
           error={!!error}
           helperText={error?.message as string}
           value={field.value || ""}
+          sx={{
+            "& .MuiFormLabel-asterisk": {
+              color: "#d32f2f",
+            },
+          }}
         >
           <MenuItem value="" disabled>
             {placeholder}

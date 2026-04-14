@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate, useLocation } from "react-router-dom";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCreateEmployee } from "@/hooks/useEmployees";
@@ -187,6 +187,7 @@ export default function CreateEmployee() {
                     name="username"
                     label="Username"
                     placeholder="john.doe"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
@@ -195,12 +196,14 @@ export default function CreateEmployee() {
                     label="Password"
                     type="password"
                     placeholder="••••••••"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
                   <FormSelect
                     name="role"
                     label="Role"
+                    required
                     options={[
                       { label: "HR", value: "HR" },
                       { label: "Manager", value: "Manager" },
@@ -226,6 +229,7 @@ export default function CreateEmployee() {
                     name="firstName"
                     label="First Name"
                     placeholder="John"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -233,6 +237,7 @@ export default function CreateEmployee() {
                     name="lastname"
                     label="Last Name"
                     placeholder="Doe"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -240,6 +245,7 @@ export default function CreateEmployee() {
                     name="nationalId"
                     label="National ID (14 digits)"
                     placeholder="12345678901234"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -248,6 +254,7 @@ export default function CreateEmployee() {
                     label="Email"
                     type="email"
                     placeholder="john@company.com"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -255,6 +262,7 @@ export default function CreateEmployee() {
                     name="phoneNumber"
                     label="Phone Number"
                     placeholder="+201234567890"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -262,6 +270,7 @@ export default function CreateEmployee() {
                     name="dateOfBirth"
                     label="Date of Birth"
                     type="date"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12 }}>
@@ -269,6 +278,7 @@ export default function CreateEmployee() {
                     name="address"
                     label="Address"
                     placeholder="123 Main St, City"
+                    required
                   />
                 </Grid>
               </Grid>
@@ -288,6 +298,7 @@ export default function CreateEmployee() {
                   <FormSelect
                     name="positionId"
                     label="Position"
+                    required
                     options={
                       positions?.map((p) => ({
                         label: `${p.positionName} (${p.currentEmployeeCount}/${p.targetEmployeeCount})`,
@@ -297,7 +308,7 @@ export default function CreateEmployee() {
                     }
                   />
                   {watchedPositionId > 0 &&
-                    positions?.find((p) => p.id === watchedPositionId)
+                    positions?.find((p) => p.id === Number(watchedPositionId))
                       ?.isFull && (
                       <Typography
                         variant="caption"
@@ -312,22 +323,59 @@ export default function CreateEmployee() {
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     label="Department (derived from position)"
+                    required
                     disabled
                     fullWidth
                     size="small"
                     value={
-                      positions?.find((p) => p.id === watchedPositionId)
+                      positions?.find((p) => p.id === Number(watchedPositionId))
                         ?.departmentName ?? ""
                     }
                     slotProps={{ inputLabel: { shrink: true } }}
+                    sx={{ "& .MuiFormLabel-asterisk": { color: "#d32f2f" } }}
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormInput
+                  <Controller
                     name="salary"
-                    label="Salary"
-                    type="number"
-                    placeholder="50000"
+                    control={methods.control}
+                    render={({ field: { onChange, value, ...rest }, fieldState }) => {
+                      const displayValue = value !== undefined && value !== null && String(value) !== ""
+                        ? String(value)
+                            .replace(/\D/g, "")
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                        : "";
+
+                      return (
+                        <TextField
+                          {...rest}
+                          label="Salary"
+                          placeholder="50.000"
+                          value={displayValue}
+                          required
+                          fullWidth
+                          size="small"
+                          error={!!fieldState.error}
+                          helperText={fieldState.error?.message}
+                          sx={{ "& .MuiFormLabel-asterisk": { color: "#d32f2f" } }}
+                          onChange={(e) => {
+                            const raw = e.target.value.replace(/\D/g, "");
+                            onChange(raw);
+                          }}
+                          onFocus={() => {
+                            if (String(value) === "0") {
+                              onChange("");
+                            }
+                          }}
+                          onBlur={(e) => {
+                            if (!e.target.value) {
+                              onChange(0);
+                            }
+                            rest.onBlur();
+                          }}
+                        />
+                      );
+                    }}
                   />
                 </Grid>
               </Grid>

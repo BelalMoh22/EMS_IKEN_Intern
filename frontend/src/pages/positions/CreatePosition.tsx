@@ -99,12 +99,14 @@ export default function CreatePosition() {
                     name="positionName"
                     label="Position Name"
                     placeholder="Software Engineer"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormSelect
                     name="departmentId"
                     label="Department"
+                    required
                     options={
                       departments?.map((d) => ({
                         label: d.departmentName,
@@ -119,6 +121,7 @@ export default function CreatePosition() {
                     label="Min Salary"
                     type="number"
                     placeholder="30000"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -127,6 +130,7 @@ export default function CreatePosition() {
                     label="Max Salary"
                     type="number"
                     placeholder="80000"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -135,6 +139,7 @@ export default function CreatePosition() {
                     label="Target Employee Count"
                     type="number"
                     placeholder="10"
+                    required
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex', alignItems: 'center' }}>
