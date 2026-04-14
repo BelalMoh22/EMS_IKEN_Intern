@@ -322,7 +322,12 @@ namespace backend.Infrastructure.Repositories
 
             if (managerEmployeeId.HasValue)
             {
-                sql += " AND d.ManagerId = @ManagerId ";
+                sql += @" AND d.Id IN (
+                    SELECT P2.DepartmentId 
+                    FROM Employees E2 
+                    JOIN Positions P2 ON E2.PositionId = P2.Id 
+                    WHERE E2.Id = @ManagerId AND P2.IsManager = 1
+                ) ";
             }
 
             sql += " GROUP BY e.Id, e.FirstName, e.Lastname, p.Id, p.Name";

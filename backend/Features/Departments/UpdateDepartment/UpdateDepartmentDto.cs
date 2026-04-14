@@ -6,8 +6,6 @@ namespace backend.Features.Departments.UpdateDepartment
 
         public string? Description { get; set; } = string.Empty;
 
-        public int? ManagerId { get; set; }
-
         public bool? IsActive { get; set; }
     }
 }

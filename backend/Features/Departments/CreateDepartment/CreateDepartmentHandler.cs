@@ -16,7 +16,7 @@ namespace backend.Features.Departments.CreateDepartment
             var dto = request.dto;
             await _rules.ValidateForCreateAsync(dto);
 
-            var Department = new Department(dto.DepartmentName,dto.Description,dto.ManagerId);
+            var Department = new Department(dto.DepartmentName,dto.Description);
             return await _repo.AddAsync(Department);
         }
     }

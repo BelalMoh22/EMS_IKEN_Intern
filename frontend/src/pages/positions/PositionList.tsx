@@ -166,6 +166,18 @@ export default function PositionList() {
       },
     },
     {
+      header: "Manager Role",
+      cell: (row) => (
+        <Chip
+          label={row.isManager ? "Yes" : "No"}
+          size="small"
+          color={row.isManager ? "primary" : "default"}
+          variant={row.isManager ? "filled" : "outlined"}
+          sx={{ fontWeight: 500 }}
+        />
+      ),
+    },
+    {
       header: "Add",
       cell: (row) => {
         const isFull = row.currentEmployeeCount >= row.targetEmployeeCount;

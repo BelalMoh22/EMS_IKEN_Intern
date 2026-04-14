@@ -6,21 +6,18 @@ namespace backend.Domain.Models
 
         public string DepartmentName { get; private set; }
         public string? Description { get; private set; }
-        public int? ManagerId { get; private set; }
         public bool? IsActive { get; private set; } = true;
 
-        public Department(string departmentName, string? description, int? managerId)
+        public Department(string departmentName, string? description)
         {
             DepartmentName = departmentName;
             Description = description ?? string.Empty;
-            ManagerId = managerId;
         }
 
-        public void Update(string? departmentName, string? description, int? managerId , bool? isActive)
+        public void Update(string? departmentName, string? description, bool? isActive)
         {
             DepartmentName = departmentName ?? DepartmentName;
             Description = description ?? Description;
-            ManagerId = managerId;
             IsActive = isActive ?? IsActive;
         }
     }

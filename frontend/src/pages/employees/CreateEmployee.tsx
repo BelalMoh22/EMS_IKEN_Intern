@@ -92,7 +92,6 @@ export default function CreateEmployee() {
   const onSubmit = async (values: FormData) => {
     setSubmitting(true);
     try {
-      // Create employee record via /api/employees (backend now auto-creates the User!)
       createMutation.mutate(
         {
           firstName: values.firstName,
@@ -111,6 +110,9 @@ export default function CreateEmployee() {
         },
         {
           onSuccess: () => {
+            enqueueSnackbar("Employee created successfully", {
+              variant: "success",
+            });
             navigate("/employees");
           },
           onError: (error) => {
@@ -130,6 +132,22 @@ export default function CreateEmployee() {
   // Filter positions by selected department if needed
   const watchedPositionId = methods.watch("positionId");
 
+  // Auto-set role based on position
+  useEffect(() => {
+    if (watchedPositionId > 0 && positions) {
+      const position = positions.find(
+        (p) => p.id === Number(watchedPositionId),
+      );
+      if (position) {
+        // Only auto-update if not manually set to HR
+        const currentRole = methods.getValues("role");
+        if (currentRole !== "HR") {
+          methods.setValue("role", position.isManager ? "Manager" : "Employee");
+        }
+      }
+    }
+  }, [watchedPositionId, positions, methods]);
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -137,7 +155,9 @@ export default function CreateEmployee() {
           <ArrowBackIcon />
         </IconButton>
         <Box>
-          <Typography variant="h1">Create Employee</Typography>
+          <Typography variant="h1" sx={{ fontSize: "1.875rem", fontWeight: 700 }}>
+            Create Employee
+          </Typography>
           <Typography variant="body2" color="text.secondary">
             Add a new team member with user account
           </Typography>
@@ -151,24 +171,24 @@ export default function CreateEmployee() {
           sx={{ display: "flex", flexDirection: "column", gap: 3 }}
         >
           {/* User Account Card */}
-          <Card>
+          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}>
             <CardHeader
               title="User Account"
               subheader="Login credentials for the employee"
-              titleTypographyProps={{ variant: "h2" }}
+              titleTypographyProps={{ variant: "h2", sx: { fontSize: "1.25rem" } }}
               subheaderTypographyProps={{ variant: "body2" }}
             />
             <Divider />
-            <CardContent>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Grid container spacing={3}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FormInput
                     name="username"
                     label="Username"
                     placeholder="john.doe"
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FormInput
                     name="password"
                     label="Password"
@@ -176,7 +196,7 @@ export default function CreateEmployee() {
                     placeholder="••••••••"
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <FormSelect
                     name="role"
                     label="Role"
@@ -192,14 +212,14 @@ export default function CreateEmployee() {
           </Card>
 
           {/* Personal Info Card */}
-          <Card>
+          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}>
             <CardHeader
               title="Personal Information"
-              titleTypographyProps={{ variant: "h2" }}
+              titleTypographyProps={{ variant: "h2", sx: { fontSize: "1.25rem" } }}
             />
             <Divider />
-            <CardContent>
-              <Grid container spacing={2}>
+            <CardContent sx={{ p: 3 }}>
+              <Grid container spacing={3}>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormInput
                     name="firstName"
@@ -255,14 +275,14 @@ export default function CreateEmployee() {
           </Card>
 
           {/* Job Info Card */}
-          <Card>
+          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}>
             <CardHeader
               title="Job Information"
-              titleTypographyProps={{ variant: "h2" }}
+              titleTypographyProps={{ variant: "h2", sx: { fontSize: "1.25rem" } }}
             />
             <Divider />
-            <CardContent>
-              <Grid container spacing={2}>
+            <CardContent sx={{ p: 3 }}>
+              <Grid container spacing={3}>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormSelect
                     name="positionId"
@@ -289,6 +309,19 @@ export default function CreateEmployee() {
                     )}
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    label="Department (derived from position)"
+                    disabled
+                    fullWidth
+                    size="small"
+                    value={
+                      positions?.find((p) => p.id === watchedPositionId)
+                        ?.departmentName ?? ""
+                    }
+                    slotProps={{ inputLabel: { shrink: true } }}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FormInput
                     name="salary"
                     label="Salary"
@@ -301,12 +334,15 @@ export default function CreateEmployee() {
           </Card>
 
           {/* Actions */}
-          <Box sx={{ display: "flex", gap: 1.5 }}>
+          <Box sx={{ display: "flex", gap: 1.5, mt: 1 }}>
             <Button
               type="submit"
               variant="contained"
               disabled={submitting}
               sx={{
+                px: 4,
+                py: 1,
+                borderRadius: 2,
                 background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
                 "&:hover": {
                   background: "linear-gradient(135deg, #2563eb, #1e40af)",
@@ -318,7 +354,11 @@ export default function CreateEmployee() {
               )}
               Create Employee
             </Button>
-            <Button variant="outlined" onClick={() => navigate("/employees")}>
+            <Button
+              variant="outlined"
+              onClick={() => navigate("/employees")}
+              sx={{ px: 4, py: 1, borderRadius: 2 }}
+            >
               Cancel
             </Button>
           </Box>

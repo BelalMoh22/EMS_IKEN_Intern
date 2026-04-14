@@ -36,5 +36,6 @@ namespace backend.Features.Employees.UpdateEmployee
         [ForeignKey("Position")]
         public int? PositionId { get; set; }
 
+        public Roles? Role { get; set; }
     }
 }

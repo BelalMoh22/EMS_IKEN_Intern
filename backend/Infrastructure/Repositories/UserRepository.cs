@@ -4,7 +4,7 @@ namespace backend.Infrastructure.Repositories
     {
         protected override string TableName => "Users";
 
-        public UserRepository(IDbConnectionFactory connectionFactory,ILogger<Repository<User>> logger)
+        public UserRepository(IDbConnectionFactory connectionFactory, ILogger<Repository<User>> logger)
         : base(connectionFactory, logger)
         {
         }
@@ -49,7 +49,7 @@ namespace backend.Infrastructure.Repositories
             var sql = $"SELECT * FROM {TableName} WHERE Username = @Username COLLATE Latin1_General_BIN AND IsDeleted = 0"; // COLLATE Latin1_General_BIN : Forces the comparison to be case-sensitive and binary
 
             using var connection = _connectionFactory.CreateConnection();
-            return await connection.QueryFirstOrDefaultAsync<User>(sql , new { Username = username });
+            return await connection.QueryFirstOrDefaultAsync<User>(sql, new { Username = username });
         }
 
         public async Task UpdateCredentialsAsync(int userId, string username, string passwordHash)
@@ -67,6 +67,20 @@ namespace backend.Infrastructure.Repositories
                 UserId = userId,
                 Username = username,
                 PasswordHash = passwordHash
+            });
+        }
+        public async Task UpdateRoleAsync(int userId, Roles role)
+        {
+            const string sql = @"
+                    UPDATE Users
+                    SET Role = @Role
+                    WHERE Id = @UserId";
+
+            using var connection = _connectionFactory.CreateConnection();
+            await connection.ExecuteAsync(sql, new
+            {
+                UserId = userId,
+                Role = role
             });
         }
     }

@@ -79,10 +79,18 @@ export default function DepartmentList() {
       ),
     },
     {
-      header: "Manager",
+      header: "Managers",
       cell: (row) => {
-        const m = employees?.find((e) => e.id === row.managerId);
-        return m ? `${m.firstName} ${m.lastname}` : "None";
+        const deptPositionIds = positions
+          ?.filter((p) => p.departmentId === row.id && p.isManager)
+          .map((p) => p.id);
+        const deptManagers = employees?.filter((e) =>
+          deptPositionIds?.includes(e.positionId) && e.status === "Active"
+        );
+        
+        if (!deptManagers || deptManagers.length === 0) return "None";
+        if (deptManagers.length === 1) return `${deptManagers[0].firstName} ${deptManagers[0].lastname}`;
+        return `${deptManagers.length} Managers`;
       },
     },
     {

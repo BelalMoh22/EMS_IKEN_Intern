@@ -159,6 +159,26 @@ export default function PositionDetails() {
                     {position.maxSalary?.toLocaleString()}
                   </Typography>
                 </Box>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      mb: 0.5,
+                    }}
+                  >
+                    Management Status
+                  </Typography>
+                  <Chip
+                    label={position.isManager ? "Manager Role" : "Regular Role"}
+                    color={position.isManager ? "primary" : "default"}
+                    variant={position.isManager ? "filled" : "outlined"}
+                    size="small"
+                  />
+                </Box>
               </Box>
             </Box>
 

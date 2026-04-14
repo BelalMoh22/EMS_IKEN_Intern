@@ -57,6 +57,7 @@ export interface UpdateEmployeeRequest {
   hireDate?: string;
   status?: number;
   positionId?: number;
+  role?: number;
 }
 
 // ─── Status enum mapping ─────────────────────────────────

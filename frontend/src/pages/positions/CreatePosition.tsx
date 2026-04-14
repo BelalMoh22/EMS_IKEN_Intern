@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useCreatePosition } from "@/hooks/usePositions";
@@ -19,6 +19,8 @@ import {
   CircularProgress,
   Divider,
   Grid,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
@@ -30,6 +32,7 @@ const schema = z.object({
   targetEmployeeCount: z.coerce
     .number()
     .min(1, "Target count must be at least 1"),
+  isManager: z.boolean().default(false),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -48,6 +51,7 @@ export default function CreatePosition() {
       minSalary: 0,
       maxSalary: 0,
       targetEmployeeCount: 1,
+      isManager: false,
     },
   });
 
@@ -131,6 +135,23 @@ export default function CreatePosition() {
                     label="Target Employee Count"
                     type="number"
                     placeholder="10"
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Controller
+                    name="isManager"
+                    control={methods.control}
+                    render={({ field }) => (
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={field.value}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                          />
+                        }
+                        label="Is Manager Role"
+                      />
+                    )}
                   />
                 </Grid>
               </Grid>

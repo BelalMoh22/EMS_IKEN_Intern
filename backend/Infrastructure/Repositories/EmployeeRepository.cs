@@ -117,16 +117,20 @@ namespace backend.Infrastructure.Repositories
         public async Task<IEnumerable<Employee>> GetEmployeesByManagerIdAsync(int managerId)
         {
             var sql = $@"
-                SELECT E.*, U.*, P.PositionName, D.DepartmentName
+                SELECT E.*, U.*
                 FROM {TableName} E
                 JOIN Positions P ON E.PositionId = P.Id
                 JOIN Departments D ON P.DepartmentId = D.Id
                 LEFT JOIN Users U ON E.UserId = U.Id
-                WHERE D.ManagerId = @ManagerId  
-                  AND E.IsDeleted = 0 
-                  AND D.IsDeleted = 0 
-                  AND P.IsDeleted = 0";
-            // Only return employees where: Their department is managed by this manage
+                WHERE D.Id = (
+                    SELECT TOP 1 P2.DepartmentId 
+                    FROM Employees E2 
+                    JOIN Positions P2 ON E2.PositionId = P2.Id 
+                    WHERE E2.Id = @ManagerId AND P2.IsManager = 1
+                )
+                AND E.IsDeleted = 0 
+                AND D.IsDeleted = 0 
+                AND P.IsDeleted = 0";
 
             using var connection = _connectionFactory.CreateConnection();
             return await connection.QueryAsync<Employee, User, Employee>(sql, (e, u) =>
@@ -134,6 +138,45 @@ namespace backend.Infrastructure.Repositories
                 e.User = u;
                 return e;
             }, new { ManagerId = managerId });
+        }
+
+        public async Task<IEnumerable<Employee>> GetManagersByDepartmentIdAsync(int departmentId)
+        {
+            var sql = $@"
+                SELECT e.*, u.*
+                FROM Employees e
+                JOIN Positions p ON e.PositionId = p.Id
+                LEFT JOIN Users u ON e.UserId = u.Id
+                WHERE p.DepartmentId = @DepartmentId
+                  AND p.IsManager = 1
+                  AND e.IsDeleted = 0
+                  AND p.IsDeleted = 0";
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryAsync<Employee, User, Employee>(sql, (e, u) =>
+            {
+                e.User = u;
+                return e;
+            }, new { DepartmentId = departmentId });
+        }
+
+        public async Task<IEnumerable<Employee>> GetEmployeesByDepartmentIdAsync(int departmentId)
+        {
+            var sql = $@"
+                SELECT e.*, u.*
+                FROM Employees e
+                JOIN Positions p ON e.PositionId = p.Id
+                LEFT JOIN Users u ON e.UserId = u.Id
+                WHERE p.DepartmentId = @DepartmentId
+                  AND e.IsDeleted = 0
+                  AND p.IsDeleted = 0";
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryAsync<Employee, User, Employee>(sql, (e, u) =>
+            {
+                e.User = u;
+                return e;
+            }, new { DepartmentId = departmentId });
         }
 
         public async Task<EmployeeProfileDto?> GetEmployeeProfileByUserIdAsync(int UserId)

@@ -19,6 +19,7 @@ import {
   CircularProgress,
   Grid,
   Divider,
+  TextField,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useEffect } from "react";
@@ -40,6 +41,7 @@ const schema = z.object({
   salary: z.coerce.number().min(0, "Salary must be positive"),
   positionId: z.coerce.number().min(1, "Position is required"),
   status: z.coerce.number().min(1).max(3),
+  role: z.enum(["HR", "Manager", "Employee"]),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -66,6 +68,7 @@ export default function EditEmployee() {
       salary: 0,
       positionId: 0,
       status: 1,
+      role: "Employee",
     },
   });
 
@@ -82,9 +85,25 @@ export default function EditEmployee() {
         salary: employee.salary ?? 0,
         positionId: employee.positionId ?? 0,
         status: STATUS_ENUM_MAP[employee.status as EmployeeStatus] ?? 1,
+        role: (employee.user?.role as any) ?? "Employee",
       });
     }
   }, [employee, methods]);
+
+  const watchedPositionId = methods.watch("positionId");
+
+  // Auto-set role based on position
+  useEffect(() => {
+    if (watchedPositionId > 0 && positions) {
+      const position = positions.find((p) => p.id === Number(watchedPositionId));
+      if (position) {
+        const currentRole = methods.getValues("role");
+        if (currentRole !== "HR") {
+          methods.setValue("role", position.isManager ? "Manager" : "Employee");
+        }
+      }
+    }
+  }, [watchedPositionId, positions, methods]);
 
   const onSubmit = (values: FormData) => {
     updateMutation.mutate(
@@ -101,10 +120,12 @@ export default function EditEmployee() {
           salary: values.salary,
           positionId: values.positionId,
           status: values.status,
+          role: STATUS_ENUM_MAP[values.role as any] as any, // This uses the same mapping logic
         },
       },
       {
         onSuccess: () => {
+          enqueueSnackbar("Employee updated successfully", { variant: "success" });
           navigate("/employees");
         },
         onError: (error) => {
@@ -126,7 +147,7 @@ export default function EditEmployee() {
         <Box>
           <Typography variant="h1">Edit Employee</Typography>
           <Typography variant="body2" color="text.secondary">
-            Update employee information
+            Update employee information and role
           </Typography>
         </Box>
       </Box>
@@ -137,6 +158,38 @@ export default function EditEmployee() {
           onSubmit={methods.handleSubmit(onSubmit)}
           sx={{ display: "flex", flexDirection: "column", gap: 3 }}
         >
+          {/* User Account */}
+          <Card>
+            <CardHeader
+              title="User Account"
+              titleTypographyProps={{ variant: "h2" }}
+            />
+            <Divider />
+            <CardContent>
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormInput
+                    name="username"
+                    label="Username"
+                    disabled
+                    value={employee?.user?.username ?? ""}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormSelect
+                    name="role"
+                    label="Role"
+                    options={[
+                      { label: "HR", value: "HR" },
+                      { label: "Manager", value: "Manager" },
+                      { label: "Employee", value: "Employee" },
+                    ]}
+                  />
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+
           {/* Personal Info */}
           <Card>
             <CardHeader
@@ -186,9 +239,6 @@ export default function EditEmployee() {
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   {(() => {
-                    const watchedPositionId = Number(
-                      methods.watch("positionId"),
-                    );
                     const watchedStatus = Number(methods.watch("status"));
                     const isFull = positions?.find(
                       (p) => p.id === watchedPositionId,
@@ -229,6 +279,19 @@ export default function EditEmployee() {
                       </>
                     );
                   })()}
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    label="Department (derived from position)"
+                    disabled
+                    fullWidth
+                    size="small"
+                    value={
+                      positions?.find((p) => p.id === watchedPositionId)
+                        ?.departmentName ?? ""
+                    }
+                    slotProps={{ inputLabel: { shrink: true } }}
+                  />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormInput name="salary" label="Salary" type="number" />

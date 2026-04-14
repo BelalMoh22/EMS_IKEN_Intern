@@ -32,7 +32,6 @@ import { useEffect } from "react";
 const schema = z.object({
   departmentName: z.string().min(1, "Department name is required"),
   description: z.string().optional(),
-  managerId: z.coerce.number().optional(),
   isActive: z.string(),
 });
 
@@ -44,8 +43,6 @@ export default function EditDepartment() {
   const navigate = useNavigate();
   const { data: department, isLoading } = useDepartment(numId);
   const { data: employees } = useEmployees();
-  const { data: departments } = useDepartments();
-  const { data: positions } = usePositions();
   const updateMutation = useUpdateDepartment();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -54,7 +51,6 @@ export default function EditDepartment() {
     defaultValues: {
       departmentName: "",
       description: "",
-      managerId: undefined,
       isActive: "true",
     },
   });
@@ -64,7 +60,6 @@ export default function EditDepartment() {
       methods.reset({
         departmentName: department.departmentName ?? "",
         description: department.description ?? "",
-        managerId: department.managerId ?? undefined,
         isActive: department.isActive !== false ? "true" : "false",
       });
     }
@@ -77,7 +72,6 @@ export default function EditDepartment() {
         data: {
           departmentName: values.departmentName,
           description: values.description,
-          managerId: values.managerId || null,
           isActive: values.isActive === "true",
         },
       },
@@ -126,33 +120,6 @@ export default function EditDepartment() {
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormInput name="departmentName" label="Department Name" />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 12 }}>
-                  <FormInput name="description" label="Description" />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormSelect
-                    name="managerId"
-                    label="Manager"
-                    options={[
-                      { label: "None", value: "0" },
-                      ...(employees
-                        ?.filter(
-                          (e) =>
-                            e.status === "Active" &&
-                            (e.id === department?.managerId || ( // Keep current manager
-                              !departments?.some(
-                                (d) =>
-                                  d.managerId === e.id && d.isActive !== false,
-                              )
-                            )),
-                        )
-                        .map((e) => ({
-                          label: `${e.firstName} ${e.lastname}`,
-                          value: String(e.id),
-                        })) ?? []),
-                    ]}
-                  />
-                </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormSelect
                     name="isActive"
@@ -162,6 +129,9 @@ export default function EditDepartment() {
                       { label: "Inactive", value: "false" },
                     ]}
                   />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <FormInput name="description" label="Description" />
                 </Grid>
               </Grid>
               <Box sx={{ display: "flex", gap: 1.5, pt: 2 }}>

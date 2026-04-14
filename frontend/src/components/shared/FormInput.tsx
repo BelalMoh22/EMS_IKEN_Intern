@@ -1,17 +1,15 @@
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { TextField, IconButton, InputAdornment } from "@mui/material";
+import { TextField, IconButton, InputAdornment, TextFieldProps } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-interface Props {
+type Props = TextFieldProps & {
   name: string;
   label: string;
-  type?: string;
-  placeholder?: string;
-}
+};
 
-export function FormInput({ name, label, type = "text", placeholder }: Props) {
+export function FormInput({ name, label, type = "text", placeholder, ...rest }: Props) {
   const {
     register,
     formState: { errors },
@@ -34,7 +32,10 @@ export function FormInput({ name, label, type = "text", placeholder }: Props) {
       size="small"
       error={!!error}
       helperText={error?.message as string}
-      InputLabelProps={type === "date" ? { shrink: true } : undefined}
+      InputLabelProps={{
+        ...(type === "date" ? { shrink: true } : {}),
+        ...(rest.InputLabelProps || {}),
+      }}
       InputProps={
         type === "password"
           ? {
@@ -50,11 +51,14 @@ export function FormInput({ name, label, type = "text", placeholder }: Props) {
                   </IconButton>
                 </InputAdornment>
               ),
+              ...rest.InputProps,
             }
-          : undefined
+          : rest.InputProps
       }
       {...register(name)}
+      {...rest}
       sx={{
+        ...(rest.sx || {}),
         "& .MuiOutlinedInput-root": {
           borderRadius: 2,
         },

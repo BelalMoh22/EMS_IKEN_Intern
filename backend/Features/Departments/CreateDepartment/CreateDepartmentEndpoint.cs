@@ -13,7 +13,7 @@ namespace backend.Features.Departments.CreateDepartment
 
                 return Results.Created($"/departments/{id}", response);
             }).WithName("CreateDepartment").WithTags("Departments")
-            .DocumentJsonRequest<CreateDepartmentDto>(new { departmentName = "HR", description = "Human Resources", managerId = (int?)null })
+            .DocumentJsonRequest<CreateDepartmentDto>(new { departmentName = "HR", description = "Human Resources" })
             .WithSummary("Create department")
             .WithDescription("Creates a new department.")
             .Produces<ApiResponse<int>>(StatusCodes.Status201Created, contentType: "application/json")

@@ -27,7 +27,6 @@ namespace backend.Features.Departments.UpdateDepartment
             existingDepartment.Update(
                 dto.DepartmentName,
                 dto.Description,
-                dto.ManagerId,
                 dto.IsActive
             );
 

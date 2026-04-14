@@ -11,9 +11,9 @@ namespace backend.Infrastructure.Repositories
         {
             var sql = $@"
             INSERT INTO {TableName}
-                (DepartmentName, Description, ManagerId)
+                (DepartmentName, Description)
             VALUES
-                (@DepartmentName , @Description , @ManagerId);
+                (@DepartmentName , @Description);
 
             SELECT CAST(SCOPE_IDENTITY() as int)
         ;";
@@ -29,7 +29,6 @@ namespace backend.Infrastructure.Repositories
             SET
                 DepartmentName = @DepartmentName,
                 Description = @Description,
-                ManagerId = @ManagerId,
                 IsActive = @IsActive
                 WHERE Id = @Id
             ";
@@ -40,7 +39,6 @@ namespace backend.Infrastructure.Repositories
                 Id = id,
                 department.DepartmentName,
                 department.Description,
-                department.ManagerId,
                 department.IsActive
             });
         }
@@ -48,7 +46,14 @@ namespace backend.Infrastructure.Repositories
 
         public async Task<Department?> GetByManagerIdAsync(int managerId)
         {
-            var sql = $@"SELECT * FROM {TableName} WHERE ManagerId = @ManagerId AND IsDeleted = 0";
+            var sql = $@"
+                SELECT D.* 
+                FROM Departments D
+                JOIN Positions P ON D.Id = P.DepartmentId
+                JOIN Employees E ON P.Id = E.PositionId
+                WHERE E.Id = @ManagerId 
+                  AND P.IsManager = 1
+                  AND D.IsDeleted = 0";
             using var connection = _connectionFactory.CreateConnection();
             var department = await connection.QuerySingleOrDefaultAsync<Department>(sql, new { ManagerId = managerId });
             return department;

@@ -8,13 +8,37 @@ namespace backend.Infrastructure.Repositories
 
         protected override string TableName => "Positions";
 
+        public override async Task<IEnumerable<Position>> GetAllAsync()
+        {
+            var sql = @"
+                SELECT p.*, d.DepartmentName
+                FROM Positions p
+                JOIN Departments d ON p.DepartmentId = d.Id
+                WHERE p.IsDeleted = 0 AND d.IsDeleted = 0";
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryAsync<Position>(sql);
+        }
+
+        public override async Task<Position?> GetByIdAsync(int id)
+        {
+            var sql = @"
+                SELECT p.*, d.DepartmentName
+                FROM Positions p
+                JOIN Departments d ON p.DepartmentId = d.Id
+                WHERE p.Id = @Id";
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryFirstOrDefaultAsync<Position>(sql, new { Id = id });
+        }
+
         public override async Task<int> AddAsync(Position position)
         {
             var sql = $@"
             INSERT INTO {TableName}
-                (PositionName, MinSalary, MaxSalary, DepartmentId, TargetEmployeeCount)
+                (PositionName, MinSalary, MaxSalary, DepartmentId, TargetEmployeeCount, IsManager)
             VALUES
-                (@PositionName, @MinSalary, @MaxSalary, @DepartmentId, @TargetEmployeeCount);
+                (@PositionName, @MinSalary, @MaxSalary, @DepartmentId, @TargetEmployeeCount, @IsManager);
 
             SELECT CAST(SCOPE_IDENTITY() AS INT);
             ";
@@ -32,7 +56,8 @@ namespace backend.Infrastructure.Repositories
                 MinSalary = @MinSalary,
                 MaxSalary = @MaxSalary,
                 DepartmentId = @DepartmentId,
-                TargetEmployeeCount = @TargetEmployeeCount
+                TargetEmployeeCount = @TargetEmployeeCount,
+                IsManager = @IsManager
             WHERE Id = @Id
         ";
 
@@ -44,7 +69,8 @@ namespace backend.Infrastructure.Repositories
                 position.MinSalary,
                 position.MaxSalary,
                 position.DepartmentId,
-                position.TargetEmployeeCount
+                position.TargetEmployeeCount,
+                position.IsManager
             });
         }
 

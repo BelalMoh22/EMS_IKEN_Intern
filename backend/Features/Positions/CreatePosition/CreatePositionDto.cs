@@ -16,8 +16,9 @@ namespace backend.Features.Positions.CreatePosition
         [Required(ErrorMessage = "Department ID is required.")]
         public int DepartmentId { get; set; }
 
-        [Required(ErrorMessage = "Target employee count is required.")]
         [Range(0, 1000, ErrorMessage = "Target employee count must be between 0 and 1000.")]
         public int TargetEmployeeCount { get; set; }
+
+        public bool IsManager { get; set; } = false;
     }
 }

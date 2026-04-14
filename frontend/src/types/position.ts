@@ -5,6 +5,8 @@ export interface Position {
   minSalary: number;
   maxSalary: number;
   departmentId: number;
+  departmentName?: string;
+  isManager: boolean;
   targetEmployeeCount: number;
   currentEmployeeCount: number;
   isFull: boolean;
@@ -17,6 +19,7 @@ export interface CreatePositionRequest {
   minSalary: number;
   maxSalary: number;
   departmentId: number;
+  isManager: boolean;
   targetEmployeeCount: number;
 }
 
@@ -25,5 +28,6 @@ export interface UpdatePositionRequest {
   minSalary?: number;
   maxSalary?: number;
   departmentId?: number;
+  isManager?: boolean;
   targetEmployeeCount?: number;
 }

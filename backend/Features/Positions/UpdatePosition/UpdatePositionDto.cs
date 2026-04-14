@@ -14,5 +14,7 @@ namespace backend.Features.Positions.UpdatePosition
         
         [Range(0, 1000, ErrorMessage = "Target employee count must be between 0 and 1000.")]
         public int? TargetEmployeeCount { get; init; }
+
+        public bool? IsManager { get; init; }
     }
 }

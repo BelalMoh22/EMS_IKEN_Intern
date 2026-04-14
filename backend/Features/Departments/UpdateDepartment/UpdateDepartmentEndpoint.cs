@@ -11,7 +11,7 @@ namespace backend.Features.Departments.UpdateDepartment
                 var response = ApiResponse<int>.SuccessResponse(rows, "Department updated successfully");
                 return Results.Ok(response);
             }).WithName("UpdateDepartment").WithTags("Departments")
-            .DocumentJsonRequest<UpdateDepartmentDto>(new { departmentName = "HR", description = "Updated description", managerId = 123, isActive = true })
+            .DocumentJsonRequest<UpdateDepartmentDto>(new { departmentName = "HR", description = "Updated description", isActive = true })
             .DocumentApiResponse<int>(
                 "Update department",
                 "Updates an existing department. Only provided fields are updated."

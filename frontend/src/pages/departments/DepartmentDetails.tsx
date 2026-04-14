@@ -30,12 +30,16 @@ export default function DepartmentDetails() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const department = departments?.find((d) => d.id === departmentId);
-  const manager = employees?.find((e) => e.id === department?.managerId);
 
   const deptPositions = useMemo(() => 
     positions?.filter(p => p.departmentId === departmentId) || [], 
     [positions, departmentId]
   );
+
+  const managers = useMemo(() => {
+    const managerPositionIds = deptPositions.filter(p => p.isManager).map(p => p.id);
+    return employees?.filter(e => managerPositionIds.includes(e.positionId) && e.status === "Active") || [];
+  }, [employees, deptPositions]);
 
   const deptEmployees = useMemo(() => {
     const positionIds = deptPositions.map(p => p.id);
@@ -128,11 +132,24 @@ export default function DepartmentDetails() {
               <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                 <Box>
                   <Typography variant="caption" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>
-                    Manager
+                    Managers
                   </Typography>
-                  <Typography variant="body1" fontWeight={500}>
-                    {manager ? `${manager.firstName} ${manager.lastname}` : "None"}
-                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {managers.length > 0 ? (
+                      managers.map(m => (
+                        <Chip 
+                          key={m.id}
+                          label={`${m.firstName} ${m.lastname}`}
+                          size="small"
+                          color="primary"
+                          variant="outlined"
+                          onClick={() => navigate(`/employees/${m.id}`)}
+                        />
+                      ))
+                    ) : (
+                      <Typography variant="body1" fontWeight={500}>None</Typography>
+                    )}
+                  </Box>
                 </Box>
                 <Box>
                   <Typography variant="caption" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}>

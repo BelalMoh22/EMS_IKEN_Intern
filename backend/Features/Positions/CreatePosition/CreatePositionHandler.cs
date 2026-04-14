@@ -23,7 +23,7 @@ namespace backend.Features.Positions.CreatePosition
 
             await _rules.ValidateForCreateAsync(dto);
 
-            var Position = new Position(dto.PositionName,dto.MinSalary,dto.MaxSalary,dto.DepartmentId, dto.TargetEmployeeCount);
+            var Position = new Position(dto.PositionName,dto.MinSalary,dto.MaxSalary,dto.DepartmentId, dto.TargetEmployeeCount, dto.IsManager);
 
             return await _repo.AddAsync(Position);
         }

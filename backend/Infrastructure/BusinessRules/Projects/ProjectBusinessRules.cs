@@ -4,15 +4,18 @@ namespace backend.Infrastructure.BusinessRules.Projects
     {
         private readonly IProjectRepository _projectRepository;
         private readonly DepartmentRepository _departmentRepository;
+        private readonly EmployeeRepository _employeeRepository;
         private readonly ICurrentUserService _currentUser;
 
         public ProjectBusinessRules(
             IProjectRepository projectRepository,
             DepartmentRepository departmentRepository,
+            EmployeeRepository employeeRepository,
             ICurrentUserService currentUser)
         {
             _projectRepository = projectRepository;
             _departmentRepository = departmentRepository;
+            _employeeRepository = employeeRepository;
             _currentUser = currentUser;
         }
 
@@ -151,7 +154,12 @@ namespace backend.Infrastructure.BusinessRules.Projects
         public async Task ValidateOwnershipAndWriteAccessAsync(Project existingProject)
         {
             var loggedInUserId = _currentUser.UserId;
-            var department = await _departmentRepository.GetByManagerIdAsync(loggedInUserId);
+            var employee = await _employeeRepository.GetByUserIdAsync(loggedInUserId);
+            
+            if (employee == null)
+                throw new UnauthorizedAccessException("Employee profile not found.");
+
+            var department = await _departmentRepository.GetByManagerIdAsync(employee.Id);
 
             if (department == null || existingProject.DepartmentId != department.Id)
             {

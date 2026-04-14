@@ -13,7 +13,7 @@ namespace backend.Features.Positions.CreatePosition
 
                 return Results.Created($"/position/{id}", response);
             }).WithName("CreatePosition").WithTags("Positions")
-            .DocumentJsonRequest<CreatePositionDto>(new { positionName = "HR Specialist", minSalary = 5000, maxSalary = 9000, departmentId = 1, targetEmployeeCount = 3 })
+            .DocumentJsonRequest<CreatePositionDto>(new { positionName = "HR Specialist", minSalary = 5000, maxSalary = 9000, departmentId = 1, targetEmployeeCount = 3, isManager = false })
             .WithSummary("Create position")
             .WithDescription("Creates a new position under a department.")
             .Produces<ApiResponse<int>>(StatusCodes.Status201Created, contentType: "application/json")

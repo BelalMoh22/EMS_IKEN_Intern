@@ -23,7 +23,7 @@ namespace backend.Features.Positions.UpdatePosition
             var dto = request.dto;
             await _rules.ValidateForUpdateAsync(request.Id, dto, existingPosition);
 
-            existingPosition.Update(dto.PositionName,dto.MinSalary,dto.MaxSalary,dto.DepartmentId, dto.TargetEmployeeCount);
+            existingPosition.Update(dto.PositionName,dto.MinSalary,dto.MaxSalary,dto.DepartmentId, dto.TargetEmployeeCount, dto.IsManager);
 
             return await _repo.UpdateAsync(request.Id, existingPosition);
         }
