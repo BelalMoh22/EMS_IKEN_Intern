@@ -168,14 +168,6 @@ export default function EditEmployee() {
             <CardContent>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormInput
-                    name="username"
-                    label="Username"
-                    disabled
-                    value={employee?.user?.username ?? ""}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
                   <FormSelect
                     name="role"
                     label="Role"
