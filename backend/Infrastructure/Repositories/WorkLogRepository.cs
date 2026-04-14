@@ -49,10 +49,12 @@ namespace backend.Infrastructure.Repositories
                    AND target.EmployeeId = source.EmployeeId 
                    AND target.WorkDate = source.WorkDate
                    AND target.IsDeleted = 0
-                WHEN MATCHED AND @Hours = 0 THEN
-                    UPDATE SET IsDeleted = 1, UpdatedAt = GETDATE()
-                WHEN MATCHED AND @Hours > 0 THEN
-                    UPDATE SET Hours = @Hours, Notes = @Notes, UpdatedAt = GETDATE()
+                WHEN MATCHED THEN
+                    UPDATE SET 
+                        Hours = CASE WHEN @Hours > 0 THEN @Hours ELSE target.Hours END,
+                        Notes = CASE WHEN @Hours > 0 THEN @Notes ELSE target.Notes END,
+                        IsDeleted = CASE WHEN @Hours = 0 THEN 1 ELSE 0 END,
+                        UpdatedAt = GETDATE()
                 WHEN NOT MATCHED AND @Hours > 0 THEN
                     INSERT (ProjectId, EmployeeId, Hours, WorkDate, Notes)
                     VALUES (@ProjectId, @EmployeeId, @Hours, @WorkDate, @Notes);";
