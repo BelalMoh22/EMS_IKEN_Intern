@@ -52,8 +52,8 @@ export function DataTable<T>({
 }: Props<T>) {
   if (loading) {
     return (
-      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, ...sx }}>
-        <Table>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, overflowX: "auto", ...sx }}>
+        <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow>
               {columns.map((col, i) => (
@@ -103,8 +103,8 @@ export function DataTable<T>({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, overflow: "hidden", ...sx }}>
-        <Table>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, overflowX: "auto", ...sx }}>
+        <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow>
               {columns.map((col, i) => (
