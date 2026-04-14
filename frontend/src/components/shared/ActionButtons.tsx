@@ -12,6 +12,7 @@ interface ActionButtonsProps {
   canDelete?: boolean;
   onDelete?: (id: number | string) => void;
   onResetPassword?: (id: number | string) => void;
+  hideView?: boolean;
 }
 
 export function ActionButtons({
@@ -21,6 +22,7 @@ export function ActionButtons({
   canDelete = false,
   onDelete,
   onResetPassword,
+  hideView = false,
 }: ActionButtonsProps) {
   const navigate = useNavigate();
 
@@ -31,17 +33,19 @@ export function ActionButtons({
 
   return (
     <Box sx={{ display: "flex", gap: 0.5 }}>
-      <Tooltip title="View Details">
-        <IconButton
-          size="small"
-          onClick={(e) =>
-            handleActionClick(e, () => navigate(`${basePath}/${id}`))
-          }
-          color="info"
-        >
-          <VisibilityIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
+      {!hideView && (
+        <Tooltip title="View Details">
+          <IconButton
+            size="small"
+            onClick={(e) =>
+              handleActionClick(e, () => navigate(`${basePath}/${id}`))
+            }
+            color="info"
+          >
+            <VisibilityIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      )}
       {onResetPassword && (
         <Tooltip title="Reset Password">
           <IconButton

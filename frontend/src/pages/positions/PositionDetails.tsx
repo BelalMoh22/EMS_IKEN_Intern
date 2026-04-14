@@ -93,6 +93,7 @@ export default function PositionDetails() {
           canEdit={true}
           canDelete={true}
           onDelete={() => setDeleteDialogOpen(true)}
+          hideView={true}
         />
       }
     >

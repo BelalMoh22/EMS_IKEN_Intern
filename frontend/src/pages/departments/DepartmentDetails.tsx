@@ -89,6 +89,7 @@ export default function DepartmentDetails() {
           canEdit={true}
           canDelete={true}
           onDelete={() => setDeleteDialogOpen(true)}
+          hideView={true}
         />
       }
     >
