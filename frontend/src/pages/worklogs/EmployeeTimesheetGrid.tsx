@@ -23,6 +23,11 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Checkbox,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -129,7 +134,8 @@ const TimesheetRow = React.memo(({
   days,
   rowData,
   rowTotal,
-  onCellChange
+  onCellChange,
+  onRemove,
 }: {
   pid: number;
   name: string;
@@ -137,11 +143,26 @@ const TimesheetRow = React.memo(({
   rowData: Record<string, number>;
   rowTotal: number;
   onCellChange: (pid: number, dStr: string, v: number) => void;
+  onRemove: (pid: number) => void;
 }) => {
   return (
-    <TableRow sx={{ "&:hover": { bgcolor: "rgba(241, 245, 249, 0.5)" } }}>
-      <TableCell sx={STICKY_COL_STYLE} style={{ width: 200, minWidth: 200 }} title={name}>
-        {name}
+    <TableRow sx={{ "&:hover": { bgcolor: "rgba(241, 245, 249, 0.5)", "& .remove-btn": { opacity: 1 } } }}>
+      <TableCell sx={{ ...STICKY_COL_STYLE, paddingRight: 1 }} style={{ width: 200, minWidth: 200 }} title={name}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ width: "100%" }}>
+          <Typography noWrap sx={{ fontWeight: 600, fontSize: "0.875rem", flex: 1 }}>{name}</Typography>
+          {rowTotal === 0 && !["idle", "vacation", "blocked"].some(d => name.toLowerCase().includes(d)) && (
+            <Tooltip title="Remove Project">
+              <IconButton
+                size="small"
+                className="remove-btn"
+                onClick={() => onRemove(pid)}
+                sx={{ opacity: 0, transition: "opacity 0.2s", color: "error.main", width: 24, height: 24 }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Stack>
       </TableCell>
       {days.map((day) => {
         const dStr = formatCellDate(day);
@@ -162,6 +183,87 @@ const TimesheetRow = React.memo(({
     </TableRow>
   );
 });
+
+const AddProjectModal = ({ open, onClose, onAdd, availableProjects }: any) => {
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  
+  useEffect(() => {
+    if (open) setSelectedIds([]);
+  }, [open, availableProjects]);
+
+  const handleToggle = (id: number) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
+  };
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) setSelectedIds(availableProjects.map((p: any) => p.id));
+    else setSelectedIds([]);
+  };
+
+  const handleApply = () => {
+    onAdd(selectedIds);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} PaperProps={{ sx: { borderRadius: 4, width: 500, maxWidth: "100%" } }}>
+      <Box sx={{ bgcolor: "primary.main", color: "white", px: 3, py: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>Select Projects to Add</Typography>
+        <Typography variant="body2" sx={{ fontWeight: 600, bgcolor: "rgba(255,255,255,0.2)", px: 1.5, py: 0.5, borderRadius: 4 }}>
+          {selectedIds.length} / {availableProjects.length}
+        </Typography>
+      </Box>
+      <DialogContent sx={{ p: 0 }}>
+        {availableProjects.length === 0 ? (
+          <Box sx={{ p: 4, textAlign: "center", color: "text.secondary" }}>
+             <Typography sx={{ fontWeight: 600 }}>No additional projects available to add.</Typography>
+          </Box>
+        ) : (
+          <List sx={{ pt: 0, pb: 0, maxHeight: 400, overflow: "auto" }}>
+            <ListItem
+              sx={{ borderBottom: "1px solid", borderColor: "divider", bgcolor: "background.paper", position: "sticky", top: 0, zIndex: 2 }}
+            >
+              <ListItemIcon>
+                <Checkbox 
+                  edge="start"
+                  checked={selectedIds.length === availableProjects.length && availableProjects.length > 0}
+                  indeterminate={selectedIds.length > 0 && selectedIds.length < availableProjects.length}
+                  onChange={handleSelectAll}
+                />
+              </ListItemIcon>
+              <ListItemText primary={<Typography sx={{ fontWeight: 700 }}>Select All</Typography>} />
+            </ListItem>
+            {availableProjects.map((p: any) => (
+              <ListItem key={p.id} onClick={() => handleToggle(p.id)} sx={{ cursor: "pointer", borderBottom: "1px solid", borderColor: "divider", "&:hover": { bgcolor: "action.hover" } }}>
+                <ListItemIcon>
+                  <Checkbox 
+                    edge="start"
+                    checked={selectedIds.includes(p.id)}
+                    tabIndex={-1}
+                    disableRipple
+                  />
+                </ListItemIcon>
+                <ListItemText primary={<Typography sx={{ fontWeight: 500 }}>{p.name}</Typography>} />
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </DialogContent>
+      <DialogActions sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}>
+        <Button onClick={onClose} sx={{ fontWeight: 600, color: "text.secondary" }}>Cancel</Button>
+        <Button 
+          onClick={handleApply} 
+          variant="contained" 
+          disabled={selectedIds.length === 0}
+          color="primary"
+          sx={{ borderRadius: 2, px: 3, fontWeight: 700 }}
+        >
+          Add Selected
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 
 export default function EmployeeTimesheetGrid() {
   const [viewType, setViewType] = useState<"week" | "month">("week");
@@ -221,6 +323,10 @@ export default function EmployeeTimesheetGrid() {
 
   const { data: openProjects, isLoading: isLoadingProjects } = useProjects({ status: "Open" });
 
+  const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
+  const [addedProjectIds, setAddedProjectIds] = useState<number[]>([]);
+  const [removedProjectIds, setRemovedProjectIds] = useState<number[]>([]);
+
   const isDataLoading = isLoadingLogs || isLoadingProjects || isLoadingSettings;
 
   const projectNames = useMemo(() => {
@@ -233,28 +339,73 @@ export default function EmployeeTimesheetGrid() {
 
   const allProjectIds = useMemo(() => {
     if (isDataLoading) return [];
+    
+    const hasHoursSet = new Set(Object.keys(editedData).map(Number).filter(pid => {
+      const rowData = editedData[pid] || {};
+      return Object.values(rowData).some(h => h > 0);
+    }));
+
+    // Include Idle, Vacation, Blocked as default if they exist
+    const defaultProjectIds = openProjects?.filter(p => {
+      const n = p.name.toLowerCase();
+      return n.includes("idle") || n.includes("vacation") || n.includes("blocked");
+    }).map(p => p.id) || [];
+
     const openIds = new Set(openProjects?.map(p => p.id) || []);
     
-    // Include project if:
-    // 1. It is currently "Open" (so employee can log time)
-    // 2. OR it already has some hours logged (even if it's now closed)
-    const filteredIds = Object.keys(editedData)
-      .map(Number)
-      .filter(pid => {
-        const rowData = editedData[pid] || {};
-        const hasHours = Object.values(rowData).some(h => h > 0);
-        return hasHours || openIds.has(pid);
-      });
+    // Combine all IDs we want to show
+    const combinedIds = new Set([
+      ...defaultProjectIds,
+      ...hasHoursSet,
+      ...addedProjectIds
+    ]);
 
-    // Combine and Sort by Project Name for stability
-    const finalIds = Array.from(new Set([...filteredIds, ...Array.from(openIds)]));
+    // Make sure we only show projects that have hours or are open, AND haven't been manually removed
+    const finalIds = Array.from(combinedIds).filter(pid => 
+      !removedProjectIds.includes(pid) && (hasHoursSet.has(pid) || openIds.has(pid))
+    );
     
     return finalIds.sort((a, b) => {
       const nameA = (projectNames[a] || "").toLowerCase();
       const nameB = (projectNames[b] || "").toLowerCase();
+      
+      const getPriority = (name: string) => {
+        if (name.includes("idle")) return 1;
+        if (name.includes("vacation")) return 2;
+        if (name.includes("blocked")) return 3;
+        return 4;
+      };
+
+      const priorityA = getPriority(nameA);
+      const priorityB = getPriority(nameB);
+
+      // Sort by priority first
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+      
+      // If they have the same priority (e.g., both are normal projects), sort alphabetically
       return nameA.localeCompare(nameB);
     });
-  }, [editedData, openProjects, isDataLoading, projectNames]);
+  }, [editedData, openProjects, isDataLoading, projectNames, addedProjectIds]);
+
+  const availableProjectsForModal = useMemo(() => {
+    if (!openProjects) return [];
+    // Sort available projects by name before passing to the modal
+    const available = openProjects.filter(p => !allProjectIds.includes(p.id));
+    return available.sort((a, b) => a.name.localeCompare(b.name));
+  }, [openProjects, allProjectIds]);
+
+  const handleAddProjects = (ids: number[]) => {
+    setAddedProjectIds(prev => [...prev, ...ids]);
+    // If they re-add a project they had previously removed, un-remove it
+    setRemovedProjectIds(prev => prev.filter(id => !ids.includes(id)));
+  };
+
+  const handleRemoveProject = useCallback((pid: number) => {
+    setRemovedProjectIds(prev => [...prev, pid]);
+    setAddedProjectIds(prev => prev.filter(id => id !== pid));
+  }, []);
 
   const { rowTotals, colTotals } = useMemo(
     () => calculateTotals(editedData, days, allProjectIds),
@@ -458,6 +609,18 @@ export default function EmployeeTimesheetGrid() {
         </Collapse>
       </Box>
 
+      {/* Grid actions (Add Project Button) */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", width: "100%", mt: -1 }}>
+        <Button 
+          variant="outlined" 
+          startIcon={<AddIcon />} 
+          onClick={() => setIsAddProjectModalOpen(true)}
+          sx={{ borderRadius: 2, fontWeight: 700, bgcolor: "background.paper", "&:hover": { bgcolor: "action.hover" } }}
+        >
+          Add Project
+        </Button>
+      </Box>
+
       {/* Grid Container (Page Scroll, Only Horizontal Table Scroll) */}
       <Box sx={{ width: "100%", overflowX: "auto" }}>
         <Table stickyHeader sx={{ tableLayout: "fixed", minWidth: 200 + (days.length * 80) + 100, borderCollapse: "separate" }}>
@@ -535,6 +698,7 @@ export default function EmployeeTimesheetGrid() {
                 rowData={editedData[pid] || {}}
                 rowTotal={rowTotals[pid] || 0}
                 onCellChange={handleCellChange}
+                onRemove={handleRemoveProject}
               />
             ))}
           </TableBody>
@@ -703,6 +867,14 @@ export default function EmployeeTimesheetGrid() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Add Project Modal */}
+      <AddProjectModal
+        open={isAddProjectModalOpen}
+        onClose={() => setIsAddProjectModalOpen(false)}
+        onAdd={handleAddProjects}
+        availableProjects={availableProjectsForModal}
+      />
     </Box>
   );
 }
