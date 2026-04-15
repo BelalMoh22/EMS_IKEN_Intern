@@ -129,8 +129,22 @@ export default function EmployeeDetails() {
             }}
           >
             <Box>
-              <Typography variant="h4" fontWeight="bold">
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+              >
                 {employee.firstName} {employee.lastname}
+                {employee.user?.username && (
+                  <Typography
+                    component="span"
+                    variant="h6"
+                    color="text.secondary"
+                    sx={{ fontWeight: "normal", opacity: 0.7 }}
+                  >
+                    @{employee.user.username}
+                  </Typography>
+                )}
               </Typography>
               <Typography
                 variant="subtitle1"
