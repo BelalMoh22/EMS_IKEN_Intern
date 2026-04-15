@@ -56,7 +56,7 @@ namespace backend.Infrastructure.Repositories
                     Email,
                     PhoneNumber,
                     DateOfBirth,
-                    Address,
+
                     Salary,
                     HireDate,
                     Status,
@@ -72,7 +72,7 @@ namespace backend.Infrastructure.Repositories
                     @Email,
                     @PhoneNumber,
                     @DateOfBirth,
-                    @Address,
+
                     @Salary,
                     @HireDate,
                     @Status,
@@ -99,7 +99,7 @@ namespace backend.Infrastructure.Repositories
                     Email = @Email,
                     PhoneNumber = @PhoneNumber,
                     DateOfBirth = @DateOfBirth,
-                    Address = @Address,
+
                     Salary = @Salary,
                     HireDate = @HireDate,
                     Status = @Status,
@@ -117,7 +117,7 @@ namespace backend.Infrastructure.Repositories
                 employee.Email,
                 employee.PhoneNumber,
                 employee.DateOfBirth,
-                employee.Address,
+
                 employee.Salary,
                 employee.HireDate,
                 employee.Status,
@@ -208,7 +208,7 @@ namespace backend.Infrastructure.Repositories
                     e.Email,
                     e.PhoneNumber,
                     e.DateOfBirth,
-                    e.Address,
+
                     e.Salary,
                     e.HireDate,
                     e.Status,

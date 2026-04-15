@@ -21,7 +21,6 @@ namespace backend.Features.Employees.CreateEmployee
                 email = "yussif@example.com",
                 phoneNumber = "01000000000",
                 dateOfBirth = "2000-01-01",
-                address = "Cairo, Egypt",
                 salary = 8000,
                 hireDate = "2026-03-24",
                 status = "Active",

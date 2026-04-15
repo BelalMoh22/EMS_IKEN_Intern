@@ -20,7 +20,7 @@ import { useState } from "react";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
-import HomeIcon from "@mui/icons-material/Home";
+
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -207,23 +207,6 @@ export default function EmployeeDetails() {
                   </Typography>
                   <Typography variant="body1" fontWeight={500}>
                     {employee.phoneNumber || "N/A"}
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 0.5,
-                      mb: 0.5,
-                    }}
-                  >
-                    <HomeIcon fontSize="small" /> Address
-                  </Typography>
-                  <Typography variant="body1" fontWeight={500}>
-                    {employee.address || "N/A"}
                   </Typography>
                 </Box>
               </Box>

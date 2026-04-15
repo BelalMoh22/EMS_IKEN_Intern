@@ -74,6 +74,32 @@ namespace backend.Features.Employees.Handlers.Implementations
                     }
                 }
 
+                // Validate role-position consistency (skip for HR — HR is independent of position type)
+                var effectiveRole = newRole ?? user.Role;
+                if (effectiveRole != Roles.HR)
+                {
+                    var effectivePositionId = dto.PositionId ?? employee.PositionId;
+                    var targetPosition = await _positionRepository.GetByIdAsync(effectivePositionId);
+
+                    if (targetPosition != null)
+                    {
+                        if (effectiveRole == Roles.Manager && !targetPosition.IsManager)
+                        {
+                            throw new Exceptions.ValidationException(new Dictionary<string, List<string>>
+                            {
+                                { "role", new List<string> { "Cannot assign 'Manager' role to a non-manager position. Please select a position with manager privileges." } }
+                            });
+                        }
+                        if (effectiveRole == Roles.Employee && targetPosition.IsManager)
+                        {
+                            throw new Exceptions.ValidationException(new Dictionary<string, List<string>>
+                            {
+                                { "role", new List<string> { "Cannot assign 'Employee' role to a manager position. Please select a non-manager position." } }
+                            });
+                        }
+                    }
+                }
+
                 if (newRole.HasValue && newRole.Value != user.Role)
                 {
                     await _userRepository.UpdateRoleAsync(employee.UserId, newRole.Value);
@@ -87,7 +113,7 @@ namespace backend.Features.Employees.Handlers.Implementations
                 dto.Email,
                 dto.PhoneNumber,
                 dto.DateOfBirth,
-                dto.Address,
+
                 dto.Salary,
                 dto.HireDate,
                 dto.Status,

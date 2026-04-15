@@ -38,7 +38,7 @@ const schema = z.object({
   email: z.string().email("Invalid email"),
   phoneNumber: z.string().min(1, "Phone number is required"),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
-  address: z.string().min(1, "Address is required"),
+
   salary: z.preprocess(
     (v) => Number(v),
     z.number().min(0, "Salary must be positive"),
@@ -75,7 +75,7 @@ export default function CreateEmployee() {
       email: "",
       phoneNumber: "",
       dateOfBirth: "",
-      address: "",
+
       salary: 0,
       positionId: state?.positionId ?? 0,
       username: "",
@@ -95,7 +95,7 @@ export default function CreateEmployee() {
           email: values.email,
           phoneNumber: values.phoneNumber,
           dateOfBirth: values.dateOfBirth,
-          address: values.address,
+
           salary: values.salary,
           positionId: values.positionId,
           username: values.username,
@@ -267,14 +267,7 @@ export default function CreateEmployee() {
                     required
                   />
                 </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <FormInput
-                    name="address"
-                    label="Address"
-                    placeholder="123 Main St, City"
-                    required
-                  />
-                </Grid>
+
               </Grid>
             </CardContent>
           </Card>

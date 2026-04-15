@@ -9,7 +9,7 @@ namespace backend.Features.Employees.GetEmployeeByUserId
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public DateTime DateOfBirth { get; set; }
-        public string Address { get; set; }
+
         public decimal Salary { get; set; }
         public DateTime HireDate { get; set; }
         public int Status { get; set; }

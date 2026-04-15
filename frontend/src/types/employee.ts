@@ -12,7 +12,7 @@ export interface Employee {
   email: string;
   phoneNumber: string;
   dateOfBirth: string;
-  address: string;
+
   salary: number;
   hireDate: string;
   status: EmployeeStatus;
@@ -35,7 +35,7 @@ export interface CreateEmployeeRequest {
   email: string;
   phoneNumber: string;
   dateOfBirth: string;
-  address: string;
+
   salary: number;
   hireDate?: string;
   status?: number; // 1=Active, 2=Inactive, 3=Terminated
@@ -52,7 +52,7 @@ export interface UpdateEmployeeRequest {
   email?: string;
   phoneNumber?: string;
   dateOfBirth?: string;
-  address?: string;
+
   salary?: number;
   hireDate?: string;
   status?: number;

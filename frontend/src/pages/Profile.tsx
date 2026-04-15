@@ -21,7 +21,7 @@ import BadgeIcon from "@mui/icons-material/Badge";
 import BusinessIcon from "@mui/icons-material/Business";
 import PhoneIcon from "@mui/icons-material/Phone";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import HomeIcon from "@mui/icons-material/Home";
+
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import type { EmployeeProfile } from "@/types";
 
@@ -275,15 +275,7 @@ export default function Profile() {
                       }
                       loading={isLoading}
                     />
-                  </Grid>
-                  <Grid size={{ xs: 12 }}>
-                    <InfoRow
-                      icon={<HomeIcon fontSize="small" />}
-                      label="Residential Address"
-                      value={myEmployee?.address}
-                      loading={isLoading}
-                    />
-                  </Grid>
+                </Grid>
                 </Grid>
               </CardContent>
             </Card>

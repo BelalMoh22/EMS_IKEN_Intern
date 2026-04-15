@@ -43,7 +43,7 @@ namespace backend.Features.Employees.CreateEmployee
                 dto.Email,
                 dto.PhoneNumber,
                 dto.DateOfBirth,
-                dto.Address,
+
                 dto.Salary,
                 dto.PositionId,
                 userId,

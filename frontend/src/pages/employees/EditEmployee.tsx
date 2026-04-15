@@ -20,11 +20,13 @@ import {
   Grid,
   Divider,
   TextField,
+  Alert,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useEffect } from "react";
-import { STATUS_ENUM_MAP } from "@/types";
-import type { EmployeeStatus } from "@/types";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import { useEffect, useMemo } from "react";
+import { STATUS_ENUM_MAP, ROLE_ENUM_MAP } from "@/types";
+import type { EmployeeStatus, Role } from "@/types";
 import { handleApiErrors } from "@/utils/handleApiErrors";
 import { useSnackbar } from "notistack";
 
@@ -37,7 +39,7 @@ const schema = z.object({
   email: z.string().email("Invalid email"),
   phoneNumber: z.string().min(1, "Phone number is required"),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
-  address: z.string().min(1, "Address is required"),
+
   salary: z.coerce.number().min(0, "Salary must be positive"),
   positionId: z.coerce.number().min(1, "Position is required"),
   status: z.coerce.number().min(1).max(3),
@@ -65,7 +67,7 @@ export default function EditEmployee() {
       email: "",
       phoneNumber: "",
       dateOfBirth: "",
-      address: "",
+
       salary: 0,
       positionId: 0,
       status: 1,
@@ -83,7 +85,7 @@ export default function EditEmployee() {
         email: employee.email ?? "",
         phoneNumber: employee.phoneNumber ?? "",
         dateOfBirth: employee.dateOfBirth?.split("T")[0] ?? "",
-        address: employee.address ?? "",
+
         salary: employee.salary ?? 0,
         positionId: employee.positionId ?? 0,
         status: STATUS_ENUM_MAP[employee.status as EmployeeStatus] ?? 1,
@@ -94,19 +96,37 @@ export default function EditEmployee() {
   }, [employee, methods]);
 
   const watchedPositionId = methods.watch("positionId");
+  const watchedRole = methods.watch("role");
 
-  // Auto-set role based on position
-  useEffect(() => {
-    if (watchedPositionId > 0 && positions) {
-      const position = positions.find((p) => p.id === Number(watchedPositionId));
-      if (position) {
-        const currentRole = methods.getValues("role");
-        if (currentRole !== "HR") {
-          methods.setValue("role", position.isManager ? "Manager" : "Employee");
-        }
-      }
+  // Derive role-position mismatch warning
+  const rolePositionMismatch = useMemo(() => {
+    if (!positions || !watchedPositionId || !watchedRole) return null;
+    // HR role is independent of position — no mismatch possible
+    if (watchedRole === "HR") return null;
+
+    const selectedPosition = positions.find(
+      (p) => p.id === Number(watchedPositionId),
+    );
+    if (!selectedPosition) return null;
+
+    if (watchedRole === "Manager" && !selectedPosition.isManager) {
+      return {
+        severity: "warning" as const,
+        message:
+          'You have set the role to "Manager" but the selected position is not a manager position. Please assign a position that has manager privileges enabled.',
+      };
     }
-  }, [watchedPositionId, positions, methods]);
+
+    if (watchedRole === "Employee" && selectedPosition.isManager) {
+      return {
+        severity: "warning" as const,
+        message:
+          'You have set the role to "Employee" but the selected position is a manager position. Please assign a non-manager position for this role.',
+      };
+    }
+
+    return null;
+  }, [watchedRole, watchedPositionId, positions]);
 
   const onSubmit = (values: FormData) => {
     updateMutation.mutate(
@@ -119,11 +139,11 @@ export default function EditEmployee() {
           email: values.email,
           phoneNumber: values.phoneNumber,
           dateOfBirth: values.dateOfBirth,
-          address: values.address,
+
           salary: values.salary,
           positionId: values.positionId,
           status: values.status,
-          role: STATUS_ENUM_MAP[values.role as any] as any, // This uses the same mapping logic
+          role: ROLE_ENUM_MAP[values.role as Role],
         },
       },
       {
@@ -191,6 +211,21 @@ export default function EditEmployee() {
                     slotProps={{ inputLabel: { shrink: true } }}
                   />
                 </Grid>
+                {/* Role-Position mismatch warning */}
+                {rolePositionMismatch && (
+                  <Grid size={{ xs: 12 }}>
+                    <Alert
+                      severity={rolePositionMismatch.severity}
+                      icon={<WarningAmberIcon />}
+                      sx={{
+                        borderRadius: 2,
+                        "& .MuiAlert-message": { fontWeight: 500 },
+                      }}
+                    >
+                      {rolePositionMismatch.message}
+                    </Alert>
+                  </Grid>
+                )}
               </Grid>
             </CardContent>
           </Card>
@@ -226,9 +261,7 @@ export default function EditEmployee() {
                     type="date"
                   />
                 </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <FormInput name="address" label="Address" />
-                </Grid>
+
               </Grid>
             </CardContent>
           </Card>
@@ -320,11 +353,15 @@ export default function EditEmployee() {
             <Button
               type="submit"
               variant="contained"
-              disabled={updateMutation.isPending}
+              disabled={updateMutation.isPending || !!rolePositionMismatch}
               sx={{
-                background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+                background: rolePositionMismatch
+                  ? undefined
+                  : "linear-gradient(135deg, #3b82f6, #1d4ed8)",
                 "&:hover": {
-                  background: "linear-gradient(135deg, #2563eb, #1e40af)",
+                  background: rolePositionMismatch
+                    ? undefined
+                    : "linear-gradient(135deg, #2563eb, #1e40af)",
                 },
               }}
             >

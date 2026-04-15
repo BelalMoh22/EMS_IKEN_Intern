@@ -28,9 +28,7 @@ namespace backend.Features.Employees.CreateEmployee
         [DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }
 
-        [Required(ErrorMessage = "Address is required.")] 
-        [MaxLength(200)] 
-        public string Address { get; set; }
+
 
         [Required(ErrorMessage = "Salary is required.")]
         public decimal Salary { get; set; }

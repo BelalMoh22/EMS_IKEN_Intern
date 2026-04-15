@@ -22,8 +22,7 @@ namespace backend.Features.Employees.UpdateEmployee
         [DataType(DataType.Date)]
         public DateTime? DateOfBirth { get; set; }
 
-        [MaxLength(200)]
-        public string? Address { get; set; }
+
 
         public decimal? Salary { get; set; }
 
