@@ -5,11 +5,46 @@ import { transformLogsToGrid, formatCellDate } from "@/utils/timesheetUtils";
 import { isAfter, startOfDay, subDays, parseISO, isEqual } from "date-fns";
 import type { TimesheetEntryDTO } from "@/types/worklog";
 
-export const useTimesheet = (selectedDate: Date, settings?: { workLogGracePeriod: number; isDisabled: boolean }) => {
-  const year = selectedDate.getFullYear();
-  const month = selectedDate.getMonth() + 1;
+export const useTimesheet = (days: Date[], settings?: { workLogGracePeriod: number; isDisabled: boolean }) => {
+  // Determine unique months in the range
+  const monthsToFetch = useMemo(() => {
+    const list: { year: number; month: number }[] = [];
+    days.forEach(d => {
+      const y = d.getFullYear();
+      const m = d.getMonth() + 1;
+      if (!list.some(item => item.year === y && item.month === m)) {
+        list.push({ year: y, month: m });
+      }
+    });
+    return list;
+  }, [days]);
 
-  const { data: logs, isLoading } = useMonthlyLogs(year, month);
+  // For now, the simplest way is to fetch the "main" month to keep logic simple, 
+  // but let's at least ensure we fetch enough data if range spans months.
+  // Since we use useMonthlyLogs, we'll just fetch based on the first day of the range.
+  // Improvement: Backend should ideally support date range query.
+  const firstDay = days[0];
+  const lastDay = days[days.length - 1];
+  
+  const { data: logs1, isLoading: isLoading1 } = useMonthlyLogs(firstDay?.getFullYear(), firstDay?.getMonth() + 1);
+  const { data: logs2, isLoading: isLoading2 } = useMonthlyLogs(lastDay?.getFullYear(), lastDay?.getMonth() + 1);
+
+  const logs = useMemo(() => {
+    if (!logs1) return logs2;
+    if (!logs2) return logs1;
+    if (logs1 === logs2) return logs1;
+    
+    // Combine logs, removing duplicates if any (though getMonthlyLogs shouldn't have overlapping data if months are different)
+    const combined = [...logs1];
+    logs2.forEach(l => {
+        if (!combined.some(c => c.projectId === l.projectId && c.date === l.date)) {
+            combined.push(l);
+        }
+    });
+    return combined;
+  }, [logs1, logs2]);
+
+  const isLoading = isLoading1 || isLoading2;
   const saveMutation = useSaveTimesheet();
 
   const [editedData, setEditedData] = useState<Record<number, Record<string, number>>>({});

@@ -33,9 +33,9 @@ import {
   EventNote as EventNoteIcon,
   DeleteSweep as DeleteSweepIcon,
 } from "@mui/icons-material";
-import { format, addMonths, subMonths, parseISO } from "date-fns";
+import { format, addMonths, subMonths, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks } from "date-fns";
 import { useTimesheet } from "@/hooks/useTimesheet";
-import { getDaysInMonth, formatCellDate, calculateTotals } from "@/utils/timesheetUtils";
+import { getDaysInMonth, getDaysInWeek, formatCellDate, calculateTotals, calculateTargetHours } from "@/utils/timesheetUtils";
 import { useProjects } from "@/hooks/useProjects";
 import { useSettings } from "@/hooks/useWorkLogs";
 import { Alert, AlertTitle, Collapse } from "@mui/material";
@@ -164,27 +164,30 @@ const TimesheetRow = React.memo(({
 });
 
 export default function EmployeeTimesheetGrid() {
+  const [viewType, setViewType] = useState<"week" | "month">("week");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
   const todayRef = useRef<HTMLTableCellElement>(null);
 
-  const days = useMemo(() => getDaysInMonth(selectedDate), [selectedDate]);
+  const days = useMemo(() => {
+    return viewType === "month" ? getDaysInMonth(selectedDate) : getDaysInWeek(selectedDate);
+  }, [selectedDate, viewType]);
   const { data: settings, isLoading: isLoadingSettings } = useSettings();
   const {
-    editedData,
-    projectNames: existingProjectNames,
-    isLoading: isLoadingLogs,
-    handleCellChange: internalHandleCellChange,
-    hasChanges,
-    resetChanges,
-    saveChanges,
-    isSaving,
-    saveError,
-    errors,
+    isValid,
     warnings,
-    isValid
-  } = useTimesheet(selectedDate, settings);
+    errors,
+    saveError,
+    isSaving,
+    saveChanges,
+    resetChanges,
+    hasChanges,
+    handleCellChange: internalHandleCellChange,
+    isLoading: isLoadingLogs,
+    projectNames: existingProjectNames,
+    editedData
+  } = useTimesheet(days, settings);
   const { enqueueSnackbar } = useSnackbar();
 
   // Memoize cell change to prevent re-rendering the whole table
@@ -258,8 +261,12 @@ export default function EmployeeTimesheetGrid() {
     [editedData, days, allProjectIds]
   );
 
-  const handlePrevMonth = () => {
-    const nextDate = subMonths(selectedDate, 1);
+  const grandTotal = useMemo(() => Object.values(rowTotals).reduce((a, b) => a + b, 0), [rowTotals]);
+  const targetHours = useMemo(() => calculateTargetHours(days), [days]);
+  const performance = useMemo(() => Math.round((grandTotal / (targetHours || 1)) * 100), [grandTotal, targetHours]);
+
+  const handlePrev = () => {
+    const nextDate = viewType === "month" ? subMonths(selectedDate, 1) : subWeeks(selectedDate, 1);
     if (hasChanges) {
       setPendingAction(() => () => setSelectedDate(nextDate));
       setIsConfirmOpen(true);
@@ -268,8 +275,8 @@ export default function EmployeeTimesheetGrid() {
     }
   };
 
-  const handleNextMonth = () => {
-    const nextDate = addMonths(selectedDate, 1);
+  const handleNext = () => {
+    const nextDate = viewType === "month" ? addMonths(selectedDate, 1) : addWeeks(selectedDate, 1);
     if (hasChanges) {
       setPendingAction(() => () => setSelectedDate(nextDate));
       setIsConfirmOpen(true);
@@ -277,6 +284,15 @@ export default function EmployeeTimesheetGrid() {
       setSelectedDate(nextDate);
     }
   };
+
+  const handleViewTypeChange = (newType: "week" | "month") => {
+    if (hasChanges) {
+        setPendingAction(() => () => setViewType(newType));
+        setIsConfirmOpen(true);
+    } else {
+        setViewType(newType);
+    }
+  }
 
   const handleConfirmDiscard = () => {
     resetChanges();
@@ -338,16 +354,53 @@ export default function EmployeeTimesheetGrid() {
           </Typography>
         </Stack>
 
-        <Stack direction="row" alignItems="center" gap={2}>
-          {/* Month Picker */}
+        <Stack direction="row" alignItems="center" gap={3}>
+          {/* View Toggle */}
+          <Box sx={{ display: "flex", bgcolor: "#f1f5f9", p: 0.5, borderRadius: 2.5, border: "1px solid #e2e8f0" }}>
+              <Button
+                  onClick={() => handleViewTypeChange("month")}
+                  size="small"
+                  sx={{ 
+                      borderRadius: 2, 
+                      px: 3, 
+                      fontWeight: 700,
+                      bgcolor: viewType === "month" ? "white" : "transparent",
+                      color: viewType === "month" ? "primary.main" : "text.secondary",
+                      boxShadow: viewType === "month" ? "0 4px 6px -1px rgb(0 0 0 / 0.1)" : "none",
+                      "&:hover": { bgcolor: viewType === "month" ? "white" : "rgba(0,0,0,0.05)" }
+                  }}
+              >
+                  Month
+              </Button>
+              <Button
+                  onClick={() => handleViewTypeChange("week")}
+                  size="small"
+                  sx={{ 
+                      borderRadius: 2, 
+                      px: 3, 
+                      fontWeight: 700,
+                      bgcolor: viewType === "week" ? "white" : "transparent",
+                      color: viewType === "week" ? "primary.main" : "text.secondary",
+                      boxShadow: viewType === "week" ? "0 4px 6px -1px rgb(0 0 0 / 0.1)" : "none",
+                      "&:hover": { bgcolor: viewType === "week" ? "white" : "rgba(0,0,0,0.05)" }
+                  }}
+              >
+                  Week
+              </Button>
+          </Box>
+
+          {/* Date Picker */}
           <Box sx={{ display: "flex", alignItems: "center", bgcolor: "background.paper", borderRadius: 2, p: 0.5, border: "1px solid", borderColor: "divider" }}>
-            <IconButton onClick={handlePrevMonth} size="small">
+            <IconButton onClick={handlePrev} size="small">
               <ChevronLeft />
             </IconButton>
-            <Typography sx={{ px: 2, fontWeight: 700, minWidth: 160, textAlign: "center", color: "text.primary" }}>
-              {format(selectedDate, "MMMM yyyy")}
+            <Typography sx={{ px: 2, fontWeight: 700, minWidth: viewType === "month" ? 160 : 220, textAlign: "center", color: "text.primary" }}>
+              {viewType === "month" 
+                ? format(selectedDate, "MMMM yyyy") 
+                : `${format(startOfWeek(selectedDate), "MMM dd")} - ${format(endOfWeek(selectedDate), "MMM dd, yyyy")}`
+              }
             </Typography>
-            <IconButton onClick={handleNextMonth} size="small">
+            <IconButton onClick={handleNext} size="small">
               <ChevronRight />
             </IconButton>
           </Box>
@@ -533,12 +586,70 @@ export default function EmployeeTimesheetGrid() {
                   borderTop: "2px solid #e2e8f0"
                 }}
               >
-                {Object.values(rowTotals).reduce((a, b) => a + b, 0) || ""}
+                {grandTotal || ""}
               </TableCell>
             </TableRow>
           </TableHead>
         </Table>
       </Box>
+
+      {/* Totals Summary Footer */}
+      <Paper 
+        elevation={0} 
+        sx={{ 
+            p: 3, 
+            borderRadius: 4, 
+            border: "1px solid #e2e8f0", 
+            bgcolor: "#f8fafc",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 4
+        }}
+      >
+        <Stack direction="row" gap={6}>
+            <Box>
+                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Period Worked Hours
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: "primary.main" }}>
+                    {grandTotal} <span style={{ fontSize: "1rem", fontWeight: 600, color: "#64748b" }}>hrs</span>
+                </Typography>
+            </Box>
+            <Box>
+                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Target Working Hours
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: "text.primary" }}>
+                    {targetHours} <span style={{ fontSize: "1rem", fontWeight: 600, color: "#64748b" }}>hrs</span>
+                </Typography>
+            </Box>
+            <Box>
+                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Performance
+                </Typography>
+                <Typography variant="h4" sx={{ 
+                    fontWeight: 800, 
+                    color: grandTotal >= targetHours ? "success.main" : "warning.main" 
+                }}>
+                    {performance}%
+                </Typography>
+            </Box>
+        </Stack>
+
+        <Box sx={{ flex: 1, height: 10, bgcolor: "#e2e8f0", borderRadius: 4, overflow: "hidden", minWidth: 200, maxWidth: 400 }}>
+            <Box 
+                sx={{ 
+                    height: "100%", 
+                    bgcolor: grandTotal >= targetHours ? "success.main" : "primary.main",
+                    width: `${Math.min(100, performance)}%`,
+                    transition: "width 1s cubic-bezier(0.4, 0, 0.2, 1)",
+                    boxShadow: grandTotal >= targetHours ? "0 0 12px rgba(34, 197, 94, 0.4)" : "none"
+                }} 
+            />
+        </Box>
+      </Paper>
 
 
       {/* Premium Discard Confirmation Dialog */}
@@ -564,7 +675,7 @@ export default function EmployeeTimesheetGrid() {
         </DialogTitle>
         <DialogContent sx={{ mt: 1 }}>
           <Typography sx={{ color: "text.secondary", lineHeight: 1.6 }}>
-            You have unsaved modifications in your monthly timesheet. <br/>
+            You have unsaved modifications in your {viewType}ly timesheet. <br/>
             <strong>This action cannot be undone.</strong> Are you sure you want to discard your work and continue?
           </Typography>
         </DialogContent>

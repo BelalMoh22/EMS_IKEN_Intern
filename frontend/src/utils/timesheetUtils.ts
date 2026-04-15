@@ -1,9 +1,15 @@
-import { format, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek } from "date-fns";
 import type { MonthlyWorkLogDTO } from "@/types/worklog";
 
 export const getDaysInMonth = (date: Date) => {
   const start = startOfMonth(date);
   const end = endOfMonth(date);
+  return eachDayOfInterval({ start, end });
+};
+
+export const getDaysInWeek = (date: Date) => {
+  const start = startOfWeek(date, { weekStartsOn: 0 });
+  const end = endOfWeek(date, { weekStartsOn: 0 });
   return eachDayOfInterval({ start, end });
 };
 
@@ -43,4 +49,17 @@ export const calculateTotals = (
   });
 
   return { rowTotals, colTotals };
+};
+
+export const calculateTargetHours = (days: Date[], hoursPerDay: number = 8) => {
+  return days.reduce((acc, day) => {
+    const dayOfWeek = day.getDay(); // 0 = Sunday, 1 = Monday, ..., 5 = Friday, 6 = Saturday
+    // Work week is Sunday (0) to Thursday (4)
+    const isWorkDay = dayOfWeek >= 0 && dayOfWeek <= 4;
+    
+    if (isWorkDay) {
+      return acc + hoursPerDay;
+    }
+    return acc;
+  }, 0);
 };
