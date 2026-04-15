@@ -17,8 +17,7 @@ import WorkIcon from "@mui/icons-material/Work";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import LockResetIcon from "@mui/icons-material/LockReset";
-import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import FolderSpecialIcon from "@mui/icons-material/FolderSpecial";
 import TimerIcon from "@mui/icons-material/Timer";
@@ -71,18 +70,6 @@ const navItems: NavItem[] = [
     icon: <WorkIcon />,
     roles: ["HR"],
   },
-  // {
-  //   title: "Attendance",
-  //   url: "/attendance/monthly",
-  //   icon: <EventAvailableIcon />,
-  //   roles: ["HR"],
-  // },
-  // {
-  //   title: "My Attendance",
-  //   url: "/attendance/my",
-  //   icon: <CalendarTodayIcon />,
-  //   roles: ["Employee", "HR", "Manager"],
-  // },
   {
     title: "Projects",
     icon: <FolderSpecialIcon />,

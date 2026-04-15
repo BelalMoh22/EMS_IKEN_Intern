@@ -2,7 +2,7 @@ export * from "./auth";
 export * from "./employee";
 export * from "./department";
 export * from "./position";
-export * from "./attendance";
+
 export * from "./project";
 export * from "./worklog";
 

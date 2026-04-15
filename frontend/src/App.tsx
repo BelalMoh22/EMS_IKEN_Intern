@@ -20,9 +20,7 @@ import EditPosition from "@/pages/positions/EditPosition";
 import PositionDetails from "@/pages/positions/PositionDetails";
 import NotFound from "@/pages/NotFound";
 import ChangePassword from "@/pages/ChangePassword";
-import MyAttendance from "@/pages/attendance/MyAttendance";
-import MonthlyAttendance from "@/pages/attendance/MonthlyAttendance";
-import EmployeeAttendanceDetails from "@/pages/attendance/EmployeeAttendanceDetails";
+
 import ProjectsDashboard from "@/pages/projects/ProjectsDashboard";
 import ProjectDetails from "@/pages/projects/ProjectDetails";
 import EmployeeWorkLogsPage from "@/pages/worklogs/EmployeeWorkLogsPage";
@@ -146,33 +144,7 @@ const App = () => (
             }
           />
 
-          {/* Attendance - HR only */}
-          <Route
-            path="/attendance/monthly"
-            element={
-              <RoleBasedRoute allowedRoles={["HR"]}>
-                <MonthlyAttendance />
-              </RoleBasedRoute>
-            }
-          />
-          <Route
-            path="/attendance/details/:employeeId"
-            element={
-              <RoleBasedRoute allowedRoles={["HR"]}>
-                <EmployeeAttendanceDetails />
-              </RoleBasedRoute>
-            }
-          />
 
-          {/* My Attendance - Accessible by Employee, HR, Manager */}
-          <Route
-            path="/attendance/my"
-            element={
-              <RoleBasedRoute allowedRoles={["Employee", "HR", "Manager"]}>
-                <MyAttendance />
-              </RoleBasedRoute>
-            }
-          />
 
           {/* Projects – Manager only */}
           <Route
