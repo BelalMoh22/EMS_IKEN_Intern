@@ -5,7 +5,7 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import { ProjectCard } from "./ProjectCard";
-import { STATUS_META } from "./utils/projectUtils";
+import { STATUS_META } from "../../utils/projectUtils";
 import type { Project } from "@/types/project";
 
 export type DashboardColumnType = "Open" | "Logged" | "Closed";

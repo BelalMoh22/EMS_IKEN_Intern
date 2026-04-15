@@ -12,9 +12,9 @@ import { AxiosError } from "axios"; // Handles HTTP Requests (Errors)
 import { ApiResponse } from "@/types";
 
 export function handleApiErrors<T extends FieldValues>(
-  error: unknown, // Error returned from API
+  error: unknown,
   methods: UseFormReturn<T>,
-) {
+): string | null {
   const axiosError = error as AxiosError<ApiResponse<any>>; // “This error comes from Axios and follows ApiResponse”
   const data = axiosError?.response?.data;
 
@@ -33,16 +33,42 @@ export function handleApiErrors<T extends FieldValues>(
         : String(messages);
 
       if (backendField.toLowerCase() === "general") {
-        generalMessages.push(errorMsg);
+        // Route specific general messages to their matching form fields
+        const generalToFieldMap: { pattern: RegExp; field: string }[] = [
+          { pattern: /age/i, field: "dateOfBirth" },
+        ];
+
+        const msgs = Array.isArray(messages) ? messages : [String(messages)];
+        for (const msg of msgs) {
+          const match = generalToFieldMap.find((m) => m.pattern.test(String(msg)));
+          if (match) {
+            const formFields = Object.keys(methods.getValues());
+            if (formFields.includes(match.field)) {
+              methods.setError(match.field as Path<T>, {
+                type: "server",
+                message: String(msg),
+              });
+              continue;
+            }
+          }
+          generalMessages.push(String(msg));
+        }
         return;
       }
+
+      // Custom mappings for fields that don't match exactly
+      const manualMapping: Record<string, string> = {
+        age: "dateOfBirth",
+      };
 
       // Try to find the matching field name in the form (casing might differ)
       const formFields = Object.keys(methods.getValues());
       const matchedField =
         formFields.find(
           (f) => f.toLowerCase() === backendField.toLowerCase(),
-        ) || backendField;
+        ) ||
+        manualMapping[backendField.toLowerCase()] ||
+        backendField;
 
       methods.setError(matchedField as Path<T>, {
         type: "server",
@@ -53,6 +79,8 @@ export function handleApiErrors<T extends FieldValues>(
     // If we have general messages, append them to the final message
     if (generalMessages.length > 0) {
       finalMessage = generalMessages.join(" | ");
+    } else {
+      return null; // Return null if all errors were mapped to fields
     }
 
     // Auto-focus first error (UX Improvement)

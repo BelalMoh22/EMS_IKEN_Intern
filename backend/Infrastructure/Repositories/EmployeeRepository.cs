@@ -24,7 +24,25 @@ namespace backend.Infrastructure.Repositories
             {
                 e.User = u; // �Attach the User object to the Employee�
                 return e;
-            }, splitOn: "Id"); // splitOn: "Id" tells Dapper to split the result set on the Id column to map Employee and User correctly
+                        }, splitOn: "Id"); // splitOn: "Id" tells Dapper to split the result set on the Id column to map Employee and User correctly
+        }
+
+        public override async Task<Employee?> GetByIdAsync(int id)
+        {
+            var sql = @"
+                SELECT e.*, u.*
+                FROM Employees e
+                LEFT JOIN Users u ON e.UserId = u.Id
+                WHERE e.Id = @Id AND e.IsDeleted = 0";
+
+            using var connection = _connectionFactory.CreateConnection();
+            var results = await connection.QueryAsync<Employee, User, Employee>(sql, (e, u) =>
+            {
+                e.User = u;
+                return e;
+            }, new { Id = id }, splitOn: "Id");
+
+            return results.FirstOrDefault();
         }
 
         public override async Task<int> AddAsync(Employee employee)

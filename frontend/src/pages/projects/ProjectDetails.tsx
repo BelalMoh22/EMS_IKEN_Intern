@@ -46,7 +46,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import { format } from "date-fns";
 import { useProject, useDeleteProject, useReopenProject, useCloseProject } from "@/hooks/useProjects";
 import { useProjectEmployees, useEmployeeReport } from "@/hooks/useWorkLogs";
-import { STATUS_META, formatDate } from "./utils/projectUtils";
+import { STATUS_META, formatDate } from "../../utils/projectUtils";
 import { ProjectFormDialog } from "./ProjectFormDialog";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useSnackbar } from "notistack";

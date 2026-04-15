@@ -57,7 +57,7 @@ export default function CreateDepartment() {
         },
         onError: (error) => {
           const message = handleApiErrors(error, methods);
-          enqueueSnackbar(message, { variant: "error" });
+          if (message) enqueueSnackbar(message, { variant: "error" });
         },
       },
     );

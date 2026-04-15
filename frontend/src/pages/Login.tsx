@@ -72,7 +72,7 @@ export default function Login() {
     } catch (error) {
       console.error("Login failed:", error);
       const message = handleApiErrors(error, methods);
-      enqueueSnackbar(message, { variant: "error" });
+      if (message) enqueueSnackbar(message, { variant: "error" });
     } finally {
       setLoading(false);
     }

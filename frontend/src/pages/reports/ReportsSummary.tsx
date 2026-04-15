@@ -41,7 +41,7 @@ export const ReportsSummary = ({
   return (
     <Grid container spacing={3} sx={{ mb: 4 }}>
       {cards.map((card, index) => (
-        <Grid item xs={12} sm={4} key={index}>
+        <Grid size={{ xs: 12, sm: 4 }} key={index}>
           <Card
             sx={{
               borderRadius: 3,

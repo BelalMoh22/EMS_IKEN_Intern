@@ -12,6 +12,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { useCreateProject, useUpdateProject } from "@/hooks/useProjects";
 import type { Project } from "@/types/project";
 import { handleApiErrors } from "@/utils/handleApiErrors";
+import { useSnackbar } from "notistack";
 
 // ─── Types ───────────────────────────────────────────────
 export interface ProjectFormValues {
@@ -67,7 +68,7 @@ export function ProjectFormDialog({ open, onClose, editTarget }: Props) {
           },
           onError: (err) => {
             const msg = handleApiErrors(err, methods);
-            enqueueSnackbar(msg, { variant: "error" });
+            if (msg) enqueueSnackbar(msg, { variant: "error" });
           }
         }
       );
@@ -81,7 +82,7 @@ export function ProjectFormDialog({ open, onClose, editTarget }: Props) {
           },
           onError: (err) => {
             const msg = handleApiErrors(err, methods);
-            enqueueSnackbar(msg, { variant: "error" });
+            if (msg) enqueueSnackbar(msg, { variant: "error" });
           }
         }
       );

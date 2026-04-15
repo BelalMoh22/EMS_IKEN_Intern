@@ -16,8 +16,8 @@ import RestoreIcon from "@mui/icons-material/Restore";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import type { Project } from "@/types/project";
-import { STATUS_META, formatDate } from "./utils/projectUtils";
-import { useProjectActions } from "./context/ProjectActionsContext";
+import { STATUS_META, formatDate } from "../../utils/projectUtils";
+import { useProjectActions } from "../../contexts/ProjectActionsContext";
 
 // ─── Props ───────────────────────────────────────────────
 interface Props {

@@ -118,14 +118,14 @@ export default function CreateEmployee() {
           },
           onError: (error) => {
             const message = handleApiErrors(error, methods);
-            enqueueSnackbar(message, { variant: "error" });
+            if (message) enqueueSnackbar(message, { variant: "error" });
             setSubmitting(false);
           },
         },
       );
     } catch (error) {
       const message = handleApiErrors(error, methods);
-      enqueueSnackbar(message, { variant: "error" });
+      if (message) enqueueSnackbar(message, { variant: "error" });
       setSubmitting(false);
     }
   };

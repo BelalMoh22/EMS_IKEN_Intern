@@ -365,26 +365,28 @@ export default function ReportsPage() {
 
           {/* Dropdown arrow */}
           <Tooltip title="Export options">
-            <IconButton
-              id="export-dropdown-btn"
-              aria-controls={exportMenuOpen ? "export-menu" : undefined}
-              aria-haspopup="true"
-              aria-expanded={exportMenuOpen ? "true" : undefined}
-              onClick={handleMenuOpen}
-              disabled={isDisabled}
-              size="small"
-              sx={{
-                background: "linear-gradient(135deg, #059669 0%, #047857 100%)",
-                color: "white",
-                borderLeft: "1px solid rgba(255,255,255,0.25) !important",
-                px: 0.5,
-                borderRadius: "0 8px 8px 0",
-                "&:hover": { background: "linear-gradient(135deg, #047857 0%, #065f46 100%)" },
-                "&.Mui-disabled": { background: "rgba(0,0,0,0.12)" },
-              }}
-            >
-              <ArrowDropDownIcon />
-            </IconButton>
+            <span>
+              <IconButton
+                id="export-dropdown-btn"
+                aria-controls={exportMenuOpen ? "export-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={exportMenuOpen ? "true" : undefined}
+                onClick={handleMenuOpen}
+                disabled={isDisabled}
+                size="small"
+                sx={{
+                  background: "linear-gradient(135deg, #059669 0%, #047857 100%)",
+                  color: "white",
+                  borderLeft: "1px solid rgba(255,255,255,0.25) !important",
+                  px: 0.5,
+                  borderRadius: "0 8px 8px 0",
+                  "&:hover": { background: "linear-gradient(135deg, #047857 0%, #065f46 100%)" },
+                  "&.Mui-disabled": { background: "rgba(0,0,0,0.12)" },
+                }}
+              >
+                <ArrowDropDownIcon />
+              </IconButton>
+            </span>
           </Tooltip>
         </ButtonGroup>
 

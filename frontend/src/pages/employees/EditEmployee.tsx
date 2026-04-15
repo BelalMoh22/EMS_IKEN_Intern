@@ -42,6 +42,7 @@ const schema = z.object({
   positionId: z.coerce.number().min(1, "Position is required"),
   status: z.coerce.number().min(1).max(3),
   role: z.enum(["HR", "Manager", "Employee"]),
+  username: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -69,6 +70,7 @@ export default function EditEmployee() {
       positionId: 0,
       status: 1,
       role: "Employee",
+      username: "",
     },
   });
 
@@ -86,6 +88,7 @@ export default function EditEmployee() {
         positionId: employee.positionId ?? 0,
         status: STATUS_ENUM_MAP[employee.status as EmployeeStatus] ?? 1,
         role: (employee.user?.role as any) ?? "Employee",
+        username: employee.user?.username,
       });
     }
   }, [employee, methods]);
@@ -130,7 +133,7 @@ export default function EditEmployee() {
         },
         onError: (error) => {
           const message = handleApiErrors(error, methods);
-          enqueueSnackbar(message, { variant: "error" });
+          if (message) enqueueSnackbar(message, { variant: "error" });
         },
       },
     );
@@ -176,6 +179,16 @@ export default function EditEmployee() {
                       { label: "Manager", value: "Manager" },
                       { label: "Employee", value: "Employee" },
                     ]}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    label="Username"
+                    fullWidth
+                    size="small"
+                    disabled
+                    value={methods.watch("username")}
+                    slotProps={{ inputLabel: { shrink: true } }}
                   />
                 </Grid>
               </Grid>
@@ -233,11 +246,11 @@ export default function EditEmployee() {
                   {(() => {
                     const watchedStatus = Number(methods.watch("status"));
                     const isFull = positions?.find(
-                      (p) => p.id === watchedPositionId,
+                      (p) => p.id === Number(watchedPositionId),
                     )?.isFull;
                     const isEmployeeActive = employee?.status === "Active";
                     const isPositionChanged =
-                      watchedPositionId !== employee?.positionId;
+                      Number(watchedPositionId) !== employee?.positionId;
                     const isStatusChangingToActive =
                       !isEmployeeActive && watchedStatus === 1;
 
@@ -279,7 +292,7 @@ export default function EditEmployee() {
                     fullWidth
                     size="small"
                     value={
-                      positions?.find((p) => p.id === watchedPositionId)
+                      positions?.find((p) => p.id === Number(watchedPositionId))
                         ?.departmentName ?? ""
                     }
                     slotProps={{ inputLabel: { shrink: true } }}
