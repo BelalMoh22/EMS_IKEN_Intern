@@ -1,4 +1,4 @@
-﻿namespace backend.Infrastructure.Services.CurrentUserService
+namespace backend.Infrastructure.Services.CurrentUserService
 {
     public class CurrentUserService : ICurrentUserService
     {
@@ -21,6 +21,15 @@
                     throw new Exception("User is not authenticated.");
 
                 return int.Parse(userId);
+            }
+        }
+
+        public string? UserRole
+        {
+            get
+            {
+                var user = _httpContextAccessor.HttpContext?.User;
+                return user?.FindFirst(ClaimTypes.Role)?.Value;
             }
         }
     }

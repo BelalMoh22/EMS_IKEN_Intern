@@ -49,13 +49,7 @@ const schema = z.object({
   ),
   // User account fields
   username: z.string().min(1, "Username is required"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/,
-      "Password must contain uppercase, lowercase, number, and special character",
-    ),
+  password: z.string().min(1, "Password is required"),
   role: z.enum(["HR", "Manager", "Employee"]),
 });
 
@@ -85,7 +79,7 @@ export default function CreateEmployee() {
       salary: 0,
       positionId: state?.positionId ?? 0,
       username: "",
-      password: "",
+      password: "1234",
       role: "Employee",
     },
   });

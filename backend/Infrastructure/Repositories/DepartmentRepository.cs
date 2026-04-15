@@ -59,6 +59,20 @@ namespace backend.Infrastructure.Repositories
             return department;
         }
 
+        public async Task<Department?> GetDepartmentByEmployeeIdAsync(int employeeId)
+        {
+            var sql = $@"
+                SELECT D.*
+                FROM Departments D
+                JOIN Positions P ON D.Id = P.DepartmentId
+                JOIN Employees E ON P.Id = E.PositionId
+                WHERE E.Id = @EmployeeId
+                  AND D.IsDeleted = 0";
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QuerySingleOrDefaultAsync<Department>(sql, new { EmployeeId = employeeId });
+        }
+
+
         public override async Task<int> DeleteAsync(int id)
         {
             return await SoftDeleteAsync(id);

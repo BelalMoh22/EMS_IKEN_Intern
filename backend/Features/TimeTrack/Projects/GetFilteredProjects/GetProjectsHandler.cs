@@ -22,17 +22,29 @@ namespace backend.Features.TimeTrack.Projects.GetFilteredProjects
 
             var deptId = request.departmentId;
 
-            // Isolation logic: Managers only see their own department's projects
-            var loggedInUserId = _currentUser.UserId;
-            if (loggedInUserId != null)
+            // HR sees all projects — no department restriction
+            var role = _currentUser.UserRole;
+            if (role != "HR")
             {
+                var loggedInUserId = _currentUser.UserId;
                 var employee = await _employeeRepository.GetByUserIdAsync(loggedInUserId);
                 if (employee != null)
                 {
+                    // Check if they are a manager first
                     var managerDept = await _departmentRepository.GetByManagerIdAsync(employee.Id);
                     if (managerDept != null)
                     {
+                        // Manager: restrict to their managed department
                         deptId = managerDept.Id;
+                    }
+                    else
+                    {
+                        // Regular employee: restrict to their own department
+                        var employeeDept = await _departmentRepository.GetDepartmentByEmployeeIdAsync(employee.Id);
+                        if (employeeDept != null)
+                        {
+                            deptId = employeeDept.Id;
+                        }
                     }
                 }
             }
@@ -51,5 +63,6 @@ namespace backend.Features.TimeTrack.Projects.GetFilteredProjects
 
             return result;
         }
+
     }
 }
