@@ -133,9 +133,27 @@ export default function ReportsPage() {
       }
     });
 
+    // ── Sorting Logic: Idle, Vacation, Blocked first, then insertion order ──
+    const getPriority = (name: string) => {
+      const n = name.toLowerCase();
+      if (n.includes("idle")) return 1;
+      if (n.includes("vacation")) return 2;
+      if (n.includes("blocked")) return 3;
+      return 4;
+    };
+
+    const sortedProjMeta = (allProjects || [])
+      .map((p) => projMap[p.id] || { id: p.id, name: p.name, totalHours: 0 })
+      .sort((a, b) => {
+        const pA = getPriority(a.name);
+        const pB = getPriority(b.name);
+        if (pA !== pB) return pA - pB;
+        return a.id - b.id; // Sorted by ID ascending (insertion order)
+      });
+
     return {
       matrixData: matrix,
-      projectsMeta: Object.values(projMap).sort((a, b) => a.name.localeCompare(b.name)),
+      projectsMeta: sortedProjMeta,
       totalHours: tHours,
     };
   }, [filteredLogs, allProjects]);
@@ -183,15 +201,30 @@ export default function ReportsPage() {
       // 1. Total possible working hours for the selected period
       const totalPossibleHours = calcTotalPossibleHours();
 
+      // Order of projects: Idle, Vacation, Blocked, then others
+      const getPriority = (name: string) => {
+        const n = name.toLowerCase();
+        if (n.includes("idle")) return 1;
+        if (n.includes("vacation")) return 2;
+        if (n.includes("blocked")) return 3;
+        return 4;
+      };
+
+      const sortedProjects = [...(allProjects || [])].sort((a, b) => {
+        const pA = getPriority(a.name);
+        const pB = getPriority(b.name);
+        if (pA !== pB) return pA - pB;
+        return a.id - b.id; // Keep insertion order (ID ASC)
+      });
+
+      const projects = sortedProjects.map((p) => p.name);
+      const hoursMatrix: Record<number, { Employee: string; [key: string]: string | number }> = {};
+
       // Helper: hours → decimal ratio (0.30 = 30%), rounded to 4 dp
       const toRatio = (hours: number): number =>
         totalPossibleHours > 0
           ? Math.round((hours / totalPossibleHours) * 100) / 100
           : 0;
-
-      // 2. Build raw-hours matrix first
-      const projects = allProjects?.map((p) => p.name) || [];
-      const hoursMatrix: Record<number, { Employee: string; [key: string]: string | number }> = {};
 
       const logsToExport = employeeIds
         ? rawLogs.filter((log) => employeeIds.has(log.employeeId))

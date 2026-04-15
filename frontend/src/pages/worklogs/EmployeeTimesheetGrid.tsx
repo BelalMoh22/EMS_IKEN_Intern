@@ -384,8 +384,8 @@ export default function EmployeeTimesheetGrid() {
         return priorityA - priorityB;
       }
       
-      // If they have the same priority (e.g., both are normal projects), sort alphabetically
-      return nameA.localeCompare(nameB);
+      // If they have the same priority (e.g., both are normal projects), sort by insertion order (ID ASC)
+      return a - b;
     });
   }, [editedData, openProjects, isDataLoading, projectNames, addedProjectIds]);
 
