@@ -51,9 +51,8 @@ namespace backend.Features.Employees.CreateEmployee
         public string Username { get; set; }
 
         [Required(ErrorMessage = "Password is required.")]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$",
-            ErrorMessage = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.")]
         public string Password { get; set; }
+
 
         [Required(ErrorMessage = "Role is required.")]
         public Roles Role { get; set; }

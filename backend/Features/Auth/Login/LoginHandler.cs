@@ -24,7 +24,7 @@ namespace backend.Features.Auth.Login
 
             if (user is null || !BCrypt.Net.BCrypt.Verify(request.dto.Password, user.PasswordHash))
             {
-                throw new UnauthorizedAccessException("Invalid username or Password.");
+                throw new UnauthorizedAccessException("Please check your username and password and try again.");
             }
 
             var accessToken = _jwt.GenerateToken(user);
