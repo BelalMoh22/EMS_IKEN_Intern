@@ -36,7 +36,12 @@ const schema = z.object({
   nationalId: z
     .string()
     .regex(/^\d{14}$/, "National ID must be exactly 14 digits"),
-  email: z.string().email("Invalid email"),
+  email: z
+    .string()
+    .email("Invalid email")
+    .refine((email) => email.endsWith("@iken.tech"), {
+      message: "Email must end with @iken.tech",
+    }),
   phoneNumber: z.string().min(1, "Phone number is required"),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
 
