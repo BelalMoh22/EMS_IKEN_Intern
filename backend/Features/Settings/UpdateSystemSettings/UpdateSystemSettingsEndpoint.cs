@@ -6,7 +6,7 @@ namespace backend.Features.Settings.UpdateSystemSettings
         {
             app.MapPut("/", async (UpdateSystemSettingsDTO dto, IMediator mediator) =>
             {
-                var result = await mediator.Send(new UpdateSystemSettingsCommand(dto.WorkLogGracePeriod));
+                var result = await mediator.Send(new UpdateSystemSettingsCommand(dto.WorkLogGracePeriodDays, dto.ReminderTime, dto.IsReminderEnabled));
                 return Results.Ok(ApiResponse<bool>.SuccessResponse(result, "Settings updated successfully"));
             })
             .WithName("UpdateSystemSettings")

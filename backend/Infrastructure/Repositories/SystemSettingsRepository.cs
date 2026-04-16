@@ -1,4 +1,3 @@
-
 namespace backend.Infrastructure.Repositories
 {
     public class SystemSettingsRepository : ISystemSettingsRepository
@@ -10,37 +9,36 @@ namespace backend.Infrastructure.Repositories
             _connectionFactory = connectionFactory;
         }
 
-        public async Task<int> GetWorkLogGracePeriodAsync()
+        public async Task<SystemSettings> GetSystemSettingsAsync()
         {
             using var connection = _connectionFactory.CreateConnection();
-            const string sql = "SELECT TOP 1 WorkLogGracePeriod FROM SystemSettings ORDER BY Id";
-            return await connection.QueryFirstOrDefaultAsync<int>(sql);
+            const string sql = "SELECT TOP 1 * FROM SystemSettings ORDER BY Id";
+            var settings = await connection.QueryFirstOrDefaultAsync<SystemSettings>(sql);
+            
+            if (settings == null)
+            {
+                settings = new SystemSettings(); // Return default settings if none exist
+            }
+            
+            return settings;
         }
 
-        public async Task<bool> IsGracePeriodDisabledAsync()
-        {
-            using var connection = _connectionFactory.CreateConnection();
-            const string sql = "SELECT TOP 1 IsDeleted FROM SystemSettings ORDER BY Id";
-            return await connection.QueryFirstOrDefaultAsync<bool>(sql);
-        }
-
-        public async Task UpdateWorkLogGracePeriodAsync(int days)
+        public async Task UpdateSystemSettingsAsync(SystemSettings settings)
         {
             using var connection = _connectionFactory.CreateConnection();
             const string sql = @"
                 IF EXISTS (SELECT 1 FROM SystemSettings)
-                    UPDATE SystemSettings SET WorkLogGracePeriod = @days, UpdatedAt = GETDATE(), IsDeleted = 0
+                    UPDATE SystemSettings 
+                    SET WorkLogGracePeriodDays = @WorkLogGracePeriodDays, 
+                        ReminderTime = @ReminderTime, 
+                        IsReminderEnabled = @IsReminderEnabled, 
+                        UpdatedAt = GETDATE(), 
+                        IsDeleted = @IsDeleted  
                 ELSE
-                    INSERT INTO SystemSettings (WorkLogGracePeriod, CreatedAt, UpdatedAt, IsDeleted)
-                    VALUES (@days, GETDATE(), GETDATE(), 0)";
-            await connection.ExecuteAsync(sql, new { days });
-        }
-
-        public async Task DisableGracePeriodAsync()
-        {
-            using var connection = _connectionFactory.CreateConnection();
-            const string sql = "UPDATE SystemSettings SET IsDeleted = 1, UpdatedAt = GETDATE()";
-            await connection.ExecuteAsync(sql);
+                    INSERT INTO SystemSettings (WorkLogGracePeriodDays, ReminderTime, IsReminderEnabled, CreatedAt, UpdatedAt, IsDeleted)
+                    VALUES (@WorkLogGracePeriodDays, @ReminderTime, @IsReminderEnabled, GETDATE(), GETDATE(), @IsDeleted)";
+            
+            await connection.ExecuteAsync(sql, settings);
         }
     }
 }

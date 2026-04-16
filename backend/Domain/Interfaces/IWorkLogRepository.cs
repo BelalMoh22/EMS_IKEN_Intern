@@ -19,5 +19,6 @@ namespace backend.Domain.Interfaces
         Task<IEnumerable<EmployeeDailyReportDTO>> GetEmployeeProjectReportAsync(int projectId, int employeeId);
 
         Task<IEnumerable<WorkLogReportDto>> GetWorkLogsReportAsync(DateTime startDate, DateTime endDate, int? managerEmployeeId = null);
+        Task<WorkLog?> GetLastLogByEmployeeId(int employeeId);
     }
 }

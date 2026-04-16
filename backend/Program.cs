@@ -1,4 +1,3 @@
-
 namespace backend
 {
     public class Program
@@ -58,6 +57,8 @@ namespace backend
             builder.Services.AddScoped<IDepartmentBusinessRules, DepartmentBusinessRules>();
             builder.Services.AddScoped<IWorkLogBusinessRules, WorkLogBusinessRules>();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<WorkLogReminderService>();
             builder.Services.AddHttpContextAccessor();
 
             // Use Authentication
@@ -77,6 +78,15 @@ namespace backend
                         ClockSkew = TimeSpan.Zero  // No extra time after expiration
                     };
                 });
+
+            // Use HangFire
+            builder.Services.AddHangfire(config => config
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddHangfireServer();
+
 
             // Use Authorization
             builder.Services.AddAuthorization( builder =>
@@ -165,8 +175,35 @@ namespace backend
             app.MapGroup("/api/projects").MapProjectsEndpoints();
             app.MapGroup("/api/worklogs").MapWorkLogsEndpoints();
             app.MapGroup("/api/settings").MapSettingsEndpoints();
+            app.UseHangfireDashboard();
+
+            // Initialize/Schedule Reminder Job
+            using (var scope = app.Services.CreateScope()) // temporary DI scope
+            {
+                var settingsRepo = scope.ServiceProvider.GetRequiredService<ISystemSettingsRepository>();
+                var settings = await settingsRepo.GetSystemSettingsAsync();
+                UpdateWorkLogReminderJob(settings);
+            }
+
             app.MapFallbackToFile("index.html");
             app.Run();
+        }
+
+        public static void UpdateWorkLogReminderJob(SystemSettings settings)
+        {
+            if (settings.IsReminderEnabled)
+            {
+                var cronExpression = $"{settings.ReminderTime.Minutes} {settings.ReminderTime.Hours} * * *";
+                RecurringJob.AddOrUpdate<WorkLogReminderService>(
+                    "worklog-reminder",
+                    service => service.CheckAndSendReminders(),
+                    cronExpression,
+                    new RecurringJobOptions { TimeZone = TimeZoneInfo.Local });
+            }
+            else
+            {
+                RecurringJob.RemoveIfExists("worklog-reminder");
+            }
         }
     }
 }

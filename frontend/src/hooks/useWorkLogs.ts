@@ -15,7 +15,7 @@ export function useSettings() {
 export function useUpdateSettings() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: { workLogGracePeriod: number }) =>
+    mutationFn: (data: { workLogGracePeriodDays: number; reminderTime: string; isReminderEnabled: boolean }) =>
       worklogApi.updateSettings(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["settings"] });
