@@ -27,6 +27,9 @@ namespace backend.Infrastructure.BusinessRules.Employees
             if (position is null || position.IsDeleted)
                 AddError(errors, "positionId", $"Position with Id {dto.PositionId} does not exist.");
 
+            if (!dto.Email.EndsWith("@iken.tech"))
+                AddError(errors, "email", "Email must end with @iken.tech.");
+
             if (await _employeeRepository.ExistsAsync(e => e.Email == dto.Email))
                 AddError(errors, "email", $"Email '{dto.Email}' is already in use.");
 
@@ -64,6 +67,9 @@ namespace backend.Infrastructure.BusinessRules.Employees
             var position = await _positionRepository.GetByIdAsync(positionId);
             if (position is null || position.IsDeleted)
                 AddError(errors, "positionId", $"Position with Id {positionId} does not exist.");
+
+            if (!email.EndsWith("@iken.tech"))
+                AddError(errors, "email", "Email must end with @iken.tech.");
 
             if (await _employeeRepository.ExistsAsync(e => e.Email == email && e.Id != employeeId))
                 AddError(errors, "email", $"Email '{email}' is already in use.");
