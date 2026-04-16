@@ -5,7 +5,7 @@ import { transformLogsToGrid, formatCellDate } from "@/utils/timesheetUtils";
 import { isAfter, startOfDay, subDays, parseISO, isEqual } from "date-fns";
 import type { TimesheetEntryDTO } from "@/types/worklog";
 
-export const useTimesheet = (days: Date[], settings?: { workLogGracePeriod: number; isDisabled: boolean }) => {
+export const useTimesheet = (days: Date[], settings?: { workLogGracePeriodDays: number; isDeleted: boolean }) => {
   // Determine unique months in the range
   const monthsToFetch = useMemo(() => {
     const list: { year: number; month: number }[] = [];
@@ -95,10 +95,10 @@ export const useTimesheet = (days: Date[], settings?: { workLogGracePeriod: numb
         }
 
         // Errors (Blocking)
-        if (settings && !settings.isDisabled && hours > 0 && hasChanged) {
-            const graceThreshold = subDays(today, settings.workLogGracePeriod);
+        if (settings && !settings.isDeleted && hours > 0 && hasChanged) {
+            const graceThreshold = subDays(today, settings.workLogGracePeriodDays);
             if (dateObj < graceThreshold) {
-                const errMsg = `Entry for ${date} is restricted (Exceeds ${settings.workLogGracePeriod}-day grace period). Please contact your manager for approval.`;
+                const errMsg = `Entry for ${date} is restricted (Exceeds ${settings.workLogGracePeriodDays}-day grace period). Please contact your manager for approval.`;
                 if (!errorList.includes(errMsg)) {
                     errorList.push(errMsg);
                 }

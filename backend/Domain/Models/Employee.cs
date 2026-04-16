@@ -15,8 +15,9 @@ namespace backend.Domain.Models
         public EmployeeStatus? Status { get; private set; }
         public int PositionId { get; private set; }
         public int UserId { get; private set; }
+        public DateTime? LastReminderSentAt { get; private set; }
 
-        public Position Position { get; private set; } // Navigation property to Position to do this var positionName = employee.Position.Name;
+        public Position Position { get; set; } // Navigation property to Position 
         public User User { get; set; } // Navigation property to User
 
         public Employee(
@@ -59,7 +60,8 @@ namespace backend.Domain.Models
             decimal? salary,
             DateTime? hireDate,
             EmployeeStatus? status,
-            int? positionId)
+            int? positionId,
+            DateTime? lastReminderSentAt = null)
         {
             FirstName = firstName ?? FirstName;
             Lastname = lastname ?? Lastname;
@@ -72,6 +74,12 @@ namespace backend.Domain.Models
             HireDate = hireDate ?? HireDate;
             Status = status ?? Status;
             PositionId = positionId ?? PositionId;
+            LastReminderSentAt = lastReminderSentAt ?? LastReminderSentAt;
+        }
+
+        public void UpdateLastReminderSentAt(DateTime lastReminderSentAt)
+        {
+            LastReminderSentAt = lastReminderSentAt;
         }
     }
 }

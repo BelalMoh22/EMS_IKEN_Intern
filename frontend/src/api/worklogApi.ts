@@ -60,13 +60,13 @@ export const worklogApi = {
   /** GET /api/settings */
   getSettings: () =>
     api
-      .get<ApiResponse<{ workLogGracePeriod: number; isDisabled: boolean }>>(
+      .get<ApiResponse<{ workLogGracePeriodDays: number; reminderTime: string; isReminderEnabled: boolean; isDeleted: boolean }>>(
         "/settings"
       )
       .then((r) => r.data.data!),
 
   /** PUT /api/settings */
-  updateSettings: (data: { workLogGracePeriod: number }) =>
+  updateSettings: (data: { workLogGracePeriodDays: number; reminderTime: string; isReminderEnabled: boolean }) =>
     api.put<ApiResponse<boolean>>("/settings", data).then((r) => r.data),
 
   /** DELETE /api/settings */

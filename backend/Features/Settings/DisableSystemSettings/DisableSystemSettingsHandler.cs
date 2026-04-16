@@ -11,7 +11,9 @@ namespace backend.Features.Settings.DisableSystemSettings
 
         public async Task<bool> Handle(DisableSystemSettingsCommand request, CancellationToken cancellationToken)
         {
-            await _repo.DisableGracePeriodAsync();
+            var settings = await _repo.GetSystemSettingsAsync();
+            settings.IsDeleted = true;
+            await _repo.UpdateSystemSettingsAsync(settings);
             return true;
         }
     }

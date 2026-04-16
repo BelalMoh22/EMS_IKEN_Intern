@@ -1,5 +1,3 @@
-using Azure.Core;
-
 namespace backend.Infrastructure.Repositories
 {
     public class EmployeeRepository : Repository<Employee>
@@ -10,6 +8,29 @@ namespace backend.Infrastructure.Repositories
         }
 
         protected override string TableName => "Employees";
+
+        public async Task<IEnumerable<Employee>> GetAllActiveEmployeesAsync()
+        {
+            return await GetAllAsync();
+        }
+
+        public async Task<IEnumerable<Employee>> GetEmployeesForReminderAsync()
+        {
+            var sql = @"
+                SELECT e.*, u.*, p.*
+                FROM Employees e
+                LEFT JOIN Users u ON e.UserId = u.Id
+                LEFT JOIN Positions p ON e.PositionId = p.Id
+                WHERE e.IsDeleted = 0 AND (p.IsManager = 0 OR p.IsManager IS NULL)";
+
+            using var connection = _connectionFactory.CreateConnection();
+            return await connection.QueryAsync<Employee, User, Position, Employee>(sql, (e, u, p) =>
+            {
+                e.User = u;
+                e.Position = p;
+                return e;
+            }, splitOn: "Id,Id");
+        }
 
         public override async Task<IEnumerable<Employee>> GetAllAsync()
         {
@@ -62,6 +83,7 @@ namespace backend.Infrastructure.Repositories
                     Status,
                     PositionId,
                     UserId,
+                    LastReminderSentAt,
                     IsDeleted
                 )
                 VALUES
@@ -78,6 +100,7 @@ namespace backend.Infrastructure.Repositories
                     @Status,
                     @PositionId,
                     @UserId,
+                    @LastReminderSentAt,
                     @IsDeleted
                 );
 
@@ -103,7 +126,8 @@ namespace backend.Infrastructure.Repositories
                     Salary = @Salary,
                     HireDate = @HireDate,
                     Status = @Status,
-                    PositionId = @PositionId
+                    PositionId = @PositionId,
+                    LastReminderSentAt = @LastReminderSentAt
                 WHERE Id = @Id
             ";
 
@@ -122,7 +146,15 @@ namespace backend.Infrastructure.Repositories
                 employee.HireDate,
                 employee.Status,
                 employee.PositionId,
+                employee.LastReminderSentAt
             });
+        }
+
+        public async Task UpdateLastReminderSentAtAsync(int employeeId, DateTime lastReminderSentAt)
+        {
+            var sql = $"UPDATE {TableName} SET LastReminderSentAt = @LastReminderSentAt WHERE Id = @Id";
+            using var connection = _connectionFactory.CreateConnection();
+            await connection.ExecuteAsync(sql, new { Id = employeeId, LastReminderSentAt = lastReminderSentAt });
         }
 
         public async Task<Employee?> GetByUserIdAsync(int userId)
@@ -155,7 +187,7 @@ namespace backend.Infrastructure.Repositories
             {
                 e.User = u;
                 return e;
-            }, new { ManagerId = managerId });
+            }, new { ManagerId = managerId }, splitOn: "Id");
         }
 
         public async Task<IEnumerable<Employee>> GetManagersByDepartmentIdAsync(int departmentId)
@@ -175,7 +207,7 @@ namespace backend.Infrastructure.Repositories
             {
                 e.User = u;
                 return e;
-            }, new { DepartmentId = departmentId });
+            }, new { DepartmentId = departmentId }, splitOn: "Id");
         }
 
         public async Task<IEnumerable<Employee>> GetEmployeesByDepartmentIdAsync(int departmentId)
@@ -194,7 +226,7 @@ namespace backend.Infrastructure.Repositories
             {
                 e.User = u;
                 return e;
-            }, new { DepartmentId = departmentId });
+            }, new { DepartmentId = departmentId }, splitOn: "Id");
         }
 
         public async Task<EmployeeProfileDto?> GetEmployeeProfileByUserIdAsync(int UserId)

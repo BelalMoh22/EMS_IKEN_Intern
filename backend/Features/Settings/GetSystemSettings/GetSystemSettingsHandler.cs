@@ -11,16 +11,14 @@ namespace backend.Features.Settings.GetSystemSettings
 
         public async Task<SystemSettingsDTO> Handle(GetSystemSettingsQuery request, CancellationToken cancellationToken)
         {
-            var gracePeriod = await _repo.GetWorkLogGracePeriodAsync();
-            var isDisabled = await _repo.IsGracePeriodDisabledAsync();
-            
-            if (gracePeriod <= 0) 
-                gracePeriod = 7;
+            var settings = await _repo.GetSystemSettingsAsync();
 
             return new SystemSettingsDTO
             {
-                WorkLogGracePeriod = gracePeriod,
-                IsDisabled = isDisabled
+                WorkLogGracePeriodDays = settings.WorkLogGracePeriodDays,
+                ReminderTime = settings.ReminderTime.ToString(@"hh\:mm"),
+                IsReminderEnabled = settings.IsReminderEnabled,
+                IsDeleted = settings.IsDeleted
             };
         }
     }

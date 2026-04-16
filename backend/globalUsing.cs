@@ -11,7 +11,7 @@ global using backend.Domain.Models;
 global using backend.Domain.Enums;
 global using backend.Domain;
 global using backend.Infrastructure.Data;
-global using backend.Infrastructure.Repositories;
+global using backend.Infrastructure.Repositories; 
 global using backend.Features.Departments;
 global using backend.Features.Employees;
 global using backend.Features.Positions;
@@ -83,4 +83,7 @@ global using backend.Features.Settings.DisableSystemSettings;
 global using backend.Features.Settings.GetSystemSettings;
 global using backend.Features.Settings.UpdateSystemSettings;
 global using backend.Features.TimeTrack.WorkLogs.GetReport;
-
+global using backend.Infrastructure.Services;
+global using Hangfire;
+global using backend.Infrastructure.Services.EmailService;
+global using System.Net.Mail;

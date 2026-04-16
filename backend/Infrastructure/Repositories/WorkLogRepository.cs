@@ -189,5 +189,11 @@ namespace backend.Infrastructure.Repositories
                 ManagerId = managerEmployeeId
             });
         }
+        public async Task<WorkLog?> GetLastLogByEmployeeId(int employeeId)
+        {
+            var sql = "SELECT TOP 1 * FROM WorkLogs WHERE EmployeeId = @EmployeeId AND IsDeleted = 0 ORDER BY WorkDate DESC";
+            using var conn = _db.CreateConnection();
+            return await conn.QueryFirstOrDefaultAsync<WorkLog>(sql, new { EmployeeId = employeeId });
+        }
     }
 }
