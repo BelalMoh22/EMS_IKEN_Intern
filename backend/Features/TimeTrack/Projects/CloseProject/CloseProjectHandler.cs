@@ -16,9 +16,9 @@ namespace backend.Features.TimeTrack.Projects.CloseProject
 
             await _rules.ValidateOwnershipAndWriteAccessAsync(project);
 
-            await _rules.ValidateForCloseAsync(project);
+            await _rules.ValidateForCompleteAsync(project);
 
-            project.Close();
+            project.Complete();
             await _projectRepository.UpdateAsync(project);
 
             return Unit.Value;

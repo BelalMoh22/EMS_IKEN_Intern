@@ -4,7 +4,7 @@ namespace backend.Features.TimeTrack.Projects.CloseProject
     {
         public static RouteHandlerBuilder MapEndpoint(this RouteGroupBuilder group)
         {
-            return group.MapPut("/{id}/close", async (int id, IMediator mediator) =>
+            return group.MapPut("/{id}/complete", async (int id, IMediator mediator) =>
             {
                 var command = new CloseProjectCommand(id);
 
@@ -12,11 +12,11 @@ namespace backend.Features.TimeTrack.Projects.CloseProject
 
                 return Results.Ok(new
                 {
-                    Message = "Project closed successfully"
+                    Message = "Project completed successfully"
                 });
-            }).WithName("CloseProject").WithTags("Projects")
-            .WithSummary("Close project")
-            .WithDescription("Closes a project to prevent further work logging.")
+            }).WithName("CompleteProject").WithTags("Projects")
+            .WithSummary("Complete project")
+            .WithDescription("Completes a project to prevent further work logging.")
             .Produces(StatusCodes.Status200OK)
             .Produces<ApiResponse<string>>(StatusCodes.Status400BadRequest, contentType: "application/json")
             .Produces<ApiResponse<string>>(StatusCodes.Status404NotFound, contentType: "application/json")

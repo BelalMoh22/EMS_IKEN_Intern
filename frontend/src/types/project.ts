@@ -1,4 +1,4 @@
-export type ProjectStatus = "Open" | "Closed";
+export type ProjectStatus = "Open" | "Completed";
 
 export interface Project {
   id: number;
@@ -24,10 +24,10 @@ export interface UpdateProjectRequest {
 // ─── Project status enum mapping ──────────────────────────
 export const PROJECT_STATUS_ENUM_MAP: Record<ProjectStatus, number> = {
   Open: 1,
-  Closed: 2,
+  Completed: 2,
 } as const;  // Converts Frontend(string) → Backend(Enum) -> Sending Data
 
 export const PROJECT_STATUS_FROM_NUMBER: Record<number, ProjectStatus> = {
   1: "Open",
-  2: "Closed",
+  2: "Completed",
 }; // Converts Backend(Enum) → Frontend(string) -> Displaying Data

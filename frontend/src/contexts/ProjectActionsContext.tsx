@@ -6,7 +6,7 @@ export interface ProjectActions {
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
   onReopen: (project: Project) => void;
-  onClose: (project: Project) => void;
+  onComplete: (project: Project) => void;
   onCardClick: (project: Project) => void;
 }
 

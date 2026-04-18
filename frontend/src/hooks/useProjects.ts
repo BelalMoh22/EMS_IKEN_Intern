@@ -58,10 +58,10 @@ export function useReopenProject() {
   });
 }
 
-export function useCloseProject() {
+export function useCompleteProject() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => projectApi.close(id),
+    mutationFn: (id: number) => projectApi.complete(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["projects"] });
     },

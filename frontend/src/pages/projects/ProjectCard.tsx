@@ -26,7 +26,7 @@ interface Props {
 
 export function ProjectCard({ project }: Props) {
   const theme = useTheme();
-  const { onEdit, onDelete, onReopen, onClose, onCardClick } =
+  const { onEdit, onDelete, onReopen, onComplete, onCardClick } =
     useProjectActions();
   const meta = STATUS_META[project.status];
 
@@ -153,10 +153,10 @@ export function ProjectCard({ project }: Props) {
               </IconButton>
             </Tooltip>
             {project.status === "Open" && (
-              <Tooltip title="Close Project">
+              <Tooltip title="Complete Project">
                 <IconButton
                   size="small"
-                  onClick={() => onClose(project)}
+                  onClick={() => onComplete(project)}
                   sx={{
                     color: theme.palette.info.main,
                     "&:hover": { bgcolor: "rgba(34,197,94,0.08)" },
@@ -166,7 +166,7 @@ export function ProjectCard({ project }: Props) {
                 </IconButton>
               </Tooltip>
             )}
-            {project.status === "Closed" && (
+            {project.status === "Completed" && (
               <Tooltip title="Reopen">
                 <IconButton
                   size="small"

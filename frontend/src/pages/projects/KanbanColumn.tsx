@@ -8,7 +8,7 @@ import { ProjectCard } from "./ProjectCard";
 import { STATUS_META } from "../../utils/projectUtils";
 import type { Project } from "@/types/project";
 
-export type DashboardColumnType = "Open" | "Logged" | "Closed";
+export type DashboardColumnType = "Open" | "Logged" | "Completed";
 
 // ─── Constants ────────────────────────────────────────────
 const ITEMS_PER_COLUMN = 5;
@@ -16,7 +16,7 @@ const ITEMS_PER_COLUMN = 5;
 const COLUMN_ICON: Record<DashboardColumnType, React.ReactNode> = {
   Open: <FolderOpenIcon fontSize="small" />,
   Logged: <PlayArrowIcon fontSize="small" />,
-  Closed: <ArchiveIcon fontSize="small" />,
+  Completed: <ArchiveIcon fontSize="small" />,
 };
 
 // ─── Props ───────────────────────────────────────────────
@@ -31,7 +31,7 @@ export function KanbanColumn({ status, projects }: Props) {
   const labelMap: Record<DashboardColumnType, string> = {
     Open: "Open (No Logs)",
     Logged: "Active (Logged)",
-    Closed: "Closed",
+    Completed: "Completed",
   };
 
   const [page, setPage] = useState(1);
@@ -50,7 +50,7 @@ export function KanbanColumn({ status, projects }: Props) {
   const headerColors: Record<DashboardColumnType, string> = {
     Open: theme.palette.info?.main ?? theme.palette.primary.main,
     Logged: theme.palette.success?.main ?? theme.palette.primary.main,
-    Closed: theme.palette.text.secondary,
+    Completed: theme.palette.text.secondary,
   };
 
   return (

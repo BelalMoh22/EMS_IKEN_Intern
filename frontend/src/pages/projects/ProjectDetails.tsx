@@ -44,7 +44,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import PersonIcon from "@mui/icons-material/Person";
 
 import { format } from "date-fns";
-import { useProject, useDeleteProject, useReopenProject, useCloseProject } from "@/hooks/useProjects";
+import { useProject, useDeleteProject, useReopenProject, useCompleteProject } from "@/hooks/useProjects";
 import { useProjectEmployees, useEmployeeReport } from "@/hooks/useWorkLogs";
 import { STATUS_META, formatDate } from "../../utils/projectUtils";
 import { ProjectFormDialog } from "./ProjectFormDialog";
@@ -61,7 +61,7 @@ export default function ProjectDetails() {
   const { data: project, isLoading, error } = useProject(projectId);
   const deleteMutation = useDeleteProject();
   const reopenMutation = useReopenProject();
-  const closeMutation = useCloseProject();
+  const closeMutation = useCompleteProject();
   const { enqueueSnackbar } = useSnackbar();
 
   const [formOpen, setFormOpen] = useState(false);
@@ -114,13 +114,13 @@ export default function ProjectDetails() {
     });
   };
 
-  const handleClose = () => {
+  const handleComplete = () => {
     closeMutation.mutate(project.id, {
       onSuccess: () => {
-        enqueueSnackbar("Project closed successfully", { variant: "success" });
+        enqueueSnackbar("Project completed successfully", { variant: "success" });
       },
       onError: (err) => {
-        enqueueSnackbar(extractErrorMessage(err, "Failed to close project"), { variant: "error" });
+        enqueueSnackbar(extractErrorMessage(err, "Failed to complete project"), { variant: "error" });
       }
     });
   };
@@ -219,9 +219,9 @@ export default function ProjectDetails() {
                     startIcon={<CheckCircleIcon />}
                     fullWidth
                     disabled={closeMutation.isPending}
-                    onClick={handleClose}
+                    onClick={handleComplete}
                   >
-                    Close Project
+                    Complete Project
                   </Button>
                 ) : (
                   <Button

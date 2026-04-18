@@ -22,24 +22,22 @@ import { useTheme } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import AssignmentIcon from "@mui/icons-material/Assignment";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ArchiveIcon from "@mui/icons-material/Archive";
 
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { useProjects, useDeleteProject, useReopenProject, useCloseProject } from "@/hooks/useProjects";
-import type { Project, ProjectStatus } from "@/types/project";
+import { useProjects, useDeleteProject, useReopenProject, useCompleteProject } from "@/hooks/useProjects";
+import type { Project, ProjectStatus, DashboardColumnType } from "@/types/project";
 import { SummaryCard } from "./SummaryCard";
-import { KanbanColumn, type DashboardColumnType } from "./KanbanColumn";
+import { KanbanColumn } from "./KanbanColumn";
 import { ProjectFormDialog } from "./ProjectFormDialog";
 import { ProjectActionsProvider } from "../../contexts/ProjectActionsContext";
-import { STATUS_META } from "../../utils/projectUtils";
 import { useProjectsSummary } from "@/hooks/useWorkLogs";
 import { useSnackbar } from "notistack";
 import { extractErrorMessage } from "@/utils/handleApiErrors";
 
 // ─── Constants ───────────────────────────────────────────
-const DASHBOARD_COLUMNS: DashboardColumnType[] = ["Open", "Logged", "Closed"];
+const DASHBOARD_COLUMNS: DashboardColumnType[] = ["Open", "Logged", "Completed"];
 type SortOption = "newest" | "oldest" | "name_asc" | "name_desc";
 
 // ─── Page ────────────────────────────────────────────────
@@ -65,7 +63,7 @@ export default function ProjectsDashboard() {
 
   const deleteMutation = useDeleteProject();
   const reopenMutation = useReopenProject();
-  const closeMutation = useCloseProject();
+  const closeMutation = useCompleteProject();
   const { enqueueSnackbar } = useSnackbar();
 
   // ── Dialog State ──
@@ -79,14 +77,14 @@ export default function ProjectsDashboard() {
   const stats = useMemo(() => {
     let openCount = 0;
     let loggedCount = 0;
-    let closedCount = 0;
+    let completedCount = 0;
     
     projects.forEach((p) => {
       const summary = projectSummaries.find(s => s.projectId === p.id);
       const hours = summary ? summary.totalHours : 0;
       
-      if (p.status === "Closed") {
-        closedCount++;
+      if (p.status === "Completed") {
+        completedCount++;
       } else if (hours > 0) {
         loggedCount++;
       } else {
@@ -94,13 +92,16 @@ export default function ProjectsDashboard() {
       }
     });
 
-    return { Open: openCount, Logged: loggedCount, Closed: closedCount };
+    return { Open: openCount, Logged: loggedCount, Completed: completedCount };
   }, [projects, projectSummaries]);
 
   // ── Columns to display based on status filter ──
   const visibleColumns = useMemo(() => {
     if (statusFilter === "All") return DASHBOARD_COLUMNS;
-    return [statusFilter] as DashboardColumnType[];
+    if (statusFilter === "Logged" || statusFilter === "Open" || statusFilter === "Completed") {
+      return [statusFilter] as DashboardColumnType[];
+    }
+    return DASHBOARD_COLUMNS;
   }, [statusFilter]);
 
   // ── Filtered + sorted list ──
@@ -129,7 +130,7 @@ export default function ProjectsDashboard() {
           return (summary?.totalHours ?? 0) === 0;
         });
       } else {
-        list = list.filter((p) => p.status === statusFilter);
+        list = list.filter((p) => p.status === "Completed");
       }
     }
 
@@ -149,7 +150,7 @@ export default function ProjectsDashboard() {
     }
 
     return list;
-  }, [projects, search, statusFilter, sort]);
+  }, [projects, search, statusFilter, sort, projectSummaries]);
 
   // ── Group by status ──
   const grouped = useMemo(() => {
@@ -165,12 +166,12 @@ export default function ProjectsDashboard() {
           acc[col] = augmentedFiltered.filter((p) => p.status === "Open" && (p.totalHours ?? 0) > 0);
         } else if (col === "Open") {
           acc[col] = augmentedFiltered.filter((p) => p.status === "Open" && (p.totalHours ?? 0) === 0);
-        } else if (col === "Closed") {
-          acc[col] = augmentedFiltered.filter((p) => p.status === "Closed");
+        } else if (col === "Completed") {
+          acc[col] = augmentedFiltered.filter((p) => p.status === "Completed");
         }
         return acc;
       },
-      { Open: [], Logged: [], Closed: [] }
+      { Open: [], Logged: [], Completed: [] }
     );
   }, [filtered, projectSummaries]);
 
@@ -227,10 +228,10 @@ export default function ProjectsDashboard() {
       closeMutation.mutate(closeTarget.id, {
         onSuccess: () => {
           setCloseTarget(null);
-          enqueueSnackbar("Project closed successfully", { variant: "success" });
+          enqueueSnackbar("Project completed successfully", { variant: "success" });
         },
         onError: (error) => {
-          enqueueSnackbar(extractErrorMessage(error, "Failed to close project"), { variant: "error" });
+          enqueueSnackbar(extractErrorMessage(error, "Failed to complete project"), { variant: "error" });
         },
       });
     }
@@ -268,8 +269,8 @@ export default function ProjectsDashboard() {
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <SummaryCard
-            label="Closed"
-            count={stats.Closed}
+            label="Completed"
+            count={stats.Completed}
             icon={<ArchiveIcon />}
             bgAlpha="rgba(100,116,139,0.10)"
             iconColor={theme.palette.text.secondary}
@@ -307,7 +308,7 @@ export default function ProjectsDashboard() {
             <MenuItem value="All">All Statuses</MenuItem>
             <MenuItem value="Open">Open (No Logs)</MenuItem>
             <MenuItem value="Logged">Active (Logged)</MenuItem>
-            <MenuItem value="Closed">Closed</MenuItem>
+            <MenuItem value="Completed">Completed</MenuItem>
           </Select>
         </FormControl>
 
@@ -374,7 +375,7 @@ export default function ProjectsDashboard() {
             onEdit: handleOpenEdit,
             onDelete: (p) => setDeleteTarget(p),
             onReopen: (p) => setReopenTarget(p),
-            onClose: (p) => setCloseTarget(p),
+            onComplete: (p) => setCloseTarget(p),
             onCardClick: (p) => navigate(`/worklogs/projects/${p.id}/employees`),
           }}
         >
@@ -390,8 +391,6 @@ export default function ProjectsDashboard() {
           </Grid>
         </ProjectActionsProvider>
       )}
-
-
 
       {/* ── FAB ── */}
       <Fab
@@ -444,18 +443,18 @@ export default function ProjectsDashboard() {
         </DialogActions>
       </Dialog>
 
-      {/* ── Close Confirm ── */}
+      {/* ── Complete Confirm ── */}
       <Dialog open={closeTarget !== null} onClose={() => setCloseTarget(null)} maxWidth="xs" fullWidth>
-        <DialogTitle>Close Project</DialogTitle>
+        <DialogTitle>Complete Project</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary">
-            Are you sure you want to close "{closeTarget?.name}"? It will be moved to the Closed column.
+            Are you sure you want to complete "{closeTarget?.name}"? It will be moved to the Completed column.
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setCloseTarget(null)} disabled={closeMutation.isPending}>Cancel</Button>
           <Button onClick={handleClose} variant="contained" color="info" disabled={closeMutation.isPending}>
-            {closeMutation.isPending ? <CircularProgress size={18} color="inherit" /> : "Close Project"}
+            {closeMutation.isPending ? <CircularProgress size={18} color="inherit" /> : "Complete Project"}
           </Button>
         </DialogActions>
       </Dialog>

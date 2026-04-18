@@ -38,6 +38,6 @@ export const projectApi = {
   reopen: (id: number) =>
     api.put<ApiResponse<void>>(`/projects/${id}/reopen`).then((r) => r.data),
 
-  close: (id: number) =>
-    api.put<ApiResponse<void>>(`/projects/${id}/close`).then((r) => r.data),
+  complete: (id: number) =>
+    api.put<ApiResponse<void>>(`/projects/${id}/complete`).then((r) => r.data),
 };

@@ -10,7 +10,7 @@ namespace backend.Infrastructure.BusinessRules.Projects
 
         Task ValidateForDeleteAsync(Project project);
 
-        Task ValidateForCloseAsync(Project project);
+        Task ValidateForCompleteAsync(Project project);
 
         Task ValidateForReopenAsync(Project project);
 

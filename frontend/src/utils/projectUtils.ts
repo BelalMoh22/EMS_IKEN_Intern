@@ -13,8 +13,8 @@ export const STATUS_META: Record<
     color: "info",
     bgAlpha: "rgba(59,130,246,0.1)",
   },
-  Closed: {
-    label: "Closed",
+  Completed: {
+    label: "Completed",
     color: "default",
     bgAlpha: "rgba(100,116,139,0.1)",
   },

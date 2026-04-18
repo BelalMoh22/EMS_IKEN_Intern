@@ -1,16 +1,22 @@
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek } from "date-fns";
 import type { MonthlyWorkLogDTO } from "@/types/worklog";
 
+/** Returns true for working days (Sunday=0 through Thursday=4). Friday(5) and Saturday(6) are holidays. */
+export const isWorkingDay = (date: Date) => {
+  const day = date.getDay();
+  return day >= 0 && day <= 4; // Sun-Thu
+};
+
 export const getDaysInMonth = (date: Date) => {
   const start = startOfMonth(date);
   const end = endOfMonth(date);
-  return eachDayOfInterval({ start, end });
+  return eachDayOfInterval({ start, end }).filter(isWorkingDay);
 };
 
 export const getDaysInWeek = (date: Date) => {
   const start = startOfWeek(date, { weekStartsOn: 0 });
   const end = endOfWeek(date, { weekStartsOn: 0 });
-  return eachDayOfInterval({ start, end });
+  return eachDayOfInterval({ start, end }).filter(isWorkingDay);
 };
 
 export const formatCellDate = (date: Date) => format(date, "yyyy-MM-dd");
@@ -52,14 +58,7 @@ export const calculateTotals = (
 };
 
 export const calculateTargetHours = (days: Date[], hoursPerDay: number = 8) => {
-  return days.reduce((acc, day) => {
-    const dayOfWeek = day.getDay(); // 0 = Sunday, 1 = Monday, ..., 5 = Friday, 6 = Saturday
-    // Work week is Sunday (0) to Thursday (4)
-    const isWorkDay = dayOfWeek >= 0 && dayOfWeek <= 4;
-    
-    if (isWorkDay) {
-      return acc + hoursPerDay;
-    }
-    return acc;
-  }, 0);
+  // Since days are already filtered to exclude Fri/Sat holidays,
+  // every day in the array is a working day.
+  return days.length * hoursPerDay;
 };

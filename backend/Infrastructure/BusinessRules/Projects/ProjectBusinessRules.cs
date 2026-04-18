@@ -90,9 +90,9 @@ namespace backend.Infrastructure.BusinessRules.Projects
         }
 
         // =========================
-        // CLOSE
+        // COMPLETE
         // =========================
-        public async Task ValidateForCloseAsync(Project project)
+        public async Task ValidateForCompleteAsync(Project project)
         {
             var errors = new Dictionary<string, List<string>>();
 
@@ -100,7 +100,7 @@ namespace backend.Infrastructure.BusinessRules.Projects
                 AddError(errors, "project", "Project is deleted.");
 
             if (project.Status != ProjectStatus.Open)
-                AddError(errors, "status", "Only active projects can be closed.");
+                AddError(errors, "status", "Only active projects can be completed.");
 
             var totalHours = await _projectRepository.GetTotalHoursAsync(project.Id);
 
@@ -120,8 +120,8 @@ namespace backend.Infrastructure.BusinessRules.Projects
             if (project.IsDeleted)
                 AddError(errors, "project", "Project is deleted.");
 
-            if (project.Status != ProjectStatus.Closed)
-                AddError(errors, "status", "Only closed projects can be reopened.");
+            if (project.Status != ProjectStatus.Completed)
+                AddError(errors, "status", "Only completed projects can be reopened.");
 
             ThrowIfAny(errors);
         }

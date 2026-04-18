@@ -38,7 +38,7 @@ namespace backend.Domain.Models
             if (status.HasValue)
             {
                 Status = status.Value;
-                if (status.Value == ProjectStatus.Closed)
+                if (status.Value == ProjectStatus.Completed)
                 {
                     ClosedAt = DateTime.UtcNow;
                 }
@@ -49,10 +49,10 @@ namespace backend.Domain.Models
             }
         }
 
-        public void Close()
+        public void Complete()
         {
-            if (Status == ProjectStatus.Closed) return;
-            Status = ProjectStatus.Closed;
+            if (Status == ProjectStatus.Completed) return;
+            Status = ProjectStatus.Completed;
             ClosedAt = DateTime.UtcNow;
         }
 
